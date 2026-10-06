@@ -579,11 +579,11 @@ function viewConfig() {
     <h2>Pontos e segurança</h2>
     <div class="row-btns"><button class="btn soft" data-action="bonus">Dar ou tirar pontos</button>
       <button class="btn soft" data-action="change-pin">Trocar PIN</button>
-      ${mode === 'local' ? `<button class="btn soft" data-action="export">Baixar backup</button>
-      <button class="btn soft" data-action="import">Restaurar backup</button>` : ''}
+      <button class="btn soft" data-action="export">Baixar backup</button>
+      <button class="btn soft" data-action="import">Restaurar backup</button>
       <button class="btn danger" data-action="reset-points">Zerar pontos</button>
       <button class="btn ghost" data-action="lock">${ui('cadeado')} Travar</button></div>
-    <p class="legend">${mode === 'db' ? 'Os dados ficam salvos na página e aparecem em todos os aparelhos. Para o Bruno editar pelo celular, compartilhe a página com ele como Editor.' : 'Os dados ficam salvos neste aparelho. Baixe um backup de vez em quando.'}</p>
+    <p class="legend">${mode === 'db' ? 'Os dados ficam salvos na página e aparecem em todos os aparelhos. Para o Bruno editar pelo celular, compartilhe a página com ele como Editor. Baixe um backup de vez em quando (ex.: uma vez por mês) para ter uma cópia guardada.' : 'Os dados ficam salvos neste aparelho. Baixe um backup de vez em quando.'}</p>
   </section>`;
 }
 function daysLabel(days) {
@@ -1147,12 +1147,32 @@ function complete(k, t, mid) {
   render();
 }
 
-function exportData() {
+// Backup: um arquivo com todos os dados (tarefas, dias, lembretes, receitas, cardápios, pontos).
+async function exportData() {
+  const filename = `familia-backup-${today()}.json`, data = JSON.stringify(S, null, 2);
+  if (window.claude?.use) {
+    // Dentro do claude.ai a página não pode baixar sozinha: o Claude pede para você confirmar o arquivo.
+    const dl = await window.claude.use('downloads').catch(() => null);
+    if (!dl) return toast('Não foi possível baixar o backup aqui.');
+    try { await dl.save({ filename, data }); toast('Backup salvo'); }
+    catch (e) { if (e?.code === 'rate_limited') toast('Já tem um pedido de download aberto'); else if (e?.code !== 'declined') toast('Não foi possível baixar o backup.'); }
+    return;
+  }
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' }));
-  a.download = `familia-backup-${today()}.json`;
+  a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
+  a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+// Restaurar: grava de volta cada parte (na página, documento por documento).
+function restoreData(data) {
+  S = { ...S, ...data };
+  if (mode !== 'db') return saveLocal();
+  saveConfig();
+  Object.keys(S.days || {}).forEach(saveDay);
+  Object.keys(S.ledger || {}).forEach(saveLedger);
+  put('meta/archive', S.archive || { points: {}, through: '' });
+  COLLECTIONS.forEach(col => Object.keys(S[col] || {}).forEach(id => saveItem(col, id)));
 }
 $('#importFile').addEventListener('change', async e => {
   const file = e.target.files[0];
@@ -1161,7 +1181,7 @@ $('#importFile').addEventListener('change', async e => {
   try {
     const data = JSON.parse(await file.text());
     if (!data.config?.members) throw new Error();
-    askConfirm('Substituir todos os dados atuais por este backup?', () => { S = { ...S, ...data }; saveLocal(); render(); toast('Backup restaurado'); }, 'Substituir');
+    askConfirm('Restaurar este backup? Os dados que estão nele substituem os atuais.', () => { restoreData(data); render(); toast('Backup restaurado'); }, 'Restaurar');
   } catch { toast('Arquivo de backup inválido'); }
 });
 
