@@ -308,8 +308,8 @@ function tileRow(k, t, mid) {
   const extra = t.skip ? `Não precisa${t.dayNote ? ': ' + esc(t.dayNote) : ''}` : t.dayNote ? esc(t.dayNote) : t.passed ? `repassada para ${names(t.memberIds)}` : '';
   return `<button class="tile ${v ? 'done' : ''} ${v?.pending ? 'pending' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
     ${icon(t.icon)}${mark}${editMode ? `<span class="tile-mark edit">${ui('lapis')}</span>` : ''}
-    <span class="tile-title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
-    ${extra ? `<span class="tile-note">${extra}</span>` : ''}
+    <span class="tile-text"><span class="tile-title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
+    ${extra ? `<span class="tile-note">${extra}</span>` : ''}</span>
   </button>`;
 }
 function taskList(k, tasks, mid, big) {

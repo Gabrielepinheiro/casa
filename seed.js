@@ -16,9 +16,9 @@ function familySeed() {
     ['Acordar', 't_acordar', 5], ['Ir ao banheiro', 't_banheiro', 5], ['Lavar o rosto', 't_rosto', 5], ['Escovar os dentes', 't_dentes', 5],
     ['Se trocar', 't_trocar', 10], ['Pentear o cabelo', 't_pentear', 5], ['Arrumar a cama', 't_cama', 10],
     ['Tomar café da manhã', 't_cafe', 5], ['Levar o que usou para a pia', 't_pia', 5]]);
-  add({ period: 'manha', who: kids, days: WEEK }, [['Colocar o casaco', 't_casaco', 5], ['Pegar a mochila e sair', 't_mochila', 5]]);
+  add({ period: 'manha', who: kids, days: WEEK }, [['Colocar o casaco', 't_casaco', 5]]);
   add({ time: '07:55', who: [a], days: [2], alert: true }, [['Escola às 08:00 em ponto', 't_escola', 10, 'Atividade extra de terça · chegar 5 min antes']]);
-  add({ period: 'tarde', time: '16:00', who: kids, days: WEEK }, [['Tirar casaco e sapatos e guardar', 't_sapato', 5]]);
+  add({ period: 'tarde', time: '16:00', who: kids, days: WEEK }, [['Tirar casaco e sapatos e guardar', 't_guardar_casaco', 5]]);
   add({ period: 'tarde', who: kids, days: WEEK }, [['Lavar as mãos', 't_maos', 5], ['Lancheira na pia', 't_lancheira', 5], ['Comer um lanche', 't_lanche', 5]]);
   add({ time: '16:30', who: [a], days: [4], alert: true }, [['Futebol', 't_futebol', 10]]);
   add({ period: 'noite', time: '17:40', who: kids }, [['Arrumar os brinquedos', 't_brinquedos', 10]]);
