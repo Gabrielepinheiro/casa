@@ -159,6 +159,8 @@ function maintenance() {
 // ---------- Consultas ----------
 let tab = 'hoje', viewDay = today(), lastDay = today();
 let unlocked = false, editMode = false, lastActivity = Date.now();
+let houseOpen = false;
+try { houseOpen = localStorage.getItem(KEY + '-casa-aberta') === '1'; } catch (e) { /* sem armazenamento */ }
 let weekFrom = mondayOf(today()), weekWho = 'resumo', showPast = false, cfgWho = 'todos', cfgDay = 'todos';
 
 const C = () => S.config;
@@ -383,13 +385,20 @@ function viewDayScreen() {
   const house = houseSort(houseOn(k, editMode));
   const houseReal = house.filter(t => !t.skip);
   const houseDone = houseReal.filter(t => doneOf(k, t)).length;
-  const houseCol = `<section class="col house-col">
+  // A coluna da casa pode ficar recolhida (as crianças também usam o tablet). Cada aparelho lembra a escolha.
+  const blocks = PERIODS.map(([p, label]) => {
+    const l = houseReal.filter(t => (t.period || 'livre') === p);
+    return l.length ? `<span>${label} <b>${l.filter(t => doneOf(k, t)).length}/${l.length}</b></span>` : '';
+  }).join('');
+  const houseCol = `<section class="col house-col ${houseOpen ? '' : 'closed'}">
       <header class="col-head"><span class="avatar house">${ui('casa')}</span>
-        <div><h2>Casa</h2><small>${houseDone} de ${houseReal.length} feitas${minutesOf(houseReal) ? ` · ~${fmtMin(minutesOf(houseReal))} no dia, faltam ~${fmtMin(minutesOf(houseReal.filter(t => !doneOf(k, t))))}` : ''}</small></div>
-        <button class="btn soft small" data-action="tab" data-tab="casa">Semana</button></header>
+        <div><h2>Casa</h2><small>${houseDone} de ${houseReal.length} feitas${minutesOf(houseReal) ? ` · faltam ~${fmtMin(minutesOf(houseReal.filter(t => !doneOf(k, t))))}` : ''}</small></div>
+        <button class="btn soft small" data-action="toggle-house" aria-expanded="${houseOpen}">${houseOpen ? 'Recolher' : 'Abrir'}</button></header>
       ${progress(houseDone, houseReal.length, 'var(--accent)')}
-      ${house.length ? houseList(k, house) : '<p class="muted pad">Nada da casa neste dia.</p>'}
-      ${skippedList(houseOn(k, true))}
+      ${houseOpen ? `${house.length ? houseList(k, house) : '<p class="muted pad">Nada da casa neste dia.</p>'}
+        ${skippedList(houseOn(k, true))}
+        <button class="btn ghost small full" data-action="tab" data-tab="casa">Ver a semana da casa</button>`
+      : `<div class="house-blocks">${blocks}</div>`}
     </section>`;
 
   const cols = members().map(m => {
@@ -414,7 +423,7 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(280px, 1.3fr) ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: ${houseOpen ? 'minmax(280px, 1.3fr)' : 'minmax(170px, .6fr)'} ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
 }
 
 // ---------- Casa: panorama da semana ----------
@@ -557,31 +566,31 @@ function viewAgenda() {
       ${showPast ? `<section class="card"><ul>${past.sort((a, b) => b.date.localeCompare(a.date)).map(a => agendaItem(a, true)).join('')}</ul></section>` : ''}` : ''}`;
 }
 
-function viewScore() {
+// Aba Pontos, de cima para baixo: ranking, prêmios, trocas feitas e (fechadas) as últimas atividades.
+function logRow(e) {
+  const m = member(e.memberId);
+  const when = new Date(e.t).toLocaleString('pt-BR', { weekday: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return `<li>${avatar(m, 'mini')}<span class="log-text">${esc(e.label)}<small>${esc(m?.name || '')} · ${when}</small></span><span class="p ${e.points < 0 ? 'neg' : ''}">${e.points > 0 ? '+' : ''}${e.points}</span></li>`;
+}
+function viewRewards() {
   const ws = mondayOf(today()), we = addDays(ws, 7);
   const ranked = members().map(m => ({ m, w: pointsBetween(m.id, ws, we), b: balance(m.id) })).sort((a, b) => b.w - a.w);
-  const rows = ranked.map((r, i) => `<div class="rank"><span class="pos">${i + 1}</span>${avatar(r.m)}
-      <span class="name">${esc(r.m.name)}</span><span class="rank-pts"><b>${r.w}</b><small>na semana · saldo ${r.b}</small></span></div>`).join('');
-  const recent = [...doneEntries(), ...ledgerEntries()].sort((a, b) => b.t - a.t).slice(0, 25).map(e => {
-    const m = member(e.memberId);
-    const when = new Date(e.t).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
-    return `<li><time>${when}</time>${avatar(m, 'mini')}<span>${esc(e.label)}</span><span class="p ${e.points < 0 ? 'neg' : ''}">${e.points > 0 ? '+' : ''}${e.points}</span></li>`;
-  }).join('');
-  return `<div class="two">
-    <section class="card"><h2>Ranking da semana</h2>${rows}</section>
-    <section class="card"><h2>Últimas atividades</h2>${recent ? `<ul class="log">${recent}</ul>` : '<p class="muted">Nenhuma atividade ainda.</p>'}</section>
-  </div>`;
-}
-
-function viewRewards() {
+  const ranking = `<section class="card"><h2>Ranking da semana</h2>${ranked.map((r, i) => `<div class="rank"><span class="pos">${i + 1}</span>${avatar(r.m)}
+      <span class="name">${esc(r.m.name)}</span><span class="rank-pts"><b>${r.w}</b><small>na semana · saldo ${r.b}</small></span></div>`).join('')}</section>`;
   const list = C().rewards || [];
-  if (!list.length) return viewScore() + `<div class="empty-page">${tucano('big')}<p>Nenhum prêmio cadastrado. Adicione em Ajustes.</p></div>`;
   const best = Math.max(0, ...members().map(m => balance(m.id)));
-  return viewScore() + `<div class="section-head page-title"><h2>Prêmios</h2></div><div class="rewards">${list.map(r => `<section class="card reward">
+  const rewards = `<section class="card"><h2>Prêmios</h2>${list.length ? `<div class="rewards">${list.map(r => `<div class="reward">
       ${icon(r.icon, 'lg')}<div class="title">${esc(r.title)}</div><span class="pill">${star()}${r.cost}</span>
       <button class="btn primary" data-action="redeem" data-id="${r.id}" ${best < r.cost ? 'disabled' : ''}>Trocar pontos</button>
-    </section>`).join('')}</div>`;
+    </div>`).join('')}</div>` : '<p class="muted">Nenhum prêmio cadastrado. Adicione em Ajustes.</p>'}</section>`;
+  const trades = ledgerEntries().filter(e => e.type === 'reward').sort((a, b) => b.t - a.t).slice(0, 20);
+  const tradesCard = `<section class="card"><h2>Trocas feitas</h2>${trades.length ? `<ul class="log">${trades.map(logRow).join('')}</ul>` : '<p class="muted">Ninguém trocou pontos ainda.</p>'}</section>`;
+  const recent = [...doneEntries(), ...ledgerEntries()].sort((a, b) => b.t - a.t).slice(0, 30);
+  const activity = `<details class="card fold"><summary><h2>Últimas atividades</h2><span class="muted">${ui('avancar')}</span></summary>
+    ${recent.length ? `<ul class="log">${recent.map(logRow).join('')}</ul>` : '<p class="muted">Nenhuma atividade ainda.</p>'}</details>`;
+  return ranking + rewards + tradesCard + activity;
 }
+const viewScore = viewRewards;
 
 function viewConfig() {
   if (!unlocked) return `<div class="empty-page">${tucano('big')}<p>Área dos pais: pessoas, tarefas e prêmios.</p>
@@ -1444,6 +1453,11 @@ const actions = {
     renderTimer();
   },
   'timer-stop': () => { timer = null; clearInterval(timerTick); wakeLock?.release?.().catch(() => {}); wakeLock = null; renderTimer(); },
+  'toggle-house': () => {
+    houseOpen = !houseOpen;
+    try { localStorage.setItem(KEY + '-casa-aberta', houseOpen ? '1' : '0'); } catch (e) { /* sem armazenamento */ }
+    render();
+  },
   'new-priority': () => editPriority(),
   'edit-priority': el => editPriority(el.dataset.id),
   'toggle-priority': el => {

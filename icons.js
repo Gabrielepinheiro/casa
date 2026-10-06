@@ -92,6 +92,11 @@ function icon(key, cls = '') {
 // Figuras das crianças: um objeto grande e claro por cartão (viewBox 0 0 100 100).
 const KID_INK = '#3d4260';
 const kidG = (inner, sw = 3) => `<g stroke="${KID_INK}" stroke-width="${sw}" stroke-linejoin="round" stroke-linecap="round">${inner}</g>`;
+const kidHand = (x, y, rot, fill, flip) => `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${flip ? -1 : 1} 1)">
+  <path d="M-11 30V-12a11 11 0 0122 0v42z" fill="${fill}"/>
+  <path d="M11 2c6-6 13-4 12 3l-12 13" fill="${fill}"/>
+  <path d="M-4 -20v12M4 -20v12" stroke-width="2.2"/>
+  <path d="M-14 30h28v8h-28z" fill="#7aa7e8"/></g>`;
 const kidBg = (c, inner) => `<rect x="2" y="2" width="96" height="96" rx="22" fill="${c}"/>${kidG(inner)}`;
 const SCENES = {
   t_acordar: kidBg('#fff3c4', `<path d="M24 24l10 8M76 24l-10 8" stroke-width="6"/><circle cx="50" cy="54" r="30" fill="#ef6f6c"/><circle cx="50" cy="54" r="23" fill="#fff"/><path d="M50 38v16l10 7" stroke-width="4"/><path d="M30 84l-5 8M70 84l5 8" stroke-width="4"/><circle cx="50" cy="54" r="2.5" fill="${KID_INK}"/>`),
@@ -109,7 +114,9 @@ const SCENES = {
   t_escola: kidBg('#fff3c4', `<path d="M8 44l42-26 42 26" fill="#ef6f6c"/><path d="M14 44h72v46H14z" fill="#f7d79a"/><path d="M40 90V66h20v24" fill="#b98560"/><path d="M22 52h12v12H22zM66 52h12v12H66z" fill="#bfe6ff"/><path d="M50 18V4" stroke-width="3"/><path d="M50 4h16v9H50" fill="#7aa7e8"/>`),
   t_guardar_casaco: kidBg('#e3efff', `<rect x="14" y="8" width="72" height="86" rx="6" fill="#c99a6b"/><rect x="21" y="15" width="58" height="72" rx="3" fill="#fff8ec"/><path d="M21 24h58" stroke-width="3.5"/><path d="M50 24v5M40 34l10-5 10 5"/><path d="M38 34h24l6 6-3 28H35l-3-28z" fill="#e0692b"/><path d="M50 34v34"/><path d="M42 34l8 8 8-8" fill="#f0a35e"/><path d="M21 72h58" stroke-width="3.5"/><path d="M26 86v-8h8l4 4c4 1 6 2 7 4z" fill="#ef6f6c"/><path d="M52 86v-8h8l4 4c4 1 6 2 7 4z" fill="#7aa7e8"/>`),
   t_sapato: kidBg('#e3efff', `<path d="M8 50V34h18l8 10c12 2 26 4 34 10 6 4 4 12-2 12H8z" fill="#ef6f6c"/><path d="M8 66h60" stroke-width="4"/><path d="M28 40l5 5M35 42l4 4"/><path d="M30 80V66h16l7 8c10 2 22 3 30 8 5 3 4 10-2 10H30z" fill="#7aa7e8"/>`),
-  t_maos: kidBg('#dff3ff', `<path d="M22 92V58c0-4 6-4 6 0V44c0-4 6-4 6 0v-6c0-4 6-4 6 0v6c0-4 6-4 6 0v22l6-6c3-3 8 0 6 3l-12 22c-3 5-6 7-12 7z" fill="#f7cba8"/><path d="M78 92V58c0-4-6-4-6 0V44c0-4-6-4-6 0" fill="none" opacity="0"/><g fill="#fff" stroke="#9fd3f0" stroke-width="2.5"><circle cx="70" cy="30" r="10"/><circle cx="84" cy="52" r="7"/><circle cx="20" cy="26" r="7"/><circle cx="62" cy="62" r="5"/></g>`),
+  t_maos: kidBg('#dff3ff', `<path d="M50 8v8" /><path d="M42 6h18a3 3 0 013 3v2H42z" fill="#c7cede"/><path d="M50 20c-2 4-3 6-3 8a3 3 0 006 0c0-2-1-4-3-8z" fill="#5fb6f0" stroke-width="2"/>` +
+  kidHand(40, 56, -14, '#f7cba8', false) + kidHand(60, 56, 14, '#f2b893', true) +
+  `<g fill="#fff" stroke="#9fd3f0" stroke-width="2.5"><circle cx="50" cy="40" r="6"/><circle cx="22" cy="42" r="5"/><circle cx="80" cy="44" r="5"/><circle cx="30" cy="26" r="3.5"/><circle cx="72" cy="28" r="3.5"/><circle cx="50" cy="58" r="4"/></g>`),
   t_lancheira: kidBg('#efe9ff', `<path d="M6 56h88v8H6z" fill="#e9edf5"/><path d="M10 64h80v30H10z" fill="#c99a6b"/><path d="M50 64v30M28 74h8M64 74h8"/><path d="M48 56v-6h30v6" fill="#dfe8f7"/><path d="M58 50V30a8 8 0 0116 0v4" fill="none" stroke-width="4"/><rect x="12" y="34" width="34" height="22" rx="6" fill="#a891f0"/><path d="M12 44h34"/><path d="M22 34v-5h14v5" fill="none"/>`),
   t_lanche: kidBg('#fdeef2', `<path d="M34 30c-6-6-24-4-24 16 0 16 10 30 18 28 3-1 8-1 12 0 8 2 16-12 16-28 0-20-16-22-22-16z" fill="#ef6f6c"/><path d="M34 30c0-6 2-10 6-12"/><path d="M38 22c4-6 12-6 14-3-4 6-10 6-14 3z" fill="#6cc7a0" stroke-width="2.5"/><circle cx="70" cy="62" r="22" fill="#f7a23c"/><path d="M70 40v-4" /><path d="M70 38c4-5 10-4 12-1-4 4-9 4-12 1z" fill="#6cc7a0" stroke-width="2.5"/><g stroke="none" fill="#fff" opacity=".5"><circle cx="62" cy="54" r="2"/><circle cx="76" cy="66" r="2"/><circle cx="66" cy="72" r="2"/></g>`),
   t_futebol: kidBg('#e9f8f1', `<circle cx="50" cy="50" r="38" fill="#fff"/><path d="M50 32l14 10-5 16H41l-5-16z" fill="${KID_INK}"/><path d="M50 32V12M64 42l18-6M59 58l12 16M41 58l-12 16M36 42l-18-6"/>`),
