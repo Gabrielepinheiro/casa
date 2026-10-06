@@ -1,33 +1,26 @@
-# 🦜 Família Pinheiro Bernt Eymael
+# Família Pinheiro Bernt Eymael
 
-App para o tablet da família (Gabriele, Bruno, Arthur e Sophie): cada pessoa tem suas tarefas (rotina das crianças, tarefas da casa e pessoais), marca quando termina e ganha pontos ⭐ que podem ser trocados por prêmios. Visual inspirado nas cores do Nipto, com o nosso mascote: o **tucano** 🦜.
+Quadro da família para o tablet: a rotina do Arthur e da Sophie com figuras (para quem ainda não lê), a rotina da casa, lembretes, o controle da semana e os prêmios.
 
-Já vem com a **rotina semanal** da família cadastrada (seg a sex): rotina diária, blocos de alemão, academia, trabalho, a limpeza de cada dia (segunda: roupas/escritório, terça: cozinha/plantas, quarta: camas/armário, quinta: banheiros, sexta: compras/Keller/carro), o fechamento do dia e a rotina do Arthur (6) e da Sophie (2): manhã, chegada do Kindergarten às 16h e noite. Terça tem escola do Arthur às 08:00 em ponto e quinta tem futebol às 16:30.
+## Como funciona
 
-## O que tem
+- **Dia** – colunas lado a lado: **Casa**, Gabriele, Bruno, Arthur e Sophie.
+  - Crianças: cada tarefa tem uma figura. É só tocar para marcar.
+  - Casa: tarefas que a Gabriele ou o Bruno fazem. Ao tocar, o app pergunta **quem fez**; a tarefa aparece em “Fez na casa” na coluna de quem fez e os pontos vão para essa pessoa.
+  - ◀ ▶ muda o dia. **Editar** (PIN) permite, só para aquele dia: escrever uma nota, repassar para outra pessoa, marcar que não precisa ou mudar de dia.
+- **Agenda** – lembretes e compromissos (ex.: “amanhã não precisa levar lancheira”). O tucano mostra no topo o que tem hoje e amanhã.
+- **Semana** – o que foi feito em cada dia, por pessoa e na casa, mais as notas da semana.
+- **Placar** e **Prêmios** – pontos da semana e troca por prêmios (pede o PIN).
+- **Ajustes** (PIN, padrão **1234**) – pessoas (com foto), tarefas com figura, prêmios, pontos extras.
 
-- **Hoje** – um cartão por pessoa com as tarefas do dia, em ordem de horário e separadas por manhã / tarde / noite. É só tocar para marcar (e tocar de novo para desmarcar). Dá para filtrar por *Rotina*, *Casa*, *Pessoal* e por pessoa.
-- **🤝 Quem fizer primeiro** – tarefas que tanto a Gabriele quanto o Bruno podem fazer. Ao tocar, o app pergunta quem fez e os pontos vão para essa pessoa.
-- **🦜 O tucano avisa** – compromissos, lembretes e tarefas importantes do dia aparecem no topo, junto com o que tem amanhã.
-- **✏️ Editar (PIN)** – na tela do dia, toque numa tarefa para: colocar uma nota só daquele dia, repassar para outra pessoa, marcar que não precisa ou mudar para outro dia. Dá para navegar ◀ ▶ para planejar dias futuros e criar tarefas só para um dia.
-- **📅 Agenda** – compromissos (festa, consulta) e lembretes (ex.: “amanhã não precisa levar lancheira”) com data e horário.
-- **📊 Semana** – o que foi feito em cada dia da semana, por pessoa, com as notas da semana. Semanas anteriores ficam guardadas por 90 dias.
-- **🆘 Modo sobrevivência** – num dia que saiu do controle, mostra só o essencial (pia da cozinha, roupa essencial, 10 min de organização e os cuidados das crianças).
-- **Placar** – ranking da semana (começa na segunda) e histórico das últimas atividades.
-- **Prêmios** – troca de pontos por recompensas (pede o PIN dos pais).
-- **Ajustes** (protegido por PIN, padrão **1234**) – cadastrar pessoas, tarefas (pontos, dias da semana, período, quem faz), prêmios, dar/tirar pontos extras, trocar o PIN e fazer backup.
+## Onde ficam os dados
 
-Os dados ficam salvos **no próprio tablet** (no navegador). Use *Ajustes → Baixar backup* de vez em quando para não perder nada.
+- **Aberto pelo claude.ai** (link da página): os dados ficam salvos na própria página e aparecem em todos os aparelhos. Para o Bruno editar e colocar lembretes pelo celular, compartilhe a página com ele como **Editor**.
+- **Aberto como arquivo ou site próprio** (GitHub Pages, Netlify): os dados ficam só naquele aparelho; use *Ajustes → Baixar backup*.
 
-## Como colocar no tablet
+## Arquivos
 
-1. Publique esta pasta em algum endereço `https://`. O jeito mais simples:
-   - **GitHub Pages**: no repositório, *Settings → Pages → Branch: `main` / root → Save*. O app fica em `https://<usuario>.github.io/casa/`. (Em repositório privado, o Pages exige plano pago do GitHub.)
-   - ou **Netlify Drop** (https://app.netlify.com/drop): arraste a pasta com estes arquivos.
-2. Abra o endereço no navegador do tablet.
-3. Instale na tela inicial:
-   - **Android (Chrome)**: menu ⋮ → *Adicionar à tela inicial* / *Instalar app*.
-   - **iPad (Safari)**: botão compartilhar → *Adicionar à Tela de Início*.
-4. Opcional: para deixar o tablet "travado" no app, use *Fixar app* (Android) ou *Acesso Guiado* (iPad).
-
-Para testar no computador, basta abrir o `index.html` no navegador.
+- `index.html` – página e visual
+- `app.js` – funcionamento
+- `icons.js` – figuras das tarefas (desenhos próprios)
+- `seed.js` – rotina inicial da família

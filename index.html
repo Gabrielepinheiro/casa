@@ -10,248 +10,250 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
+<title>Família Pinheiro Bernt Eymael</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@400..900&display=swap" rel="stylesheet">
-<title>Família Pinheiro Bernt Eymael</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Quadro da família: colunas lado a lado (Casa + cada pessoa), visual claro como o Nipto. Tema único, claro. */
   :root {
-    /* Paleta inspirada no Nipto */
-    --bg: #f5f6fa; --card: #fff; --ink: #1b1d2e; --muted: #5e627a;
-    --primary: #7c5cf0; --primary-dark: #5b3cc4; --primary-soft: #f1ecff;
-    --ok: #178a63; --ok-dark: #127251; --mint: #52cfa0; --ok-soft: #e7f7ef;
-    --star: #e9a410; --star-soft: #fff1c7; --line: #e3e5ee; --danger: #a8303f;
-    --shadow: 0 6px 24px rgba(27, 29, 46, .06);
+    --bg: #f7f8fb; --card: #ffffff; --ink: #3d4260; --muted: #8d93a8; --line: #eceef4;
+    --accent: #fcc934; --accent-ink: #9a7400; --accent-soft: #fff8e1;
+    --ok: #3fa57f; --ok-soft: #eaf7f1; --danger: #d9506f; --danger-soft: #fdeef2;
+    --shadow: 0 2px 12px rgba(61, 66, 96, .05);
+    --font: "Poppins", system-ui, -apple-system, "Segoe UI", sans-serif;
+    color-scheme: light;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body { margin: 0; }
   body {
-    font-family: "Alan Sans", -apple-system, system-ui, sans-serif;
-    background: var(--bg); color: var(--ink); font-size: 17px;
+    font-family: var(--font); background: var(--bg); color: var(--ink); font-size: 15px; line-height: 1.4;
     -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
-    padding-bottom: env(safe-area-inset-bottom);
   }
-  input, select, textarea { user-select: text; -webkit-user-select: text; font: inherit; }
+  input, select, textarea { user-select: text; -webkit-user-select: text; font: inherit; color: inherit; }
   button { font: inherit; color: inherit; cursor: pointer; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  h1, h2, h3 { text-wrap: balance; margin: 0; }
+  .muted { color: var(--muted); }
+  .pad { padding: 8px 4px; margin: 0; font-size: .88rem; }
+  .spacer { flex: 1; }
+  .ui { width: 20px; height: 20px; flex: none; }
+  .star { width: 14px; height: 14px; color: var(--accent); flex: none; }
+  .ico { width: 40px; height: 40px; flex: none; }
+  .ico.sm { width: 30px; height: 30px; }
+  .ico.xs { width: 22px; height: 22px; }
+  .ico.lg { width: 76px; height: 76px; }
 
   header.top {
-    position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.92); color: var(--ink);
-    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
-    padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
-    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--card); border-bottom: 1px solid var(--line);
+    padding: 10px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
-  header.top h1 { font-size: 1.35rem; margin: 0; font-weight: 900; letter-spacing: -.02em; }
-  header.top .date { color: var(--muted); font-size: .95rem; }
-  nav.tabs { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
-  nav.tabs button {
-    border: 2px solid var(--line); background: #fff; color: var(--ink); padding: 8px 16px;
-    border-radius: 999px; font-weight: 700; min-height: 44px;
-  }
-  nav.tabs button.on { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(124,92,240,.3); }
+  .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .brand .tucano { width: 40px; height: auto; flex: none; }
+  .brand h1 { font-size: 1.1rem; font-weight: 700; }
+  .brand small { color: var(--muted); font-size: .82rem; }
+  nav.tabs { margin-left: auto; display: flex; gap: 4px; flex-wrap: wrap; }
+  nav.tabs button { display: flex; align-items: center; gap: 6px; border: 0; background: transparent; color: var(--muted); padding: 8px 12px; border-radius: 12px; font-weight: 600; min-height: 44px; }
+  nav.tabs button.on { background: var(--accent-soft); color: var(--ink); }
+  nav.tabs button.on .ui { color: var(--accent-ink); }
 
-  main { padding: 16px; max-width: 1400px; margin: 0 auto; }
-  .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
-  .chip {
-    border: 2px solid var(--line); background: #fff; border-radius: 999px;
-    padding: 8px 16px; font-weight: 600; min-height: 44px;
-  }
-  .chip.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+  main { padding: 16px; max-width: 1500px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: var(--shadow); min-width: 0; }
+  .card h2 { font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 16px; align-items: start; }
-  .shared-card { grid-column: 1 / -1; }
-  .shared-card .periods { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 16px; }
-  .card { background: var(--card); border-radius: 24px; padding: 18px; border: 1px solid var(--line); box-shadow: var(--shadow); }
-  .member { border-top: 8px solid var(--c); }
-  .member-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-  .avatar {
-    width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
-    font-size: 1.8rem; background: color-mix(in srgb, var(--c) 25%, white); flex: none;
-  }
-  .member-head h2 { margin: 0; font-size: 1.35rem; font-weight: 900; letter-spacing: -.01em; }
-  .member-head .sub { color: var(--muted); font-size: .9rem; }
-  .balance { margin-left: auto; text-align: right; font-weight: 900; font-size: 1.3rem; color: var(--ink); white-space: nowrap; }
-  .balance small { display: block; font-weight: 600; font-size: .75rem; color: var(--muted); }
-  .progress { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
-  .progress > div { height: 100%; background: var(--c); transition: width .4s; }
-  .period { font-size: .85rem; font-weight: 700; color: var(--muted); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .04em; }
-  .task {
-    display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 10px 10px 12px; margin-bottom: 8px;
-    border-radius: 18px; border: 1px solid var(--line); background: #fff; text-align: left; min-height: 60px;
-    box-shadow: 0 2px 8px rgba(27,29,46,.04);
-    transition: transform .1s, background .2s;
-  }
-  .task:active { transform: scale(.98); }
-  .task .emo { font-size: 1.4rem; flex: none; }
-  .task .text { flex: 1; min-width: 0; overflow-wrap: break-word; }
-  .task .title { font-size: 1rem; font-weight: 700; line-height: 1.25; }
-  .task .tag { font-size: .72rem; color: var(--muted); display: block; font-weight: 500; }
-  .task .note { font-size: .78rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 400; margin-top: 2px; line-height: 1.3; }
-  .task .time { font-size: .8rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; margin-right: 4px; }
-  .shared-card { --c: var(--primary); }
-  .chip.sos.on { border-color: var(--danger); background: #fdebee; color: var(--danger); }
-  .sos-banner { border-left: 6px solid var(--danger); margin-bottom: 16px; }
-  .sos-banner b { color: var(--danger); }
-  .who-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
-  .who-pick button { border: 3px solid var(--c); background: #fff; border-radius: 16px; padding: 14px 8px; font-weight: 700; font-size: 1.05rem; }
-  .who-pick button span { display: block; font-size: 2.4rem; }
-  header.top h1 { display: flex; align-items: center; gap: 6px; }
-  .mascot-logo { width: 46px; height: auto; flex: none; }
-  .toast { display: flex; align-items: center; gap: 10px; }
-  .toast svg { width: 56px; height: auto; flex: none; }
-  .tucano-banner { display: flex; align-items: center; gap: 16px; background: #fff7e6; border-color: #ffd98a; margin-bottom: 16px; }
-  .tucano-banner svg { width: 96px; height: auto; flex: none; animation: swim 2.4s ease-in-out infinite; }
-  .tucano-banner h3 { margin: 0 0 4px; font-weight: 900; color: #b4531c; }
-  .tucano-banner h4 { margin: 10px 0 4px; color: var(--muted); }
-  .tucano-banner ul { margin: 0; padding: 0; list-style: none; }
-  .tucano-banner li { font-weight: 700; padding: 2px 0; }
-  .tucano-banner li .time { font-size: .85rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; margin-right: 6px; }
-  .alldone svg, .empty svg { display: block; width: 90px; height: auto; margin: 0 auto 6px; animation: swim 2.4s ease-in-out infinite; }
-  @keyframes swim { 50% { transform: translateY(-6px) rotate(-5deg); } }
-  .mascot-fly { position: fixed; left: 0; bottom: 0; width: 200px; z-index: 45; pointer-events: none; animation: jump 1.7s ease-in-out forwards; }
-  @keyframes jump {
-    0% { transform: translate(-220px, 0) rotate(-10deg); }
-    50% { transform: translate(calc(50vw - 100px), -55vh) rotate(4deg); }
-    100% { transform: translate(calc(100vw + 20px), -20vh) rotate(-8deg); }
-  }
-  .daynav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
-  .daynav-label { min-width: 170px; text-align: center; }
-  .daynav-label b { display: block; font-size: 1.25rem; font-weight: 900; }
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: 0; border-radius: 12px; padding: 10px 16px; font-weight: 600; min-height: 44px; background: var(--card); }
+  .btn.primary { background: var(--accent); color: var(--ink); }
+  .btn.soft { background: var(--card); border: 1px solid var(--line); }
+  .btn.ghost { background: transparent; color: var(--muted); }
+  .btn.danger { background: var(--danger-soft); color: var(--danger); }
+  .btn.icon-btn { width: 44px; justify-content: center; padding: 0; border: 1px solid var(--line); }
+  .btn:disabled { opacity: .4; }
+  .row-btns { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .row-btns.top { margin: 0; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 6px 14px; font-weight: 600; min-height: 40px; color: var(--muted); }
+  .chip.on { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+  .pill { display: inline-flex; align-items: center; gap: 4px; background: var(--accent-soft); color: var(--accent-ink); font-weight: 700; border-radius: 999px; padding: 3px 10px; font-size: .85rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+  .avatar { width: 40px; height: 40px; border-radius: 50%; flex: none; display: inline-grid; place-items: center; object-fit: cover;
+    background: color-mix(in srgb, var(--c, #c7c9d6) 35%, white); color: var(--ink); font-weight: 700; border: 2px solid var(--c, var(--line)); }
+  .avatar.mini { width: 24px; height: 24px; font-size: .7rem; border-width: 1.5px; }
+  .avatar.xl { width: 88px; height: 88px; font-size: 2rem; border-width: 3px; }
+  .avatar.house { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+  .avatar.house .ui { width: 22px; height: 22px; }
+
+  .daynav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .daynav-label { min-width: 150px; text-align: center; }
+  .daynav-label b { display: block; font-size: 1.2rem; }
   .daynav-label small { color: var(--muted); }
-  .spacer { flex: 1; }
-  .task .daynote { display: block; margin-top: 4px; font-size: .8rem; font-weight: 600; color: #7a5300; background: var(--star-soft); border-radius: 8px; padding: 3px 8px; }
-  .task.skipped { opacity: .55; background: #f5f6fa; border-style: dashed; }
-  .task.skipped .title { text-decoration: line-through; }
-  .task .pencil { margin-left: auto; font-size: 1.1rem; flex: none; }
-  .task.editing { border-color: var(--primary); border-style: dashed; }
-  .skipped-list { font-size: .85rem; color: var(--muted); background: var(--bg); border-radius: 12px; padding: 8px 12px; margin-top: 4px; }
-  .skipped-list div { padding: 2px 0; }
-  .edit-banner { border-left: 6px solid var(--primary); margin-bottom: 16px; }
-  .info-banner { border-left: 6px solid var(--star); margin-bottom: 16px; }
-  .tucano-banner ul, .agenda-day ul { list-style: none; margin: 0; padding: 0; }
-  .agenda-item { display: flex; align-items: baseline; gap: 8px; width: 100%; text-align: left; border: 0; background: transparent; padding: 4px 0; font-weight: 700; }
-  .agenda-item small { color: var(--muted); font-weight: 500; }
-  .agenda-item .time { font-size: .85rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; }
-  .agenda-item.lembrete { color: #7a5300; }
-  .agenda-item.change { color: var(--muted); font-weight: 600; }
+
+  .notice { display: flex; gap: 14px; align-items: flex-start; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; box-shadow: var(--shadow); }
+  .notice .tucano { width: 64px; height: auto; flex: none; }
+  .notice-body { min-width: 0; flex: 1; }
+  .notice h3 { font-size: .95rem; margin: 2px 0 6px; }
+  .notice h3.muted { margin-top: 10px; }
+  .notice ul, .agenda-day ul, .card > ul { list-style: none; margin: 0; padding: 0; }
+  .agenda-item { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; border: 0; background: transparent; padding: 5px 0; font-weight: 500; }
+  .agenda-item small { display: block; color: var(--muted); font-size: .82rem; }
+  .agenda-item.change { color: var(--muted); }
+  .time { display: inline-block; font-size: .75rem; font-weight: 700; color: var(--accent-ink); background: var(--accent-soft); border-radius: 6px; padding: 0 6px; margin-right: 6px; font-variant-numeric: tabular-nums; }
+  .hint { display: flex; gap: 12px; align-items: flex-start; background: var(--accent-soft); border-radius: 16px; padding: 12px 16px; }
+  .hint > .ui { color: var(--accent-ink); margin-top: 2px; }
+
+  /* Quadro: uma coluna por pessoa, lado a lado */
+  .board-wrap { overflow-x: auto; margin: 0 -16px; padding: 0 16px 6px; }
+  .board { display: grid; grid-template-columns: repeat(var(--cols), minmax(230px, 1fr)); gap: 12px; align-items: start; min-width: min-content; }
+  .col { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px; box-shadow: var(--shadow); min-width: 0; }
+  .house-col { background: #fffdf6; }
+  .col-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .col-head > div { min-width: 0; flex: 1; }
+  .col-head h2 { font-size: 1.05rem; font-weight: 700; }
+  .col-head small { color: var(--muted); font-size: .78rem; display: block; }
+  .progress { height: 6px; background: var(--line); border-radius: 9px; overflow: hidden; margin-bottom: 6px; }
+  .progress > div { height: 100%; background: var(--c); border-radius: 9px; transition: width .4s; }
+  .period { font-size: .72rem; font-weight: 600; color: var(--muted); margin: 12px 2px 6px; text-transform: uppercase; letter-spacing: .06em; }
+
+  .task { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; margin-bottom: 6px; border-radius: 14px;
+    border: 1px solid var(--line); background: var(--card); text-align: left; min-height: 56px; transition: transform .1s, background .2s; }
+  .task:active { transform: scale(.98); }
+  .task.big { min-height: 66px; }
+  .task.big .ico { width: 50px; height: 50px; }
+  .task .text { flex: 1; min-width: 0; overflow-wrap: break-word; }
+  .task .title { display: block; font-size: .9rem; font-weight: 600; line-height: 1.25; }
+  .task .note { display: block; font-size: .75rem; color: var(--muted); margin-top: 2px; }
+  .task .daynote { display: block; margin-top: 4px; font-size: .75rem; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); border-radius: 8px; padding: 2px 8px; }
+  .check { width: 28px; height: 28px; border-radius: 50%; border: 2px solid #d5d9e4; display: grid; place-items: center; flex: none; color: #fff; }
+  .check .ui { width: 16px; height: 16px; }
+  .task.done { background: var(--ok-soft); border-color: transparent; }
+  .task.done .title { color: var(--muted); text-decoration: line-through; }
+  .task.done .check { background: var(--ok); border-color: var(--ok); }
+  .task.skipped { opacity: .5; border-style: dashed; }
+  .task.editing { border-style: dashed; border-color: var(--accent); }
+  .edit-dot { color: var(--accent-ink); flex: none; }
+  .did { display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 1px solid var(--line); font-size: .85rem; }
+  .did span:nth-child(2) { flex: 1; min-width: 0; }
+  .did .pts { color: var(--ok); font-weight: 700; }
+  .skipped-list { font-size: .78rem; color: var(--muted); background: var(--bg); border-radius: 12px; padding: 8px 10px; margin-top: 6px; }
+  .skipped-list div { display: flex; gap: 6px; align-items: center; padding: 2px 0; }
+  .skipped-list .ui { width: 14px; height: 14px; }
+  .alldone { display: flex; align-items: center; gap: 10px; justify-content: center; padding: 8px; color: var(--ok); }
+  .alldone .tucano { width: 52px; height: auto; animation: bob 2.4s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-5px) rotate(-4deg); } }
+
+  /* Semana */
+  .table-wrap { overflow-x: auto; }
+  table.week { border-collapse: separate; border-spacing: 4px; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; }
+  table.week th { text-align: left; font-weight: 600; padding: 4px 6px; white-space: nowrap; }
+  table.week tbody th { display: flex; align-items: center; gap: 8px; max-width: 280px; }
+  table.week tbody th span { overflow: hidden; text-overflow: ellipsis; }
+  table.week thead th { text-align: center; font-size: .8rem; color: var(--muted); }
+  table.week thead th small { display: block; font-weight: 400; }
+  table.week thead th.is-today { color: var(--accent-ink); }
+  table.week td { text-align: center; border-radius: 10px; padding: 6px 4px; font-weight: 600; min-width: 46px; height: 38px; }
+  table.week td .ui { width: 16px; height: 16px; vertical-align: middle; }
+  table.week.detail td { cursor: pointer; }
+  td.ok { background: var(--ok-soft); color: var(--ok); }
+  td.half { background: var(--accent-soft); color: var(--accent-ink); }
+  td.miss { background: var(--danger-soft); color: var(--danger); }
+  td.todo { background: var(--accent-soft); }
+  td.later { background: var(--bg); color: var(--muted); }
+  td.skip { background: var(--bg); color: var(--muted); }
+  td.none { color: var(--line); }
+  td.pts-cell { color: var(--accent-ink); white-space: nowrap; }
+  .legend { color: var(--muted); font-size: .8rem; margin: 8px 0 0; }
+  .notes { list-style: none; margin: 0; padding: 0; }
+  .notes li { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+
+  /* Agenda */
   .agenda-day { padding: 10px 0; border-bottom: 1px solid var(--line); }
   .agenda-day:last-child { border: 0; }
-  .agenda-day h3 { margin: 0 0 6px; font-weight: 900; }
-  .agenda-day h3 small { color: var(--muted); font-weight: 500; font-size: .85rem; }
-  .table-wrap { overflow-x: auto; }
-  table.week { border-collapse: separate; border-spacing: 4px; width: 100%; font-size: .95rem; }
-  table.week th { text-align: left; font-weight: 700; padding: 4px 6px; white-space: nowrap; }
-  table.week thead th { text-align: center; font-size: .85rem; color: var(--muted); }
-  table.week thead th small { display: block; font-weight: 500; }
-  table.week thead th.is-today { color: var(--primary); }
-  table.week td { text-align: center; border-radius: 8px; padding: 8px 4px; font-weight: 800; min-width: 44px; }
-  table.week.detail th { font-size: .88rem; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
-  table.week.detail td { cursor: pointer; }
-  table.week .time { font-size: .75rem; color: var(--primary); margin-right: 4px; }
-  td.ok { background: var(--ok-soft); color: var(--ok); }
-  td.half { background: var(--star-soft); color: #7a5300; }
-  td.miss { background: #fdebee; color: var(--danger); }
-  td.todo { background: var(--primary-soft); color: var(--primary); }
-  td.later { background: var(--bg); color: var(--muted); }
-  td.skip { background: var(--bg); color: var(--muted); font-weight: 600; }
-  td.none { background: transparent; color: var(--line); }
-  td.pts-cell { color: var(--ok); }
-  .legend { color: var(--muted); font-size: .85rem; margin: 10px 0 0; }
-  .notes li { display: block; }
-  .dlg-sub { display: block; font-size: .9rem; color: var(--muted); font-weight: 500; margin-top: 2px; }
-  .dlg-actions { flex-wrap: wrap; }
-  .big-mascot { width: 140px; height: auto; }
-  @media (max-width: 600px) {
-    .tucano-banner { align-items: flex-start; gap: 10px; }
-    .tucano-banner svg { width: 56px; }
-    .daynav .spacer { display: none; }
-  }
-  .alldone svg, .empty svg { width: 70px; }
-  .task .pts { margin-left: auto; font-weight: 800; font-size: .9rem; color: var(--ok); background: var(--ok-soft); border-radius: 999px; padding: 3px 8px; white-space: nowrap; flex: none; }
-  .task.done .pts { background: var(--ok); color: #fff; }
-  .check {
-    width: 28px; height: 28px; border-radius: 50%; border: 2px solid #c9ccda;
-    display: grid; place-items: center; flex: none; font-weight: 900; color: #fff;
-  }
-  .task.done { background: var(--ok-soft); border-color: var(--mint); }
-  .task.done .title { text-decoration: line-through; opacity: .6; }
-  .task.done .check { background: var(--ok); border-color: var(--ok); }
-  .alldone { text-align: center; padding: 10px; font-weight: 700; color: var(--ok); }
-  .empty { color: var(--muted); text-align: center; padding: 24px 8px; }
+  .agenda-day h3 { font-size: 1rem; margin-bottom: 4px; }
+  .agenda-day h3 small { color: var(--muted); font-weight: 400; font-size: .82rem; }
 
-  .rank { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  /* Placar e prêmios */
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: 14px; align-items: start; }
+  .rank { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
   .rank:last-child { border: 0; }
-  .rank .pos { font-size: 1.8rem; width: 44px; text-align: center; }
-  .rank .name { font-weight: 700; font-size: 1.15rem; }
-  .rank .big { margin-left: auto; text-align: right; font-weight: 900; font-size: 1.4rem; color: var(--ink); }
-  .rank .big small { display: block; font-size: .75rem; color: var(--muted); font-weight: 600; }
-  .log { list-style: none; padding: 0; margin: 0; }
-  .log li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .95rem; }
-  .log li .p { margin-left: auto; font-weight: 700; }
-  .log li .p.neg { color: var(--danger); }
-  .log li .p.pos { color: var(--ok); }
-  .log li time { color: var(--muted); font-size: .85rem; min-width: 92px; }
+  .rank .pos { width: 22px; font-weight: 700; color: var(--muted); text-align: center; }
+  .rank .name { font-weight: 600; flex: 1; }
+  .rank-pts { text-align: right; }
+  .rank-pts b { font-size: 1.2rem; }
+  .rank-pts small { display: block; color: var(--muted); font-size: .75rem; }
+  .log { list-style: none; margin: 0; padding: 0; }
+  .log li { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--line); font-size: .85rem; }
+  .log li span:nth-of-type(1) { flex: 1; min-width: 0; }
+  .log time { color: var(--muted); font-size: .78rem; min-width: 84px; }
+  .log .p { font-weight: 700; color: var(--ok); }
+  .log .p.neg { color: var(--danger); }
+  .rewards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 12px; }
+  .reward { display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+  .reward .title { font-weight: 600; }
 
-  .reward { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
-  .reward .emo { font-size: 3rem; }
-  .reward .title { font-weight: 700; font-size: 1.15rem; }
-  .reward .cost { color: #7a5300; background: var(--star-soft); border-radius: 999px; padding: 4px 12px; font-weight: 800; }
-
-  .btn {
-    border: 0; border-radius: 12px; padding: 10px 18px; font-weight: 700; min-height: 44px;
-    background: var(--primary-soft); color: var(--primary);
-  }
-  .btn.primary { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(124,92,240,.3); }
-  .btn.ghost { background: transparent; color: var(--muted); }
-  .btn.danger { background: #fdebee; color: var(--danger); }
-  .btn.big { font-size: 1.1rem; padding: 14px 26px; }
-  .btn:disabled { opacity: .4; }
-  .center { text-align: center; padding: 40px 16px; }
-
-  h3.section { display: flex; align-items: center; gap: 10px; margin: 28px 0 10px; }
-  h3.section .btn { margin-left: auto; }
-  .row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  /* Ajustes */
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+  .section-head h2 { margin: 0; }
+  .section-head small { color: var(--muted); font-weight: 400; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
   .row:last-child { border: 0; }
-  .row .emo { font-size: 1.5rem; width: 36px; text-align: center; }
   .row .info { flex: 1; min-width: 0; }
-  .row .info small { color: var(--muted); display: block; }
-  .row .acts { display: flex; gap: 6px; }
+  .row .info b { font-weight: 600; font-size: .9rem; }
+  .row .info small { display: block; color: var(--muted); font-size: .78rem; }
+  .card .chips { margin: 8px 0; }
 
-  dialog { border: 0; border-radius: 20px; padding: 0; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 32px); }
-  dialog::backdrop { background: rgba(27,29,46,.45); }
+  .empty-page { text-align: center; padding: 40px 16px; color: var(--muted); }
+  .empty-page.small { padding: 16px; }
+  .empty-page h2 { color: var(--ink); margin-bottom: 6px; }
+  .tucano.big { width: 110px; height: auto; }
+
+  /* Diálogos */
+  dialog { border: 0; border-radius: 20px; padding: 0; width: min(600px, calc(100vw - 32px)); max-height: calc(100vh - 32px); color: var(--ink); background: var(--card); }
+  dialog::backdrop { background: rgba(61, 66, 96, .35); }
   dialog form { padding: 20px; }
-  dialog h2 { margin: 0 0 14px; }
-  .field { margin-bottom: 14px; }
-  .field > span { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
-  .field input[type=text], .field input[type=number], .field input[type=password], .field select {
-    width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; font-size: 1.05rem;
-  }
-  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
+  dialog h2 { font-size: 1.15rem; margin-bottom: 14px; }
+  .dlg-sub { display: block; font-size: .85rem; color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .field { display: block; margin-bottom: 14px; min-width: 0; }
+  .field > span { display: block; font-weight: 600; font-size: .82rem; margin-bottom: 6px; color: var(--muted); }
+  .field input[type=text], .field input[type=number], .field input[type=password], .field input[type=date], .field input[type=time], .field select {
+    width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font-size: 1rem; min-height: 44px; }
+  .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0 12px; }
   .opts { display: flex; flex-wrap: wrap; gap: 6px; }
-  .opts label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 999px; }
-  .opts label:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
-  .opts input { accent-color: var(--primary); }
-  .swatch { width: 36px; height: 36px; border-radius: 50%; padding: 0 !important; justify-content: center; }
+  .opts label { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; min-height: 40px; }
+  .opts label:has(input:checked) { border-color: var(--accent); background: var(--accent-soft); }
+  .opts input { accent-color: var(--accent-ink); }
+  .swatch { width: 36px; height: 36px; padding: 0 !important; justify-content: center; }
   .swatch input { opacity: 0; position: absolute; }
   .swatch:has(input:checked) { outline: 3px solid var(--ink); outline-offset: 2px; }
-  .emoji-picks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
-  .emoji-picks button { border: 0; background: var(--bg); border-radius: 8px; font-size: 1.3rem; width: 40px; height: 40px; }
-  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+  .icon-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px; max-height: 220px; overflow-y: auto; padding: 2px; }
+  .icon-pick label { display: grid; place-items: center; border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+  .icon-pick label:has(input:checked) { border: 2px solid var(--accent); background: var(--accent-soft); }
+  .icon-pick input { position: absolute; opacity: 0; }
+  .photo-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .who-pick { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .who-pick button { display: flex; flex-direction: column; align-items: center; gap: 8px; border: 1px solid var(--line); background: var(--card); border-radius: 20px; padding: 16px 22px; font-weight: 700; font-size: 1.05rem; }
+  .dlg-actions { display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
 
-  .toast {
-    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
-    background: var(--ok); color: #fff; padding: 14px 22px; border-radius: 999px; font-weight: 700;
-    font-size: 1.1rem; z-index: 50; animation: pop .25s ease-out;
-  }
+  .toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 50;
+    display: flex; align-items: center; gap: 10px; background: var(--ink); color: #fff; padding: 10px 20px; border-radius: 999px; font-weight: 600; animation: pop .25s ease-out; max-width: calc(100vw - 32px); }
+  .toast .tucano { width: 40px; height: auto; flex: none; }
   @keyframes pop { from { transform: translate(-50%, 20px); opacity: 0; } }
-  .burst { position: fixed; pointer-events: none; font-size: 2rem; z-index: 40; animation: fly 1s ease-out forwards; }
+  .confetti { position: fixed; width: 10px; height: 14px; border-radius: 3px; pointer-events: none; z-index: 40; animation: fly 1.1s ease-out forwards; }
   @keyframes fly { to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
+  .mascot-fly { position: fixed; left: 0; bottom: 0; width: 160px; z-index: 45; pointer-events: none; animation: flight 1.7s ease-in-out forwards; }
+  @keyframes flight { 0% { transform: translate(-200px, 0) rotate(-10deg); } 50% { transform: translate(calc(50vw - 80px), -55vh) rotate(4deg); } 100% { transform: translate(calc(100vw + 20px), -20vh) rotate(-8deg); } }
+  @media (prefers-reduced-motion: reduce) { .alldone .tucano { animation: none; } }
+  @media (max-width: 700px) {
+    nav.tabs { width: 100%; justify-content: space-between; margin: 0; }
+    nav.tabs button { flex-direction: column; gap: 2px; padding: 6px 4px; font-size: .7rem; flex: 1; }
+    .notice .tucano { width: 44px; }
+  }
 </style>
 </head>
 <body>
 <header class="top">
-  <div>
-    <h1><svg class="mascot-logo" viewBox="0 0 130 120" aria-hidden="true"><path d="M14 108 C40 104 80 104 104 108" fill="none" stroke="#8b5a2b" stroke-width="7" stroke-linecap="round"/> <path d="M38 92 L30 116 L46 116 L50 94 Z" fill="#1b1d2e"/> <path d="M28 44 C26 24 40 12 56 14 C70 16 76 30 74 46 C72 66 64 86 52 98 C44 104 36 102 33 94 C28 80 28 60 28 44 Z" fill="#1b1d2e"/> <path d="M33 50 C44 54 50 70 44 90 C37 82 32 66 33 50 Z" fill="#33374f"/> <path d="M58 30 C70 28 77 40 74 54 C70 62 60 62 56 54 C52 46 52 34 58 30 Z" fill="#fff6dc"/> <path d="M56 58 C62 60 68 58 72 54 C70 62 64 66 58 64 Z" fill="#ffd166"/> <path d="M42 94 C50 90 56 94 54 100 C50 103 44 101 42 94 Z" fill="#e8466a"/> <path d="M48 104 l-3 6 M54 104 l0 6 M60 104 l3 6" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/> <path d="M64 22 C80 10 108 12 124 32 C126 36 122 40 116 38 C102 34 86 34 70 40 C64 34 62 28 64 22 Z" fill="#ff9f1c"/> <path d="M70 40 C86 35 102 35 116 38 C108 46 90 50 72 46 Z" fill="#f4511e"/> <path d="M112 22 C118 26 124 30 124 32 C126 36 122 40 116 38 C116 32 115 27 112 22 Z" fill="#1b1d2e"/> <path d="M70 26 C84 20 100 20 112 26" fill="none" stroke="#ffd166" stroke-width="3" stroke-linecap="round" opacity=".8"/> <circle cx="56" cy="27" r="8" fill="#3b82f6"/> <circle cx="56" cy="27" r="4.6" fill="#fff"/> <circle cx="57" cy="27" r="3" fill="#1b1d2e"/> <circle cx="58" cy="25.8" r="1.1" fill="#fff"/></svg><span>Família <span style="color:var(--primary)">Pinheiro Bernt Eymael</span></span></h1>
-    <div class="date" id="date"></div>
+  <div class="brand">
+    <svg class="tucano" viewBox="0 0 130 120" aria-hidden="true"><path d="M14 108 C40 104 80 104 104 108" fill="none" stroke="#b98560" stroke-width="7" stroke-linecap="round"/><path d="M38 92 L30 116 L46 116 L50 94 Z" fill="#3d4260"/><path d="M28 44 C26 24 40 12 56 14 C70 16 76 30 74 46 C72 66 64 86 52 98 C44 104 36 102 33 94 C28 80 28 60 28 44 Z" fill="#3d4260"/><path d="M58 30 C70 28 77 40 74 54 C70 62 60 62 56 54 C52 46 52 34 58 30 Z" fill="#fff6dc"/><path d="M64 22 C80 10 108 12 124 32 C126 36 122 40 116 38 C102 34 86 34 70 40 C64 34 62 28 64 22 Z" fill="#ffb347"/><path d="M70 40 C86 35 102 35 116 38 C108 46 90 50 72 46 Z" fill="#f4845f"/><path d="M112 22 C118 26 124 30 124 32 C126 36 122 40 116 38 C116 32 115 27 112 22 Z" fill="#3d4260"/><circle cx="56" cy="27" r="8" fill="#7aa7e8"/><circle cx="56" cy="27" r="4.6" fill="#fff"/><circle cx="57" cy="27" r="3" fill="#3d4260"/></svg>
+    <div><h1>Família Pinheiro Bernt Eymael</h1><small id="date"></small></div>
   </div>
   <nav class="tabs" id="tabs"></nav>
 </header>
@@ -260,961 +262,8 @@
 <dialog id="dlg"><form id="dlgForm" method="dialog"></form></dialog>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
-<script>
-const KEY = 'casa-tarefas-v3';
-const PERIODS = [['manha', '🌅 Manhã'], ['tarde', '☀️ Tarde'], ['noite', '🌙 Noite'], ['livre', '⏰ Qualquer hora']];
-const CATS = { rotina: '🧸 Rotina', casa: '🧹 Casa', pessoal: '🙋 Pessoal' };
-const MODES = [['normal', 'Esconder no modo sobrevivência'], ['sempre', 'Mostrar sempre'], ['sobrevivencia', 'Só no modo sobrevivência']];
-const KINDS = [['compromisso', '📌 Compromisso'], ['lembrete', '💬 Lembrete']];
-const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
-const COLORS = ['#7c5cf0', '#3b6fd6', '#52cfa0', '#e9a410', '#e0692b', '#e8466a', '#178a63', '#5b3cc4'];
-const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '👟', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🧽', '🚽', '🪴', '🛒', '🚗', '🏋️', '🇩🇪', '💼', '🥪', '😴', '⭐', '🎉', '🎂', '🩺', '🦷', '✂️', '📌', '💬', '⚽', '🏫', '🎮', '🍦', '🎁', '🍕'];
-const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
-const WEEKDAYS = [1, 2, 3, 4, 5];
-const LOCK_AFTER = 15 * 60 * 1000; // modo edição/ajustes trava sozinho depois de 15 min parado
-
-// Nosso mascote: o tucano 🦜
-const TUCANO = '<path d="M14 108 C40 104 80 104 104 108" fill="none" stroke="#8b5a2b" stroke-width="7" stroke-linecap="round"/> <path d="M38 92 L30 116 L46 116 L50 94 Z" fill="#1b1d2e"/> <path d="M28 44 C26 24 40 12 56 14 C70 16 76 30 74 46 C72 66 64 86 52 98 C44 104 36 102 33 94 C28 80 28 60 28 44 Z" fill="#1b1d2e"/> <path d="M33 50 C44 54 50 70 44 90 C37 82 32 66 33 50 Z" fill="#33374f"/> <path d="M58 30 C70 28 77 40 74 54 C70 62 60 62 56 54 C52 46 52 34 58 30 Z" fill="#fff6dc"/> <path d="M56 58 C62 60 68 58 72 54 C70 62 64 66 58 64 Z" fill="#ffd166"/> <path d="M42 94 C50 90 56 94 54 100 C50 103 44 101 42 94 Z" fill="#e8466a"/> <path d="M48 104 l-3 6 M54 104 l0 6 M60 104 l3 6" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/> <path d="M64 22 C80 10 108 12 124 32 C126 36 122 40 116 38 C102 34 86 34 70 40 C64 34 62 28 64 22 Z" fill="#ff9f1c"/> <path d="M70 40 C86 35 102 35 116 38 C108 46 90 50 72 46 Z" fill="#f4511e"/> <path d="M112 22 C118 26 124 30 124 32 C126 36 122 40 116 38 C116 32 115 27 112 22 Z" fill="#1b1d2e"/> <path d="M70 26 C84 20 100 20 112 26" fill="none" stroke="#ffd166" stroke-width="3" stroke-linecap="round" opacity=".8"/> <circle cx="56" cy="27" r="8" fill="#3b82f6"/> <circle cx="56" cy="27" r="4.6" fill="#fff"/> <circle cx="57" cy="27" r="3" fill="#1b1d2e"/> <circle cx="58" cy="25.8" r="1.1" fill="#fff"/>';
-const tucano = (cls = '') => `<svg class="${cls}" viewBox="0 0 130 120" aria-hidden="true">${TUCANO}</svg>`;
-
-const uid = () => Math.random().toString(36).slice(2, 10);
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const $ = s => document.querySelector(s);
-const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
-
-function dayKey(d = new Date()) {
-  const z = n => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
-}
-const today = () => dayKey();
-const parseDay = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
-const addDays = (k, n) => { const d = parseDay(k); d.setDate(d.getDate() + n); return dayKey(d); };
-const mondayOf = k => addDays(k, -((parseDay(k).getDay() + 6) % 7));
-const fmtDay = (k, o = { weekday: 'long', day: 'numeric', month: 'long' }) => cap(parseDay(k).toLocaleDateString('pt-BR', o));
-const shortDay = k => parseDay(k).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-function dayLabel(k) {
-  const t = today();
-  if (k === t) return 'Hoje';
-  if (k === addDays(t, 1)) return 'Amanhã';
-  if (k === addDays(t, -1)) return 'Ontem';
-  return fmtDay(k, { weekday: 'long', day: 'numeric', month: 'short' });
-}
-function weekStart(d = new Date()) {
-  return parseDay(mondayOf(dayKey(d))).getTime();
-}
-function periodOf(time) {
-  if (!time) return 'livre';
-  const h = parseInt(time, 10);
-  return h < 12 ? 'manha' : h < 18 ? 'tarde' : 'noite';
-}
-
-// Rotina da família, a partir da "Rotina semanal" (seg a sex) + rotina das crianças.
-function defaults() {
-  const g = uid(), b = uid(), a = uid(), s = uid();
-  const pais = [g, b];
-  const SEG_QUI = [1, 2, 3, 4], SEX = [5];
-  const tasks = [];
-  const add = (o, list) => list.forEach(([title, emoji, points, note = '']) => tasks.push({
-    id: uid(), title, emoji, points, note, time: o.time || '', category: o.cat, period: o.period || periodOf(o.time),
-    memberIds: o.who, days: o.days || ALL_DAYS, shared: !!o.shared, mode: o.mode || 'normal', alert: !!o.alert,
-  }));
-
-  // Arthur (6) e Sophie (2) — cada um marca as suas (a Sophie com a ajuda da mamãe).
-  const kids = [a, s];
-  const kid = (o, list) => add({ cat: 'rotina', mode: 'sempre', ...o }, list);
-  kid({ period: 'manha', who: kids }, [
-    ['Acordar', '☀️', 5], ['Ir ao banheiro', '🚽', 5], ['Lavar o rosto', '💦', 5], ['Escovar os dentes', '🪥', 5],
-    ['Se trocar', '👕', 10], ['Pentear o cabelo', '💇', 5], ['Arrumar a cama', '🛏️', 10],
-    ['Tomar café da manhã', '🥣', 5], ['Levar o que usou no café para a pia', '🍽️', 5]]);
-  kid({ period: 'manha', who: kids, days: WEEKDAYS }, [['Colocar o casaco', '🧥', 5], ['Pegar a mochila e sair', '🎒', 5]]);
-  kid({ time: '07:55', who: [a], days: [2], alert: true }, [['Escola às 08:00 em ponto', '🏫', 10, 'Atividade extra de terça · chegar 5 min antes']]);
-  // Chegada do Kindergarten
-  kid({ period: 'tarde', time: '16:00', who: kids, days: WEEKDAYS, mode: 'normal' }, [['Tirar casaco e sapato e guardar no lugar', '🧥', 5]]);
-  kid({ period: 'tarde', who: kids, days: WEEKDAYS, mode: 'normal' }, [
-    ['Lavar as mãos', '🧼', 5], ['Brotdose da mochila para a pia', '🥪', 5], ['Comer um lanche', '🍎', 5]]);
-  kid({ time: '16:30', who: [a], days: [4], alert: true }, [['Futebol', '⚽', 10]]);
-  // Noite
-  kid({ period: 'noite', time: '17:40', who: kids, mode: 'normal' }, [['Arrumar o que brincou', '🧸', 10, 'Fim do tempo livre: organizar os brinquedos']]);
-  kid({ period: 'noite', who: kids }, [['Tomar banho', '🛁', 5], ['Colocar o pijama', '👕', 5]]);
-  kid({ period: 'noite', who: [a], days: WEEKDAYS, mode: 'normal' }, [['Lição de casa ou atividade', '📚', 15]]);
-  kid({ period: 'noite', who: kids, mode: 'normal' }, [
-    ['Colocar a mesa', '🍽️', 10], ['Jantar', '🍝', 5], ['Ajudar a tirar a mesa', '🧽', 10], ['Colocar a mesa do café da manhã', '☕', 5]]);
-  kid({ period: 'noite', who: kids }, [
-    ['Fazer xixi antes de dormir', '🚽', 5], ['Escovar os dentes', '🪥', 5], ['Leitura', '📖', 5], ['Dormir', '😴', 5]]);
-
-  // Rotina diária — todos os dias (quem fizer primeiro)
-  add({ cat: 'casa', period: 'manha', who: pais, shared: true }, [
-    ['Abrir janelas de todos os quartos', '🪟', 5],
-    ['Arrumar camas', '🛏️', 5, 'Esticar bem os lençóis'],
-    ['Alinhar travesseiros e borrifar home spray', '🌸', 5],
-    ['Banheiro rápido', '🚽', 5, 'Limpar pia, secar, escova rápida no vaso'],
-    ['Cozinha em ordem', '🍳', 5, 'Pia limpa, bancada, fogão superficial'],
-    ['Entrada arrumada', '👟', 5, 'Alinhar sapatos e pendurar casacos'],
-    ['Guardar brinquedos e itens fora do lugar', '🧸', 5]]);
-
-  // Pais com as crianças (seg a sex)
-  const withKids = (time, list, o = {}) => add({ cat: 'rotina', time, who: pais, shared: true, days: WEEKDAYS, mode: 'sempre', ...o }, list);
-  withKids('06:30', [['Rotina matinal + Kindergarten', '🎒', 10, '06:30–08:10']]);
-  withKids('07:55', [['Levar o Arthur na escola', '🏫', 10, '08:00 em ponto · chegar 5 min antes']], { days: [2] });
-  withKids('15:26', [['Buscar as crianças', '🚗', 5, 'Saída 15:26']]);
-  withKids('16:00', [['Tempo das crianças', '🧸', 10, '16:00–17:40']]);
-  withKids('16:30', [['Levar o Arthur no futebol', '⚽', 10]], { days: [4] });
-  withKids('17:30', [['Preparar o jantar', '🍲', 10, '17:30–18:00']]);
-  withKids('17:40', [['Banho e pijama das crianças', '🛁', 10]]);
-  withKids('18:00', [['Jantar em família', '🍽️', 5, '18:00–18:45']]);
-  withKids('18:45', [['Limpar mesa e cozinha', '🧽', 10, '18:45–19:00']], { cat: 'casa', mode: 'normal' });
-  withKids('19:00', [['Subir: xixi, dentes, leitura e dormir', '📖', 15]]);
-
-  // Fechamento do dia (19:40–20:40)
-  const close = (days, list) => add({ cat: 'casa', time: '19:40', who: pais, shared: true, days }, list);
-  close(WEEKDAYS, [['Lava-louças (tirar ou colocar)', '🍽️', 5], ['Colocar a mesa do café da manhã', '☕', 5]]);
-  close(SEG_QUI, [
-    ['Cozinha: limpar e secar a pia', '🚰', 5], ['Cozinha: limpar bancada e verificar lixo', '🗑️', 5],
-    ['Separar roupa das crianças para amanhã', '👕', 5], ['Verificar banheiros rapidamente', '🚽', 5],
-    ['Verificar entrada: sapatos e bolsas', '👟', 5], ['Deixar a sala arrumada', '🛋️', 5],
-    ['Preparar lancheiras (parte seca)', '🥪', 5], ['Preparar mochilas e itens da escola', '🎒', 5],
-    ['Preparar mesa de estudo com a lição de amanhã', '📚', 5]]);
-  close(SEX, [
-    ['Cozinha: limpar e secar pia e bancada', '🚰', 5], ['Separar roupa das crianças para segunda', '👕', 5],
-    ['Verificar banheiros e entrada', '🚽', 5], ['Separar roupas da semana', '👕', 5, 'Domingo: reset'],
-    ['Preparar lancheiras e mochilas', '🎒', 5], ['Preparar mesa de estudo para segunda', '📚', 5]]);
-
-  // Gabriele — pessoal
-  const me = (time, list, days = WEEKDAYS) => add({ cat: 'pessoal', time, who: [g], days }, list);
-  me('05:20', [['Alemão — Bloco 1', '🇩🇪', 20, 'Pluspunkt: ler o capítulo, exercícios, marcar dúvidas · Grammatik Aktiv: exercícios do tema, corrigir todos os erros · 5–10 frases com os erros, em voz alta']]);
-  me('08:30', [['Academia', '🏋️', 15, '08:30–09:30']]);
-  me('10:00', [['Alemão — Bloco 2', '🇩🇪', 15, 'Grammatik Aktiv: exercícios do tema, marcar e corrigir erros · 5–10 frases com os erros, em voz alta']]);
-  me('13:15', [['Trabalho', '💼', 20, 'Tarefa definida na noite anterior · uma ação específica e concreta']]);
-  me('19:40', [['Separar minhas roupas', '👗', 5, 'Incluindo academia']]);
-  me('19:40', [['Definir tarefa de trabalho de amanhã', '📝', 5]], SEG_QUI);
-
-  // Gabriele — Casa do dia (10:45–12:30)
-  const house = (day, list) => add({ cat: 'casa', time: '10:45', who: [g], days: [day] }, list);
-  house(1, [
-    ['Ligar robô aspirador em cada andar', '🤖', 5], ['Separar roupas por volume e verificar bolsos', '👕', 5],
-    ['Lavar roupas', '🧺', 5], ['Transferir para secadora ou varal', '🧺', 5], ['Limpar filtro da secadora', '🧽', 5],
-    ['Deixar máquina aberta e secar gaveta de sabão', '🧼', 5], ['Aspirar rodapés e cantos', '🧹', 10],
-    ['Escritório: organizar mesa e guardar papéis', '🗂️', 5], ['Escritório: limpar superfície e verificar lixo', '🧽', 5]]);
-  house(2, [
-    ['Esvaziar e limpar bancada da cozinha', '🧽', 5], ['Desengordurar fogão (inclusive peças)', '🍳', 10],
-    ['Limpar pia profundamente e ralo', '🚰', 5], ['Limpar armários externos e puxadores', '🧽', 5],
-    ['Limpar eletrodomésticos visíveis', '✨', 5], ['Limpar 1 gaveta ou armário interno', '🗄️', 5],
-    ['Regar plantas', '🪴', 5, 'Grandes 500 ml · médias 250 ml · pequenas 100 ml'],
-    ['Borrifar suculentas e verificar folhas', '🌵', 5], ['Retirar lixo e lavar lixeira por dentro', '🗑️', 10]]);
-  house(3, [
-    ['Aspirar cantos e base das camas', '🧹', 5], ['Trocar roupa de cama das crianças', '🛏️', 10],
-    ['Trocar roupa de cama do casal', '🛏️', 10, 'Semana sim, semana não'], ['Lavar e secar roupa de cama', '🧺', 5],
-    ['Aplicar rotina da máquina', '🧼', 5], ['Organizar 1 parte do armário', '🗄️', 5, 'Gaveta ou prateleira']]);
-  house(4, [
-    ['Abrir janelas dos banheiros', '🪟', 5], ['Aplicar produto forte no vaso', '🚽', 5],
-    ['Limpar espelho com produto específico', '🪞', 5], ['Limpar pia: multiuso + torneira + ralo', '🚰', 5],
-    ['Limpar vaso por dentro e por fora', '🚽', 5], ['Esfregar banheira, enxaguar e secar bordas', '🛁', 10],
-    ['Ralo: remover cabelo, água quente, produto', '🚿', 5], ['Aspirar e passar pano com desinfetante no chão', '🧹', 10],
-    ['Alinhar toalhas, dobrar papel, home spray', '🌸', 5], ['Lavar toalhas', '🧺', 5],
-    ['Plantas: rega leve e limpar folhas', '🪴', 5], ['Limpar 1 armário interno ou gaveta', '🗄️', 5]]);
-  house(5, [
-    ['Verificar estoque', '📋', 5, 'Papel, limpeza, cozinha, lancheira'], ['Fazer lista e ir às compras', '🛒', 15],
-    ['Guardar tudo imediatamente ao chegar', '🛍️', 5], ['Lavar frutas, secar e organizar', '🍎', 5],
-    ['Organizar geladeira e limpar 1 prateleira', '🧊', 5], ['Keller: organização, fora do lugar, reciclagem', '♻️', 10],
-    ['Lavar roupas da escola', '🧺', 5], ['Organizar e limpar carro por dentro', '🚗', 10]]);
-
-  // Modo sobrevivência
-  add({ cat: 'casa', period: 'livre', who: pais, shared: true, mode: 'sobrevivencia' }, [
-    ['Limpar pia da cozinha', '🚰', 10], ['Garantir roupa essencial', '👕', 10], ['10 min de organização', '⏱️', 10]]);
-
-  return {
-    pin: '1234',
-    members: [
-      { id: g, name: 'Gabriele', emoji: '👩', color: COLORS[5] },
-      { id: b, name: 'Bruno', emoji: '👨', color: COLORS[1] },
-      { id: a, name: 'Arthur', emoji: '👦', color: COLORS[3] },
-      { id: s, name: 'Sophie', emoji: '👧', color: COLORS[2] },
-    ],
-    tasks,
-    rewards: [
-      { id: uid(), title: 'Escolher o desenho', emoji: '📺', cost: 30 },
-      { id: uid(), title: 'Escolher a sobremesa', emoji: '🍦', cost: 50 },
-      { id: uid(), title: 'Ir ao parquinho', emoji: '🛝', cost: 80 },
-      { id: uid(), title: 'Escolher o jantar', emoji: '🍕', cost: 100 },
-      { id: uid(), title: 'Noite de cinema', emoji: '🎬', cost: 150 },
-      { id: uid(), title: 'Folga de uma tarefa (o outro faz)', emoji: '🙋', cost: 150 },
-      { id: uid(), title: 'Passeio especial', emoji: '🏞️', cost: 300 },
-    ],
-    completions: {},
-    survival: {},
-    overrides: {},
-    agenda: [],
-    log: [],
-  };
-}
-
-// Completa campos que faltam (backups e versões antigas).
-function normalize(d) {
-  d = { ...defaults(), ...d };
-  d.completions ||= {};
-  d.survival ||= {};
-  d.overrides ||= {};
-  d.agenda ||= [];
-  d.log ||= [];
-  d.tasks = d.tasks.map(t => ({ note: '', time: '', shared: false, mode: 'normal', alert: false, days: ALL_DAYS, memberIds: [], ...t }));
-  return d;
-}
-function load() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) return normalize(JSON.parse(raw));
-  } catch (e) { /* sem armazenamento: começa do zero */ }
-  return defaults();
-}
-function save() {
-  try { localStorage.setItem(KEY, JSON.stringify(S)); }
-  catch (e) { toast('⚠️ Não foi possível salvar'); }
-}
-function prune() {
-  const limit = addDays(today(), -90);
-  for (const box of [S.completions, S.survival, S.overrides]) for (const k of Object.keys(box)) if (k < limit) delete box[k];
-  S.tasks = S.tasks.filter(t => !t.date || t.date >= limit);
-  S.agenda = S.agenda.filter(a => a.date >= addDays(today(), -180));
-}
-
-let S = load();
-let tab = 'hoje', catFilter = 'todos', memberFilter = 'todos', viewDay = today(), lastDay = today();
-let unlocked = false, editMode = false, lastActivity = Date.now();
-let weekFrom = mondayOf(today()), weekWho = 'resumo', showPastAgenda = false;
-
-const member = id => S.members.find(m => m.id === id);
-const names = ids => ids.map(id => member(id)).filter(Boolean).map(m => esc(m.name)).join(', ');
-const balance = id => S.log.reduce((s, l) => s + (l.memberId === id ? l.points : 0), 0);
-const pointsBetween = (id, from, to) => S.log.reduce((s, l) => s + (l.memberId === id && l.t >= from && l.t < to && l.type !== 'reward' ? l.points : 0), 0);
-const weekPoints = id => pointsBetween(id, weekStart(), Infinity);
-const keyOf = (t, mid) => t.id + '|' + (t.shared ? '*' : mid);
-const doneValue = (k, t, mid) => (S.completions[k] || {})[keyOf(t, mid)];
-const periodIdx = p => PERIODS.findIndex(x => x[0] === p);
-const override = (k, id) => (S.overrides[k] || {})[id] || {};
-
-// Tarefas sem horário ficam logo depois da última com horário do mesmo período (mantém a sequência da rotina).
-function sortTasks(list) {
-  const last = {};
-  return list.map((t, i) => {
-    const key = t.time || last[t.period] || '';
-    last[t.period] = key;
-    return { t, i, key };
-  }).sort((x, y) => periodIdx(x.t.period) - periodIdx(y.t.period) || x.key.localeCompare(y.key) || x.i - y.i).map(x => x.t);
-}
-
-// Tarefas de um dia, já com as mudanças daquele dia (nota, quem faz, "não precisa").
-const scheduled = (t, k) => t.date ? t.date === k : t.days.includes(parseDay(k).getDay());
-function tasksOn(k, withSkipped = false) {
-  const sos = !!S.survival[k];
-  return S.tasks
-    .filter(t => scheduled(t, k) && (sos ? t.mode !== 'normal' : t.mode !== 'sobrevivencia'))
-    .map(t => {
-      const o = override(k, t.id);
-      return { ...t, memberIds: o.memberIds || t.memberIds, dayNote: o.note || '', skip: !!o.skip, passed: !!o.memberIds };
-    })
-    .filter(t => withSkipped || !t.skip);
-}
-const ownOn = (k, mid, withSkipped) => tasksOn(k, withSkipped).filter(t => !t.shared && t.memberIds.includes(mid));
-const sharedOn = (k, withSkipped) => tasksOn(k, withSkipped).filter(t => t.shared);
-const byCat = list => list.filter(t => catFilter === 'todos' || t.category === catFilter);
-const agendaOn = k => S.agenda.filter(a => a.date === k).sort((x, y) => (x.time || '').localeCompare(y.time || ''));
-
-// ---------- Telas ----------
-function render() {
-  $('#date').textContent = fmtDay(today());
-  const tabs = [['hoje', '✅ Dia'], ['semana', '📊 Semana'], ['agenda', '📅 Agenda'], ['placar', '🏆 Placar'], ['premios', '🎁 Prêmios'], ['config', unlocked ? '⚙️ Ajustes' : '🔒 Ajustes']];
-  $('#tabs').innerHTML = tabs.map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" data-action="tab" data-tab="${k}">${l}</button>`).join('');
-  $('#app').innerHTML = { hoje: viewDayScreen, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
-}
-
-function taskList(k, tasks, mid) {
-  return '<div class="periods">' + PERIODS.map(([p, label]) => {
-    const list = tasks.filter(t => t.period === p);
-    if (!list.length) return '';
-    return `<div><div class="period">${label}</div>` + list.map(t => {
-      const v = !t.skip && doneValue(k, t, mid);
-      const by = t.shared && v ? member(v) : null;
-      const tags = [t.shared && catFilter === 'todos' ? CATS[t.category] : '',
-        t.shared ? (by ? `feito por ${esc(by.emoji)} ${esc(by.name)}` : t.memberIds.map(id => esc(member(id)?.emoji)).join(' ')) : '',
-        t.passed ? '👉 repassada' : '', t.date ? '📅 só neste dia' : ''].filter(Boolean).join(' · ');
-      return `<button class="task ${v ? 'done' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
-        <span class="check">${v ? '✓' : t.skip ? '–' : ''}</span>
-        <span class="emo">${esc(t.emoji)}</span>
-        <span class="text"><span class="title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
-          ${t.note ? `<span class="note">${esc(t.note)}</span>` : ''}
-          ${t.skip ? `<span class="daynote">⏭ Não precisa neste dia${t.dayNote ? ': ' + esc(t.dayNote) : ''}</span>` : t.dayNote ? `<span class="daynote">📝 ${esc(t.dayNote)}</span>` : ''}
-          ${tags ? `<span class="tag">${tags}</span>` : ''}</span>
-        ${editMode ? '<span class="pencil">✏️</span>' : `<span class="pts">+${t.points} ⭐</span>`}
-      </button>`;
-    }).join('') + '</div>';
-  }).join('') + '</div>';
-}
-
-function skippedNote(k, list) {
-  const sk = list.filter(t => t.skip);
-  if (!sk.length || editMode) return '';
-  return `<div class="skipped-list">${sk.map(t => `<div>⏭ <b>${esc(t.title)}</b> não precisa${t.dayNote ? ` — ${esc(t.dayNote)}` : ''}</div>`).join('')}</div>`;
-}
-
-function agendaItem(a, withDate = false) {
-  return `<li><button class="agenda-item ${a.kind}" data-action="edit-agenda" data-id="${a.id}">
-    ${a.time ? `<span class="time">${esc(a.time)}</span>` : ''}<span>${esc(a.emoji)}</span>
-    <span>${withDate ? `<b>${esc(dayLabel(a.date))}:</b> ` : ''}${a.memberIds.length ? `<b>${names(a.memberIds)}:</b> ` : ''}${esc(a.title)}
-    ${a.note ? `<small>(${esc(a.note)})</small>` : ''}</span></button></li>`;
-}
-
-function viewDayScreen() {
-  if (!S.members.length) return `<div class="center card">Nenhuma pessoa cadastrada ainda. Vá em <b>Ajustes</b> para começar.</div>`;
-  const k = viewDay, isToday = k === today(), future = k > today();
-  const sos = !!S.survival[k];
-  const nav = `<div class="daynav">
-    <button class="btn" data-action="day" data-n="-1" aria-label="Dia anterior">◀</button>
-    <div class="daynav-label"><b>${esc(['Hoje', 'Amanhã', 'Ontem'].includes(dayLabel(k)) ? dayLabel(k) : fmtDay(k, { weekday: 'long' }))}</b><small>${esc(fmtDay(k, { day: 'numeric', month: 'long' }))}</small></div>
-    <button class="btn" data-action="day" data-n="1" aria-label="Próximo dia">▶</button>
-    ${isToday ? '' : '<button class="btn primary" data-action="day" data-n="0">Hoje</button>'}
-    <span class="spacer"></span>
-    <button class="btn" data-action="new-agenda" data-day="${k}">➕ Compromisso / lembrete</button>
-    <button class="btn ${editMode ? 'primary' : ''}" data-action="edit-mode">${editMode ? '✅ Concluir edição' : '✏️ Editar'}</button>
-  </div>`;
-  const chips = [['todos', 'Tudo'], ...Object.entries(CATS)]
-    .map(([c, l]) => `<button class="chip ${catFilter === c ? 'on' : ''}" data-action="cat" data-v="${c}">${l}</button>`).join('')
-    + `<button class="chip sos ${sos ? 'on' : ''}" data-action="survival">🆘 Modo sobrevivência</button>`;
-  const people = [`<button class="chip ${memberFilter === 'todos' ? 'on' : ''}" data-action="who" data-v="todos">👨‍👩‍👧‍👦 Todos</button>`]
-    .concat(S.members.map(m => `<button class="chip ${memberFilter === m.id ? 'on' : ''}" data-action="who" data-v="${m.id}">${esc(m.emoji)} ${esc(m.name)}</button>`)).join('');
-
-  // Aviso do tucano: compromissos, lembretes e tarefas importantes do dia + o que tem amanhã.
-  const alerts = sortTasks(tasksOn(k).filter(t => t.alert));
-  const items = agendaOn(k), tomorrow = agendaOn(addDays(k, 1));
-  const banner = alerts.length || items.length || tomorrow.length ? `<section class="card tucano-banner">${tucano()}<div>
-      ${alerts.length || items.length ? `<h3>O tucano avisa: ${isToday ? 'hoje' : 'neste dia'} tem!</h3><ul>
-        ${items.map(a => agendaItem(a)).join('')}
-        ${alerts.map(t => `<li><div class="agenda-item">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}<span>${esc(t.emoji)}</span><span><b>${names(t.memberIds)}:</b> ${esc(t.title)}${t.note ? ` <small>(${esc(t.note)})</small>` : ''}</span></div></li>`).join('')}
-      </ul>` : ''}
-      ${tomorrow.length ? `<h4>${isToday ? 'Amanhã' : 'No dia seguinte'}:</h4><ul>${tomorrow.map(a => agendaItem(a)).join('')}</ul>` : ''}
-    </div></section>` : '';
-  const sosBanner = sos ? `<section class="card sos-banner"><b>🆘 Modo sobrevivência ligado.</b> Só o essencial:
-    limpar a pia da cozinha, garantir roupa essencial e 10 min de organização. <b>Ignorar o restante</b> 💛</section>` : '';
-  const editBanner = editMode ? `<section class="card edit-banner">✏️ <b>Modo edição.</b> Toque numa tarefa para colocar uma nota, repassar para outra pessoa,
-    marcar que não precisa ou mudar de dia — só para ${isToday ? 'hoje' : 'este dia'}.
-    <span class="bar" style="margin:10px 0 0"><button class="btn primary" data-action="new-task" data-day="${k}">➕ Tarefa só neste dia</button>
-    <button class="btn" data-action="new-task">➕ Tarefa fixa</button></span></section>` : '';
-  const futureNote = future && !editMode ? `<section class="card info-banner">👀 Você está vendo um dia que ainda não chegou. Toque em <b>✏️ Editar</b> para anotar, repassar ou tirar tarefas deste dia.</section>` : '';
-
-  const shared = byCat(sharedOn(k, editMode)).filter(t => memberFilter === 'todos' || t.memberIds.includes(memberFilter));
-  const sharedReal = shared.filter(t => !t.skip);
-  const sharedDone = sharedReal.filter(t => doneValue(k, t)).length;
-  const sharedSkip = byCat(sharedOn(k, true)).filter(t => t.skip);
-  const sharedCard = shared.length || sharedSkip.length ? `<section class="card member shared-card">
-      <div class="member-head">
-        <div class="avatar">🤝</div>
-        <div><h2>Quem fizer primeiro</h2><div class="sub">${sharedDone} de ${sharedReal.length} feitas · ganha quem fizer</div></div>
-      </div>
-      <div class="progress"><div style="width:${sharedReal.length ? Math.round(sharedDone / sharedReal.length * 100) : 0}%"></div></div>
-      ${taskList(k, sortTasks(shared), memberFilter === 'todos' ? '' : memberFilter)}
-      ${skippedNote(k, sharedSkip)}
-    </section>` : '';
-
-  const cards = S.members.filter(m => memberFilter === 'todos' || m.id === memberFilter).map(m => {
-    const tasks = sortTasks(byCat(ownOn(k, m.id, editMode)));
-    const real = tasks.filter(t => !t.skip);
-    const done = real.filter(t => doneValue(k, t, m.id)).length;
-    const pct = real.length ? Math.round(done / real.length * 100) : 0;
-    return `<section class="card member" style="--c:${esc(m.color)}">
-      <div class="member-head">
-        <div class="avatar">${esc(m.emoji)}</div>
-        <div><h2>${esc(m.name)}</h2><div class="sub">${done} de ${real.length} feitas</div></div>
-        <div class="balance">${balance(m.id)} ⭐<small>pontos</small></div>
-      </div>
-      <div class="progress"><div style="width:${pct}%"></div></div>
-      ${tasks.length ? taskList(k, tasks, m.id) : `<div class="empty">${tucano()}${sharedOn(k).some(t => t.memberIds.includes(m.id)) ? 'Pegue tarefas no cartão 🤝' : 'Nada para este dia 😎'}</div>`}
-      ${skippedNote(k, byCat(ownOn(k, m.id, true)))}
-      ${real.length && done === real.length ? `<div class="alldone">${tucano()}🎉 Tudo feito! Parabéns!</div>` : ''}
-    </section>`;
-  }).join('');
-  return `${nav}<div class="bar">${chips}</div><div class="bar">${people}</div>${editBanner}${futureNote}${banner}${sosBanner}<div class="grid">${cards}${sharedCard}</div>`;
-}
-
-// ---------- Semana ----------
-function weekDays() { return WEEK_ORDER.map((_, i) => addDays(weekFrom, i)); }
-function cellState(k, t, mid) {
-  if (t.skip) return { cls: 'skip', txt: '⏭', title: t.dayNote || 'Não precisa' };
-  const v = doneValue(k, t, mid);
-  if (v) return { cls: 'ok', txt: t.shared ? esc(member(v)?.emoji || '✓') : '✓', title: t.shared ? `Feito por ${member(v)?.name || ''}` : 'Feito' };
-  if (k < today()) return { cls: 'miss', txt: '✗', title: 'Não feito' };
-  if (k === today()) return { cls: 'todo', txt: '○', title: 'Para hoje' };
-  return { cls: 'later', txt: '·', title: 'Programado' };
-}
-function summary(k, list, mid) {
-  const real = list.filter(t => !t.skip);
-  return { done: real.filter(t => doneValue(k, t, mid)).length, total: real.length };
-}
-
-function viewWeek() {
-  const days = weekDays();
-  const end = addDays(weekFrom, 6);
-  const nav = `<div class="daynav">
-    <button class="btn" data-action="week" data-n="-7" aria-label="Semana anterior">◀</button>
-    <div class="daynav-label"><b>Semana de ${shortDay(weekFrom)} a ${shortDay(end)}</b><small>${weekFrom === mondayOf(today()) ? 'Esta semana' : ''}</small></div>
-    <button class="btn" data-action="week" data-n="7" aria-label="Próxima semana">▶</button>
-    ${weekFrom === mondayOf(today()) ? '' : '<button class="btn primary" data-action="week" data-n="0">Esta semana</button>'}
-  </div>`;
-  const chips = [['resumo', '📊 Resumo'], ...S.members.map(m => [m.id, `${esc(m.emoji)} ${esc(m.name)}`]), ['shared', '🤝 Quem fizer primeiro']]
-    .map(([v, l]) => `<button class="chip ${weekWho === v ? 'on' : ''}" data-action="week-who" data-v="${v}">${l}</button>`).join('');
-  const head = `<tr><th></th>${days.map(k => `<th class="${k === today() ? 'is-today' : ''}">${DAYS[parseDay(k).getDay()]}<small>${shortDay(k)}</small></th>`).join('')}</tr>`;
-
-  let table;
-  if (weekWho === 'resumo') {
-    const rows = [...S.members.map(m => ({ label: `${esc(m.emoji)} ${esc(m.name)}`, get: k => summary(k, ownOn(k, m.id, true), m.id), pts: pointsBetween(m.id, parseDay(weekFrom).getTime(), parseDay(addDays(weekFrom, 7)).getTime()) })),
-      { label: '🤝 Quem fizer primeiro', get: k => summary(k, sharedOn(k, true)) }];
-    table = `<table class="week"><thead>${head.replace('</tr>', '<th>⭐</th></tr>')}</thead><tbody>${rows.map(r => `<tr><th>${r.label}</th>${days.map(k => {
-      const { done, total } = r.get(k);
-      const ratio = total ? done / total : 1;
-      const cls = !total ? 'none' : k > today() ? 'later' : ratio === 1 ? 'ok' : ratio >= .5 ? 'half' : 'miss';
-      return `<td class="${cls}">${total ? `${done}/${total}` : '–'}</td>`;
-    }).join('')}<td class="pts-cell">${r.pts ?? ''}</td></tr>`).join('')}</tbody></table>`;
-  } else {
-    const mid = weekWho === 'shared' ? '' : weekWho;
-    const getList = k => mid ? ownOn(k, mid, true) : sharedOn(k, true);
-    const perDay = Object.fromEntries(days.map(k => [k, getList(k)]));
-    const seen = new Map();
-    days.forEach(k => sortTasks(perDay[k]).forEach(t => { if (!seen.has(t.id)) seen.set(t.id, t); }));
-    const rows = sortTasks([...seen.values()]);
-    table = rows.length ? `<table class="week detail"><thead>${head}</thead><tbody>${rows.map(r => `<tr><th>${esc(r.emoji)} ${r.time ? `<span class="time">${esc(r.time)}</span>` : ''}${esc(r.title)}</th>${days.map(k => {
-      const t = perDay[k].find(x => x.id === r.id);
-      if (!t) return '<td class="none"></td>';
-      const c = cellState(k, t, mid);
-      return `<td class="${c.cls}" title="${esc(c.title)}" data-action="week-cell" data-day="${k}" data-task="${t.id}" data-member="${mid}">${c.txt}</td>`;
-    }).join('')}</tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma tarefa nesta semana.</div>';
-  }
-
-  // Notas da semana: compromissos, lembretes e mudanças de tarefas.
-  const notes = days.flatMap(k => [
-    ...agendaOn(k).map(a => `<li><b>${esc(fmtDay(k, { weekday: 'short', day: '2-digit' }))}</b> ${esc(a.emoji)} ${a.time ? esc(a.time) + ' · ' : ''}${esc(a.title)}${a.note ? ` <small>(${esc(a.note)})</small>` : ''}</li>`),
-    ...Object.entries(S.overrides[k] || {}).map(([id, o]) => {
-      const t = S.tasks.find(x => x.id === id);
-      if (!t) return '';
-      const what = [o.skip ? '⏭ não precisa' : '', o.memberIds ? `👉 repassada para ${names(o.memberIds)}` : '', o.note ? `📝 ${esc(o.note)}` : ''].filter(Boolean).join(' · ');
-      return `<li><b>${esc(fmtDay(k, { weekday: 'short', day: '2-digit' }))}</b> ${esc(t.emoji)} ${esc(t.title)} — ${what}</li>`;
-    }),
-  ]).filter(Boolean);
-  const legend = weekWho === 'resumo' ? '' : `<p class="legend">✓ feito · ✗ não feito · ○ para hoje · · programado · ⏭ não precisava${unlocked ? ' · <b>toque numa célula para marcar/desmarcar</b>' : ' · entre no ✏️ Editar para corrigir'}</p>`;
-  return `${nav}<div class="bar">${chips}</div>
-    <section class="card"><div class="table-wrap">${table}</div>${legend}</section>
-    <section class="card" style="margin-top:16px"><h2>📝 Notas da semana</h2>${notes.length ? `<ul class="log notes">${notes.join('')}</ul>` : '<div class="empty">Nenhuma nota ou compromisso nesta semana.</div>'}</section>`;
-}
-
-// ---------- Agenda ----------
-function viewAgenda() {
-  const t = today();
-  const upcoming = S.agenda.filter(a => a.date >= t);
-  const past = S.agenda.filter(a => a.date < t);
-  // Mudanças em tarefas dos próximos dias também aparecem aqui.
-  const changes = Object.entries(S.overrides).filter(([k]) => k >= t).flatMap(([k, o]) => Object.entries(o).map(([id, v]) => ({ k, t: S.tasks.find(x => x.id === id), v }))).filter(x => x.t);
-  const dates = [...new Set([...upcoming.map(a => a.date), ...changes.map(c => c.k)])].sort();
-  const groups = dates.map(k => `<div class="agenda-day"><h3>${['Hoje', 'Amanhã'].includes(dayLabel(k)) ? `${dayLabel(k)} <small>${esc(fmtDay(k))}</small>` : esc(fmtDay(k))}</h3><ul>
-      ${agendaOn(k).map(a => agendaItem(a)).join('')}
-      ${changes.filter(c => c.k === k).map(c => `<li><button class="agenda-item change" data-action="goto-day" data-day="${k}">
-        <span>${esc(c.t.emoji)}</span><span>${esc(c.t.title)} — ${[c.v.skip ? '⏭ não precisa' : '', c.v.memberIds ? `👉 ${names(c.v.memberIds)}` : '', c.v.note ? `📝 ${esc(c.v.note)}` : ''].filter(Boolean).join(' · ')}</span></button></li>`).join('')}
-    </ul></div>`).join('');
-  const pastList = showPastAgenda ? `<ul>${past.sort((a, b) => b.date.localeCompare(a.date)).map(a => agendaItem(a, true)).join('')}</ul>` : '';
-  return `<div class="bar">
-      <button class="btn primary big" data-action="new-agenda" data-kind="compromisso">📌 Novo compromisso</button>
-      <button class="btn big" data-action="new-agenda" data-kind="lembrete">💬 Novo lembrete</button>
-    </div>
-    <section class="card">${groups || `<div class="empty">${tucano()}Nada marcado nos próximos dias.<br>Use os botões acima para anotar festas, consultas ou lembretes como “amanhã não precisa levar lancheira”.</div>`}</section>
-    ${past.length ? `<p><button class="btn ghost" data-action="past-agenda">${showPastAgenda ? 'Esconder' : 'Ver'} anteriores (${past.length})</button></p>${pastList}` : ''}`;
-}
-
-function viewScore() {
-  const medals = ['🥇', '🥈', '🥉'];
-  const ranked = S.members.map(m => ({ m, w: weekPoints(m.id), b: balance(m.id) })).sort((a, b) => b.w - a.w);
-  const rows = ranked.map((r, i) => `<div class="rank">
-      <div class="pos">${medals[i] || i + 1}</div>
-      <div class="avatar" style="--c:${esc(r.m.color)}">${esc(r.m.emoji)}</div>
-      <div class="name">${esc(r.m.name)}</div>
-      <div class="big">${r.w} ⭐<small>nesta semana · saldo ${r.b}</small></div>
-    </div>`).join('');
-  const recent = S.log.slice(-25).reverse().map(l => {
-    const m = member(l.memberId);
-    const when = new Date(l.t).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
-    return `<li><time>${when}</time><span>${m ? esc(m.emoji) + ' ' + esc(m.name) : '—'}: ${esc(l.label)}</span>
-      <span class="p ${l.points < 0 ? 'neg' : 'pos'}">${l.points > 0 ? '+' : ''}${l.points}</span></li>`;
-  }).join('');
-  return `<div class="grid">
-    <section class="card"><h2>🏆 Ranking da semana</h2>${rows || '<div class="empty">Sem pessoas cadastradas.</div>'}</section>
-    <section class="card"><h2>📜 Últimas atividades</h2>${recent ? `<ul class="log">${recent}</ul>` : '<div class="empty">Nenhuma atividade ainda.</div>'}</section>
-  </div>`;
-}
-
-function viewRewards() {
-  if (!S.rewards.length) return `<div class="center card">Nenhum prêmio cadastrado. Adicione em <b>Ajustes</b>.</div>`;
-  const best = Math.max(0, ...S.members.map(m => balance(m.id)));
-  return `<div class="grid">${S.rewards.map(r => `<section class="card reward">
-      <div class="emo">${esc(r.emoji)}</div>
-      <div class="title">${esc(r.title)}</div>
-      <div class="cost">${r.cost} ⭐</div>
-      <button class="btn primary" data-action="redeem" data-id="${r.id}" ${best < r.cost ? 'disabled' : ''}>Trocar pontos</button>
-    </section>`).join('')}</div>`;
-}
-
-let cfgWho = 'todos', cfgDay = 'todos';
-function viewConfig() {
-  if (!unlocked) return `<div class="center card">${tucano('big-mascot')}<p>Área dos pais: cadastre pessoas, tarefas e prêmios.</p>
-    <button class="btn primary big" data-action="unlock">Entrar com PIN</button></div>`;
-  const people = S.members.map(m => `<div class="row"><span class="emo">${esc(m.emoji)}</span>
-      <div class="info"><b style="color:${esc(m.color)}">●</b> ${esc(m.name)}<small>${balance(m.id)} pontos</small></div>
-      <div class="acts"><button class="btn" data-action="edit-member" data-id="${m.id}">Editar</button>
-      <button class="btn danger" data-action="del-member" data-id="${m.id}">Excluir</button></div></div>`).join('');
-  const whoChips = [['todos', 'Todos'], ...S.members.map(m => [m.id, `${esc(m.emoji)} ${esc(m.name)}`])]
-    .map(([v, l]) => `<button class="chip ${cfgWho === v ? 'on' : ''}" data-action="cfg-who" data-v="${v}">${l}</button>`).join('');
-  const dayChips = [['todos', 'Todos os dias'], ...WEEK_ORDER.map(d => [String(d), DAYS[d]]), ['once', '📅 Só um dia']]
-    .map(([v, l]) => `<button class="chip ${cfgDay === v ? 'on' : ''}" data-action="cfg-day" data-v="${v}">${l}</button>`).join('');
-  const filtered = S.tasks.filter(t => (cfgWho === 'todos' || t.memberIds.includes(cfgWho)) &&
-    (cfgDay === 'todos' || (cfgDay === 'once' ? !!t.date : !t.date && t.days.includes(Number(cfgDay)))));
-  const sorted = Object.keys(CATS).flatMap(c => sortTasks(filtered.filter(t => t.category === c)));
-  const tasks = sorted.map(t => `<div class="row"><span class="emo">${esc(t.emoji)}</span>
-      <div class="info">${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)} <b style="color:var(--ok)">+${t.points}</b>
-        <small>${CATS[t.category]} · ${t.date ? '📅 ' + esc(fmtDay(t.date, { day: '2-digit', month: '2-digit', weekday: 'short' })) : daysLabel(t.days)} ·
-        ${names(t.memberIds).split(', ').join(t.shared ? ' ou ' : ', ')}
-        ${t.mode === 'sobrevivencia' ? ' · 🆘 só sobrevivência' : t.mode === 'sempre' ? ' · 🆘 sempre' : ''}${t.alert ? ' · 🦜 aviso' : ''}</small></div>
-      <div class="acts"><button class="btn" data-action="edit-task" data-id="${t.id}">Editar</button>
-      <button class="btn danger" data-action="del-task" data-id="${t.id}">Excluir</button></div></div>`).join('');
-  const rewards = S.rewards.map(r => `<div class="row"><span class="emo">${esc(r.emoji)}</span>
-      <div class="info">${esc(r.title)}<small>${r.cost} pontos</small></div>
-      <div class="acts"><button class="btn" data-action="edit-reward" data-id="${r.id}">Editar</button>
-      <button class="btn danger" data-action="del-reward" data-id="${r.id}">Excluir</button></div></div>`).join('');
-  return `<section class="card">
-    <h3 class="section">👨‍👩‍👧‍👦 Pessoas <button class="btn primary" data-action="edit-member">+ Adicionar</button></h3>${people || '<div class="empty">Ninguém ainda.</div>'}
-    <h3 class="section">✅ Tarefas fixas (${filtered.length}) <button class="btn primary" data-action="new-task">+ Adicionar</button></h3>
-    <p class="legend">Dica: para mudar só um dia (nota, repassar, não precisa), use <b>✏️ Editar</b> na tela do dia.</p>
-    <div class="bar">${whoChips}</div><div class="bar">${dayChips}</div>
-    ${tasks || '<div class="empty">Nenhuma tarefa com esse filtro.</div>'}
-    <h3 class="section">🎁 Prêmios <button class="btn primary" data-action="edit-reward">+ Adicionar</button></h3>${rewards || '<div class="empty">Nenhum prêmio.</div>'}
-    <h3 class="section">⭐ Pontos</h3>
-    <div class="bar"><button class="btn" data-action="bonus">Dar ou tirar pontos</button>
-      <button class="btn danger" data-action="reset-points">Zerar pontos e histórico</button></div>
-    <h3 class="section">🔐 Segurança e backup</h3>
-    <div class="bar"><button class="btn" data-action="change-pin">Trocar PIN</button>
-      <button class="btn" data-action="export">Baixar backup</button>
-      <button class="btn" data-action="import">Restaurar backup</button>
-      <button class="btn danger" data-action="reset-all">Voltar à rotina original</button>
-      <button class="btn ghost" data-action="lock">🔒 Travar</button></div>
-  </section>`;
-}
-
-function daysLabel(days) {
-  if (days.length === 7) return 'todo dia';
-  if (days.length === 5 && WEEKDAYS.every(d => days.includes(d))) return 'seg a sex';
-  return WEEK_ORDER.filter(d => days.includes(d)).map(d => DAYS[d]).join(', ');
-}
-
-// ---------- Diálogos ----------
-const dlg = $('#dlg'), dlgForm = $('#dlgForm');
-let dlgHandler = null;
-function openDlg(title, body, onOk, okLabel = 'Salvar', extra = '') {
-  dlgForm.innerHTML = `<h2>${title}</h2>${body}<div class="dlg-actions">${extra}<span class="spacer"></span>
-    <button type="button" class="btn ghost" data-action="dlg-cancel">Cancelar</button>
-    ${onOk ? `<button class="btn primary">${okLabel}</button>` : ''}</div>`;
-  dlgHandler = onOk;
-  if (!dlg.open) dlg.showModal();
-  dlgForm.scrollTop = 0;
-}
-dlgForm.addEventListener('submit', e => {
-  e.preventDefault();
-  if (dlgHandler && dlgHandler(new FormData(dlgForm)) === false) return;
-  dlg.close();
-  save();
-  render();
-});
-
-const field = (label, html) => `<label class="field"><span>${label}</span>${html}</label>`;
-const emojiField = v => `<div class="field"><span>Emoji</span><input type="text" name="emoji" value="${esc(v)}" required>
-  <div class="emoji-picks">${EMOJIS.map(e => `<button type="button" data-action="pick-emoji" data-v="${e}">${e}</button>`).join('')}</div></div>`;
-const pinField = () => field('PIN dos pais', `<input type="password" name="pin" inputmode="numeric" autocomplete="off" required>`);
-const memberChecks = (selected, name = 'members') => `<div class="opts">${S.members.map(m => `<label>
-  <input type="checkbox" name="${name}" value="${m.id}" ${selected.includes(m.id) ? 'checked' : ''}>${esc(m.emoji)} ${esc(m.name)}</label>`).join('')}</div>`;
-const opt = (list, cur) => list.map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
-
-// Confirmação dentro do app (funciona até onde o navegador bloqueia janelas de confirmação).
-function askConfirm(msg, onYes, yesLabel = 'Sim') {
-  openDlg('Tem certeza?', `<p>${esc(msg)}</p>`, () => { setTimeout(onYes); }, yesLabel);
-}
-
-// Pede o PIN só se ainda não estiver liberado.
-function withPin(then) {
-  if (unlocked) return then();
-  openDlg('🔒 PIN dos pais', pinField(), fd => {
-    if (fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
-    unlocked = true;
-    setTimeout(then);
-  }, 'Entrar');
-}
-
-function editMember(id) {
-  const m = member(id) || { name: '', emoji: '🙂', color: COLORS[S.members.length % COLORS.length] };
-  openDlg(id ? 'Editar pessoa' : 'Nova pessoa',
-    field('Nome', `<input type="text" name="name" value="${esc(m.name)}" required>`) + emojiField(m.emoji) +
-    `<div class="field"><span>Cor</span><div class="opts">${COLORS.map(c => `<label class="swatch" style="background:${c}">
-      <input type="radio" name="color" value="${c}" ${c === m.color ? 'checked' : ''}></label>`).join('')}</div></div>`,
-    fd => {
-      const data = { name: fd.get('name').trim(), emoji: fd.get('emoji').trim() || '🙂', color: fd.get('color') || m.color };
-      if (id) Object.assign(m, data); else S.members.push({ id: uid(), ...data });
-    });
-}
-
-function editTask(id, onDay) {
-  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, note: '', time: '', category: 'casa', period: 'livre',
-    memberIds: memberFilter !== 'todos' ? [memberFilter] : [], days: ALL_DAYS, shared: false, mode: 'normal', alert: false, date: onDay };
-  openDlg(id ? 'Editar tarefa' : onDay ? `Nova tarefa — ${esc(dayLabel(onDay))}` : 'Nova tarefa fixa',
-    field('Tarefa', `<input type="text" name="title" value="${esc(t.title)}" required>`) +
-    field('Observação (opcional)', `<input type="text" name="note" value="${esc(t.note)}" placeholder="Ex.: passos, quantidade, o que levar">`) +
-    `<div class="field"><span>Quem faz</span>${memberChecks(t.memberIds)}</div>` +
-    `<div class="field"><div class="opts"><label><input type="checkbox" name="shared" ${t.shared ? 'checked' : ''}>
-      🤝 Basta um fazer (ganha quem fizer primeiro)</label></div></div>` +
-    field('Quando', `<select name="when" data-action-change="when"><option value="weekly" ${t.date ? '' : 'selected'}>Toda semana, nos dias abaixo</option>
-      <option value="once" ${t.date ? 'selected' : ''}>Só uma vez, na data abaixo</option></select>`) +
-    `<div class="field when-weekly" ${t.date ? 'hidden' : ''}><span>Dias</span><div class="opts">${WEEK_ORDER.map(d => `<label>
-      <input type="checkbox" name="days" value="${d}" ${!t.date && t.days.includes(d) ? 'checked' : ''}>${DAYS[d]}</label>`).join('')}</div></div>` +
-    `<label class="field when-once" ${t.date ? '' : 'hidden'}><span>Data</span><input type="date" name="date" value="${esc(t.date || today())}"></label>` +
-    field('Horário (opcional — define o período sozinho)', `<input type="time" name="time" value="${esc(t.time)}">`) +
-    field('Período (se não tiver horário)', `<select name="period">${opt(PERIODS, t.period)}</select>`) +
-    field('Pontos', `<input type="number" name="points" min="0" max="1000" value="${t.points}" required>`) +
-    field('Tipo', `<select name="category">${opt(Object.entries(CATS), t.category)}</select>`) +
-    emojiField(t.emoji) +
-    field('Modo sobrevivência', `<select name="mode">${opt(MODES, t.mode)}</select>`) +
-    `<div class="field"><div class="opts"><label><input type="checkbox" name="alert" ${t.alert ? 'checked' : ''}>
-      🦜 Mostrar no aviso do tucano (compromisso importante)</label></div></div>`,
-    fd => {
-      const time = fd.get('time') || '';
-      const once = fd.get('when') === 'once';
-      const data = {
-        title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '⭐', note: fd.get('note').trim(),
-        points: Math.max(0, parseInt(fd.get('points'), 10) || 0), category: fd.get('category'),
-        time, period: time ? periodOf(time) : fd.get('period'),
-        memberIds: fd.getAll('members'), shared: fd.has('shared'), alert: fd.has('alert'),
-        days: once ? [] : fd.getAll('days').map(Number), date: once ? fd.get('date') : undefined, mode: fd.get('mode'),
-      };
-      if (!data.memberIds.length) { toast('Escolha pelo menos uma pessoa'); return false; }
-      if (once ? !data.date : !data.days.length) { toast(once ? 'Escolha a data' : 'Escolha pelo menos um dia'); return false; }
-      if (data.memberIds.length < 2) data.shared = false;
-      if (id) Object.assign(t, data); else S.tasks.push({ id: uid(), ...data });
-      if (!data.date) delete t.date;
-      toast('Tarefa salva ✅');
-    }, 'Salvar',
-    id ? `<button type="button" class="btn danger" data-action="del-task" data-id="${id}">Excluir</button>` : '');
-}
-
-// Mudanças só para um dia: nota, repassar, não precisa, mudar de dia.
-function dayMenu(k, taskId) {
-  const base = S.tasks.find(x => x.id === taskId);
-  if (!base) return;
-  const o = override(k, taskId);
-  const current = o.memberIds || base.memberIds;
-  openDlg(`${esc(base.emoji)} ${esc(base.title)}<small class="dlg-sub">${esc(dayLabel(k))} · ${esc(fmtDay(k))}</small>`,
-    field('📝 Nota para este dia', `<input type="text" name="note" value="${esc(o.note || '')}" placeholder="Ex.: lavei na quarta porque a Sophie fez xixi">`) +
-    `<div class="field"><span>👉 Quem faz neste dia</span>${memberChecks(current)}</div>` +
-    `<div class="field"><div class="opts"><label><input type="checkbox" name="skip" ${o.skip ? 'checked' : ''}>⏭ Não precisa fazer neste dia</label></div></div>` +
-    field('📅 Mudar para outro dia (opcional)', `<input type="date" name="move" min="${today()}">`),
-    fd => {
-      const note = fd.get('note').trim();
-      const members = fd.getAll('members');
-      const move = fd.get('move');
-      if (!members.length) { toast('Escolha pelo menos uma pessoa'); return false; }
-      if (move && move !== k) {
-        if (base.date) {
-          // Tarefa de um dia só: muda a data e leva as mudanças junto.
-          base.date = move;
-          setOverride(move, taskId, { note, memberIds: members });
-          setOverride(k, taskId, {});
-        } else {
-          S.tasks.push({ ...base, id: uid(), days: [], date: move, memberIds: members, note: base.note });
-          setOverride(move, S.tasks.at(-1).id, { note: note || `Mudou de ${shortDay(k)}` });
-          setOverride(k, taskId, { skip: true, note: note || `Mudou para ${shortDay(move)}` });
-        }
-        toast(`Mudou para ${dayLabel(move).toLowerCase()} 📅`);
-        return;
-      }
-      const same = members.slice().sort().join() === base.memberIds.slice().sort().join();
-      setOverride(k, taskId, { note, skip: fd.has('skip'), memberIds: same ? undefined : members });
-      toast('Anotado para este dia ✅');
-    }, 'Salvar',
-    `<button type="button" class="btn" data-action="edit-task" data-id="${taskId}">✏️ Mudar a tarefa fixa</button>`);
-}
-function setOverride(k, id, o) {
-  const clean = {};
-  if (o.note) clean.note = o.note;
-  if (o.skip) clean.skip = true;
-  if (o.memberIds) clean.memberIds = o.memberIds;
-  S.overrides[k] ||= {};
-  if (Object.keys(clean).length) S.overrides[k][id] = clean; else delete S.overrides[k][id];
-  if (!Object.keys(S.overrides[k]).length) delete S.overrides[k];
-}
-
-function editAgenda(id, preset = {}) {
-  const a = S.agenda.find(x => x.id === id) || { kind: 'compromisso', date: addDays(today(), 1), time: '', title: '', emoji: '📌', memberIds: [], note: '', ...preset };
-  if (!id && a.kind === 'lembrete' && a.emoji === '📌') a.emoji = '💬';
-  openDlg(id ? 'Editar' : a.kind === 'lembrete' ? 'Novo lembrete' : 'Novo compromisso',
-    field('Tipo', `<select name="kind">${opt(KINDS, a.kind)}</select>`) +
-    field('O quê', `<input type="text" name="title" value="${esc(a.title)}" required placeholder="Ex.: Não precisa levar lancheira — festa no Kindergarten">`) +
-    field('Dia', `<input type="date" name="date" value="${esc(a.date)}" required>`) +
-    field('Horário (opcional)', `<input type="time" name="time" value="${esc(a.time)}">`) +
-    `<div class="field"><span>Para quem (opcional)</span>${memberChecks(a.memberIds)}</div>` +
-    field('Observação (opcional)', `<input type="text" name="note" value="${esc(a.note)}" placeholder="Ex.: levar presente, roupa de festa">`) +
-    emojiField(a.emoji),
-    fd => {
-      const data = { kind: fd.get('kind'), title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || '',
-        memberIds: fd.getAll('members'), note: fd.get('note').trim(), emoji: fd.get('emoji').trim() || '📌' };
-      if (id) Object.assign(a, data); else S.agenda.push({ id: uid(), ...data });
-      toast(`Anotado para ${dayLabel(data.date).toLowerCase()} ✅`);
-    }, 'Salvar',
-    id ? `<button type="button" class="btn danger" data-action="del-agenda" data-id="${id}">Excluir</button>` : '');
-}
-
-function editReward(id) {
-  const r = S.rewards.find(x => x.id === id) || { title: '', emoji: '🎁', cost: 50 };
-  openDlg(id ? 'Editar prêmio' : 'Novo prêmio',
-    field('Prêmio', `<input type="text" name="title" value="${esc(r.title)}" required>`) + emojiField(r.emoji) +
-    field('Custa quantos pontos', `<input type="number" name="cost" min="1" max="100000" value="${r.cost}" required>`),
-    fd => {
-      const data = { title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '🎁', cost: Math.max(1, parseInt(fd.get('cost'), 10) || 1) };
-      if (id) Object.assign(r, data); else S.rewards.push({ id: uid(), ...data });
-    });
-}
-
-function redeem(id) {
-  const r = S.rewards.find(x => x.id === id);
-  const who = S.members.map(m => {
-    const b = balance(m.id);
-    return `<label><input type="radio" name="member" value="${m.id}" ${b < r.cost ? 'disabled' : ''} required>${esc(m.emoji)} ${esc(m.name)} (${b} ⭐)</label>`;
-  }).join('');
-  openDlg(`${esc(r.emoji)} ${esc(r.title)} — ${r.cost} ⭐`,
-    `<div class="field"><span>Quem vai trocar?</span><div class="opts">${who}</div></div>` + (unlocked ? '' : pinField()),
-    fd => {
-      if (!unlocked && fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
-      const mid = fd.get('member');
-      if (!mid || balance(mid) < r.cost) { toast('Pontos insuficientes'); return false; }
-      S.log.push({ t: Date.now(), memberId: mid, type: 'reward', label: `Trocou: ${r.title}`, points: -r.cost });
-      celebrate(`🎁 ${member(mid).name} ganhou: ${r.title}!`, true);
-    }, 'Trocar');
-}
-
-function bonus() {
-  openDlg('Dar ou tirar pontos',
-    field('Pessoa', `<select name="member">${S.members.map(m => `<option value="${m.id}">${esc(m.emoji)} ${esc(m.name)}</option>`).join('')}</select>`) +
-    field('Pontos (use negativo para tirar)', `<input type="number" name="points" value="10" required>`) +
-    field('Motivo', `<input type="text" name="label" placeholder="Ex.: Ajudou a irmã" required>`),
-    fd => {
-      const points = parseInt(fd.get('points'), 10) || 0;
-      if (!points) { toast('Informe os pontos'); return false; }
-      S.log.push({ t: Date.now(), memberId: fd.get('member'), type: 'bonus', label: fd.get('label').trim(), points });
-    }, 'Confirmar');
-}
-
-// ---------- Marcar tarefas ----------
-function toggle(k, taskId, mid) {
-  const t = tasksOn(k, true).find(x => x.id === taskId);
-  if (!t || t.skip) return;
-  const day = S.completions[k] || (S.completions[k] = {});
-  const key = keyOf(t, mid);
-  if (day[key]) {
-    const by = member(t.shared ? day[key] : mid);
-    askConfirm(`Desmarcar "${t.title}"${by ? ` de ${by.name}` : ''}?`, () => {
-      delete day[key];
-      const i = S.log.findLastIndex(l => l.type === 'task' && l.taskId === taskId && l.day === k && (t.shared || l.memberId === mid));
-      if (i >= 0) S.log.splice(i, 1);
-      save();
-      render();
-    }, 'Desmarcar');
-  } else if (t.shared && !mid) {
-    // Tarefa compartilhada: pergunta quem fez.
-    const opts = t.memberIds.map(member).filter(Boolean);
-    if (opts.length === 1) return complete(k, t, opts[0].id);
-    openDlg(`${esc(t.emoji)} Quem fez?`, `<div class="who-pick">${opts.map(m =>
-      `<button type="button" style="--c:${esc(m.color)}" data-action="did-it" data-day="${k}" data-task="${t.id}" data-member="${m.id}"><span>${esc(m.emoji)}</span>${esc(m.name)}</button>`).join('')}</div>`);
-  } else {
-    complete(k, t, mid);
-  }
-}
-
-function complete(k, t, mid) {
-  const m = member(mid);
-  if (!m) return;
-  const day = S.completions[k] || (S.completions[k] = {});
-  day[keyOf(t, mid)] = t.shared ? mid : Date.now();
-  const when = k === today() ? Date.now() : parseDay(k).getTime() + 12 * 3600e3;
-  S.log.push({ t: when, day: k, taskId: t.id, memberId: mid, type: 'task', label: t.title, points: t.points });
-  const left = t.shared ? 1 : ownOn(k, mid).filter(x => !doneValue(k, x, mid)).length;
-  celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo!`, !left);
-  save();
-  render();
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `casa-backup-${today()}.json`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
-$('#importFile').addEventListener('change', async e => {
-  const file = e.target.files[0];
-  e.target.value = '';
-  if (!file) return;
-  try {
-    const data = JSON.parse(await file.text());
-    if (!Array.isArray(data.members) || !Array.isArray(data.tasks)) throw new Error();
-    askConfirm('Substituir todos os dados atuais por este backup?', () => {
-      S = normalize(data);
-      save();
-      render();
-      toast('Backup restaurado ✅');
-    }, 'Substituir');
-  } catch { toast('Arquivo de backup inválido'); }
-});
-
-function remove(list, id, msg) {
-  askConfirm(msg, () => {
-    S[list] = S[list].filter(x => x.id !== id);
-    if (list === 'members') {
-      S.tasks.forEach(t => t.memberIds = t.memberIds.filter(x => x !== id));
-      S.tasks = S.tasks.filter(t => t.memberIds.length);
-    }
-    save();
-    render();
-  }, 'Excluir');
-}
-
-const actions = {
-  'tab': el => { tab = el.dataset.tab; if (tab !== 'hoje') editMode = false; render(); scrollTo(0, 0); },
-  'cat': el => { catFilter = el.dataset.v; render(); },
-  'who': el => { memberFilter = el.dataset.v; render(); },
-  'day': el => { const n = Number(el.dataset.n); viewDay = n ? addDays(viewDay, n) : today(); render(); },
-  'goto-day': el => { viewDay = el.dataset.day; tab = 'hoje'; render(); scrollTo(0, 0); },
-  'week': el => { const n = Number(el.dataset.n); weekFrom = n ? addDays(weekFrom, n) : mondayOf(today()); render(); },
-  'week-who': el => { weekWho = el.dataset.v; render(); },
-  'week-cell': el => {
-    if (!unlocked) return toast('Entre no ✏️ Editar (PIN) para corrigir a semana');
-    if (el.dataset.day > today()) return toast('Esse dia ainda não chegou 🙂');
-    toggle(el.dataset.day, el.dataset.task, el.dataset.member);
-  },
-  'past-agenda': () => { showPastAgenda = !showPastAgenda; render(); },
-  'survival': () => {
-    if (S.survival[viewDay]) delete S.survival[viewDay]; else S.survival[viewDay] = true;
-    save();
-    render();
-  },
-  'edit-mode': () => editMode ? (editMode = false, render()) : withPin(() => { editMode = true; render(); }),
-  'task': el => {
-    const k = el.dataset.day;
-    if (editMode) return dayMenu(k, el.dataset.task);
-    if (k > today()) return toast('Esse dia ainda não chegou 🙂 Use ✏️ Editar para planejar.');
-    toggle(k, el.dataset.task, el.dataset.member);
-  },
-  'did-it': el => { dlg.close(); complete(el.dataset.day, tasksOn(el.dataset.day).find(t => t.id === el.dataset.task), el.dataset.member); },
-  'redeem': el => redeem(el.dataset.id),
-  'unlock': () => withPin(render),
-  'lock': () => { unlocked = false; editMode = false; tab = 'hoje'; render(); },
-  'edit-member': el => editMember(el.dataset.id),
-  'edit-task': el => withPin(() => editTask(el.dataset.id)),
-  'new-task': el => withPin(() => editTask(undefined, el.dataset.day)),
-  'edit-reward': el => editReward(el.dataset.id),
-  'new-agenda': el => editAgenda(undefined, { ...(el.dataset.day ? { date: el.dataset.day } : {}), ...(el.dataset.kind ? { kind: el.dataset.kind } : {}) }),
-  'edit-agenda': el => editAgenda(el.dataset.id),
-  'del-agenda': el => remove('agenda', el.dataset.id, 'Excluir este compromisso/lembrete?'),
-  'del-member': el => remove('members', el.dataset.id, `Excluir ${member(el.dataset.id).name}? As tarefas só dessa pessoa também serão excluídas.`),
-  'del-task': el => remove('tasks', el.dataset.id, 'Excluir esta tarefa de vez?'),
-  'del-reward': el => remove('rewards', el.dataset.id, 'Excluir este prêmio?'),
-  'cfg-who': el => { cfgWho = el.dataset.v; render(); },
-  'cfg-day': el => { cfgDay = el.dataset.v; render(); },
-  'bonus': bonus,
-  'reset-points': () => {
-    askConfirm('Zerar os pontos e o histórico de todo mundo? Isso não pode ser desfeito.', () => {
-      S.log = []; S.completions = {}; save(); render();
-    }, 'Zerar');
-  },
-  'reset-all': () => {
-    askConfirm('Apagar tudo (pessoas, tarefas, agenda, prêmios e pontos) e voltar à rotina original?', () => {
-      S = defaults(); unlocked = false; editMode = false; tab = 'hoje'; save(); render();
-    }, 'Apagar tudo');
-  },
-  'change-pin': () => openDlg('Trocar PIN', field('Novo PIN (4 a 8 números)', `<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" required>`),
-    fd => { S.pin = fd.get('pin'); toast('PIN alterado ✅'); }),
-  'export': exportData,
-  'import': () => $('#importFile').click(),
-  'pick-emoji': el => { el.closest('.field').querySelector('input[name=emoji]').value = el.dataset.v; },
-  'dlg-cancel': () => dlg.close(),
-};
-document.addEventListener('click', e => {
-  lastActivity = Date.now();
-  const el = e.target.closest('[data-action]');
-  if (el && actions[el.dataset.action]) actions[el.dataset.action](el);
-});
-// Formulário de tarefa: mostra dias da semana ou data, conforme "Quando".
-dlgForm.addEventListener('change', e => {
-  if (e.target.name === 'kind') {
-    const emoji = dlgForm.querySelector('input[name=emoji]');
-    if (['📌', '💬'].includes(emoji.value)) emoji.value = e.target.value === 'lembrete' ? '💬' : '📌';
-  }
-  if (e.target.name !== 'when') return;
-  const once = e.target.value === 'once';
-  dlgForm.querySelector('.when-weekly').hidden = once;
-  dlgForm.querySelector('.when-once').hidden = !once;
-});
-
-// ---------- Efeitos ----------
-let toastTimer;
-function toast(msg, withMascot = false) {
-  document.querySelector('.toast')?.remove();
-  const el = document.createElement('div');
-  el.className = 'toast';
-  el.innerHTML = (withMascot ? tucano() : '') + `<span>${esc(msg)}</span>`;
-  document.body.appendChild(el);
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.remove(), 2400);
-}
-function celebrate(msg, big = false) {
-  toast(msg, true);
-  if (big) {
-    const j = document.createElement('div');
-    j.className = 'mascot-fly';
-    j.innerHTML = tucano();
-    document.body.appendChild(j);
-    setTimeout(() => j.remove(), 1900);
-  }
-  const bits = ['⭐', '🎉', '✨', '🌟', '💫'];
-  for (let i = 0; i < 14; i++) {
-    const s = document.createElement('span');
-    s.className = 'burst';
-    s.textContent = bits[i % bits.length];
-    s.style.left = innerWidth / 2 + 'px';
-    s.style.top = innerHeight * .6 + 'px';
-    s.style.setProperty('--dx', (Math.random() - .5) * 600 + 'px');
-    s.style.setProperty('--dy', -(150 + Math.random() * 350) + 'px');
-    s.style.setProperty('--r', (Math.random() - .5) * 720 + 'deg');
-    document.body.appendChild(s);
-    setTimeout(() => s.remove(), 1000);
-  }
-}
-
-setInterval(() => {
-  // Vira o dia sozinho se o tablet ficar ligado.
-  if (today() !== lastDay) {
-    if (viewDay === lastDay) viewDay = today();
-    lastDay = today(); prune(); save();
-    if (!dlg.open) render();
-  }
-  // Trava a edição depois de um tempo parado (para as crianças não mexerem).
-  if (unlocked && Date.now() - lastActivity > LOCK_AFTER && !dlg.open) {
-    unlocked = false; editMode = false; if (tab === 'config') tab = 'hoje'; render();
-  }
-}, 60000);
-
-prune();
-save();
-render();
-if ('serviceWorker' in navigator && location.protocol === 'https:' && window.self === window.top) navigator.serviceWorker.register('sw.js').catch(() => {});
-</script>
+<script src="icons.js"></script>
+<script src="seed.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
