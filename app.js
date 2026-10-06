@@ -3,6 +3,8 @@
 
 const KEY = 'familia-pbe-v1';
 const PERIODS = [['manha', 'Manhã'], ['tarde', 'Tarde'], ['noite', 'Noite'], ['livre', 'Qualquer hora']];
+// Grupos da rotina da casa (como no PDF da rotina semanal).
+const GROUPS = [['diaria', 'Todos os dias'], ['limpeza', 'Limpeza do dia'], ['criancas', 'Crianças'], ['fechamento', 'Fechamento do dia'], ['outras', 'Outras']];
 const KINDS = [['lembrete', 'Lembrete'], ['compromisso', 'Compromisso']];
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
@@ -170,6 +172,11 @@ function sortTasks(list) {
     return { t, i, key };
   }).sort((x, y) => periodIdx(x.t.period) - periodIdx(y.t.period) || x.key.localeCompare(y.key) || x.i - y.i).map(x => x.t);
 }
+// Casa: ordem do grupo e, dentro dele, a ordem em que foram cadastradas.
+const groupIdx = t => { const i = GROUPS.findIndex(g => g[0] === (t.group || 'outras')); return i < 0 ? GROUPS.length : i; };
+const houseSort = list => list.map((t, i) => ({ t, i })).sort((a, b) => groupIdx(a.t) - groupIdx(b.t) || a.i - b.i).map(x => x.t);
+const WEEKDAY_NAMES = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const groupLabel = (g, k) => g === 'limpeza' ? `Limpeza de ${WEEKDAY_NAMES[parseDay(k).getDay()]}` : GROUPS.find(x => x[0] === g)?.[1] || 'Outras';
 const scheduled = (t, k) => t.date ? t.date === k : t.days.includes(parseDay(k).getDay());
 function tasksOn(k, withSkipped = false) {
   const notes = S.days[k]?.notes || {};
@@ -202,7 +209,7 @@ function pointsBetween(mid, from, to) {
 // ---------- Telas ----------
 function render() {
   $('#date').textContent = fmtDay(today());
-  const tabs = [['hoje', 'Dia', 'dia'], ['semana', 'Semana', 'semana'], ['agenda', 'Agenda', 'agenda'], ['placar', 'Placar', 'placar'], ['premios', 'Prêmios', 'premios'], ['config', 'Ajustes', unlocked ? 'ajustes' : 'cadeado']];
+  const tabs = [['hoje', 'Dia', 'dia'], ['casa', 'Casa', 'casa'], ['semana', 'Semana', 'semana'], ['agenda', 'Agenda', 'agenda'], ['placar', 'Placar', 'placar'], ['premios', 'Prêmios', 'premios'], ['config', 'Ajustes', unlocked ? 'ajustes' : 'cadeado']];
   $('#tabs').innerHTML = tabs.map(([k, l, i]) => `<button class="${tab === k ? 'on' : ''}" data-action="tab" data-tab="${k}">${ui(i)}<span>${l}</span></button>`).join('');
   if (!loaded) { $('#app').innerHTML = `<div class="empty-page">${tucano('big')}<p>Carregando a rotina da família…</p></div>`; return; }
   if (!C()) {
@@ -210,7 +217,11 @@ function render() {
       <p>Comece cadastrando as pessoas da casa e as tarefas de cada um.</p><button class="btn primary" data-action="setup">Começar</button></div>`;
     return;
   }
-  $('#app').innerHTML = { hoje: viewDayScreen, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
+  // Mantém o quadro onde estava (no tablet ou celular ele rola para o lado).
+  const boardX = document.querySelector('.board-wrap')?.scrollLeft || 0;
+  $('#app').innerHTML = { hoje: viewDayScreen, casa: viewHouse, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
+  const board = document.querySelector('.board-wrap');
+  if (board && boardX) board.scrollLeft = boardX;
 }
 
 function taskRow(k, t, mid, big) {
@@ -221,7 +232,7 @@ function taskRow(k, t, mid, big) {
   return `<button class="task ${big ? 'big' : ''} ${v ? 'done' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
     ${icon(t.icon)}
     <span class="text">
-      <span class="title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
+      <span class="title">${t.time && !t.house ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
       ${sub ? `<span class="note">${sub}</span>` : ''}
       ${t.skip ? `<span class="daynote">Não precisa neste dia${t.dayNote ? ': ' + esc(t.dayNote) : ''}</span>` : t.dayNote ? `<span class="daynote">${esc(t.dayNote)}</span>` : ''}
     </span>
@@ -232,6 +243,12 @@ function taskList(k, tasks, mid, big) {
   return PERIODS.map(([p, label]) => {
     const list = tasks.filter(t => t.period === p);
     return list.length ? `<div class="period">${label}</div>` + list.map(t => taskRow(k, t, mid, big)).join('') : '';
+  }).join('');
+}
+function houseList(k, tasks) {
+  return GROUPS.map(([g]) => {
+    const list = tasks.filter(t => (t.group || 'outras') === g);
+    return list.length ? `<div class="period">${esc(groupLabel(g, k))}</div>` + list.map(t => taskRow(k, t, '', false)).join('') : '';
   }).join('');
 }
 function skippedList(list) {
@@ -276,14 +293,15 @@ function viewDayScreen() {
   const futureHint = future && !editMode ? `<section class="hint">${ui('agenda')}<div>Este dia ainda não chegou. Toque em <b>Editar</b> para planejar: notas, repassar ou tirar tarefas.</div></section>` : '';
 
   // Coluna da casa
-  const house = sortTasks(houseOn(k, editMode));
+  const house = houseSort(houseOn(k, editMode));
   const houseReal = house.filter(t => !t.skip);
   const houseDone = houseReal.filter(t => doneOf(k, t)).length;
   const houseCol = `<section class="col house-col">
       <header class="col-head"><span class="avatar house">${ui('casa')}</span>
-        <div><h2>Casa</h2><small>${houseDone} de ${houseReal.length} · toque e diga quem fez</small></div></header>
+        <div><h2>Casa</h2><small>${houseDone} de ${houseReal.length} feitas</small></div>
+        <button class="btn soft small" data-action="tab" data-tab="casa">Semana</button></header>
       ${progress(houseDone, houseReal.length, 'var(--accent)')}
-      ${house.length ? taskList(k, house, '', false) : '<p class="muted pad">Nada da casa neste dia.</p>'}
+      ${house.length ? houseList(k, house) : '<p class="muted pad">Nada da casa neste dia.</p>'}
       ${skippedList(houseOn(k, true))}
     </section>`;
 
@@ -291,7 +309,7 @@ function viewDayScreen() {
     const own = sortTasks(ownOn(k, m.id, editMode));
     const real = own.filter(t => !t.skip);
     const done = real.filter(t => doneOf(k, t, m.id)).length;
-    const did = m.adult ? sortTasks(houseOn(k).filter(t => doneOf(k, t)?.by === m.id)) : [];
+    const did = m.adult ? houseSort(houseOn(k).filter(t => doneOf(k, t)?.by === m.id)) : [];
     const dayPts = [...real.filter(t => doneOf(k, t, m.id)), ...did].reduce((s, t) => s + t.points, 0);
     const body = m.adult
       ? `${own.length ? taskList(k, own, m.id, false) : ''}
@@ -309,7 +327,39 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}<div class="board-wrap"><div class="board" style="--cols:${members().length + 1}">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(290px, 1.35fr) repeat(${members().length}, minmax(220px, 1fr))">${houseCol}${cols}</div></div>`;
+}
+
+// ---------- Casa: panorama da semana ----------
+let houseDay = today();
+function viewHouse() {
+  const from = mondayOf(houseDay), days = WEEK_ORDER.map((_, i) => addDays(from, i));
+  const isThis = from === mondayOf(today());
+  const nav = `<div class="daynav">
+    <button class="btn icon-btn" data-action="house-week" data-n="-7" aria-label="Semana anterior">${ui('voltar')}</button>
+    <div class="daynav-label"><b>Casa · ${isThis ? 'esta semana' : 'semana'}</b><small>${shortDay(from)} a ${shortDay(addDays(from, 6))}</small></div>
+    <button class="btn icon-btn" data-action="house-week" data-n="7" aria-label="Próxima semana">${ui('avancar')}</button>
+    ${isThis ? '' : '<button class="btn soft" data-action="house-week" data-n="0">Voltar para esta semana</button>'}
+    <span class="spacer"></span>
+    <button class="btn ${editMode ? 'primary' : 'soft'}" data-action="edit-mode">${editMode ? `${ui('ok')} Concluir` : `${ui('lapis')} Editar`}</button>
+  </div>`;
+  const chips = days.map(k => {
+    const l = houseOn(k), done = l.filter(t => doneOf(k, t)).length;
+    return `<button class="day-chip ${k === houseDay ? 'on' : ''} ${k === today() ? 'is-today' : ''}" data-action="house-day" data-day="${k}">
+      <b>${DAYS[parseDay(k).getDay()]}</b><small>${shortDay(k)}</small><span class="${l.length && done === l.length ? 'full' : ''}">${done}/${l.length}</span></button>`;
+  }).join('');
+  const k = houseDay;
+  const list = houseSort(houseOn(k, true));
+  const groups = GROUPS.map(([g]) => {
+    const items = list.filter(t => (t.group || 'outras') === g);
+    if (!items.length) return '';
+    const real = items.filter(t => !t.skip), done = real.filter(t => doneOf(k, t)).length;
+    return `<section class="card group-card"><div class="section-head"><h2>${esc(groupLabel(g, k))}</h2><span class="pill">${done}/${real.length}</span></div>
+      ${items.map(t => taskRow(k, t, '', false)).join('')}</section>`;
+  }).join('');
+  return `${nav}<div class="day-chips">${chips}</div>
+    ${k > today() && !editMode ? `<section class="hint">${ui('agenda')}<div>${esc(dayLabel(k))} ainda não chegou. Aqui você vê o que precisa ser feito. Use <b>Editar</b> para anotar, tirar ou mudar de dia.</div></section>` : ''}
+    <div class="groups">${groups || '<section class="card"><p class="muted">Nada da casa neste dia.</p></section>'}</div>`;
 }
 
 // ---------- Semana ----------
@@ -366,7 +416,7 @@ function viewWeek() {
     const perDay = Object.fromEntries(days.map(k => [k, listFor(k)]));
     const seen = new Map();
     days.forEach(k => perDay[k].forEach(t => { if (!seen.has(t.id)) seen.set(t.id, t); }));
-    const rows = sortTasks([...seen.values()]);
+    const rows = who ? sortTasks([...seen.values()]) : houseSort([...seen.values()]);
     const mid = who && !who.adult ? who.id : who?.id || '';
     table = rows.length ? `<table class="week detail"><thead>${head}</tr></thead><tbody>${rows.map(r => `<tr><th>${icon(r.icon, 'xs')}<span>${r.time ? `<span class="time">${esc(r.time)}</span>` : ''}${esc(r.title)}</span></th>${days.map(k => {
       const t = perDay[k].find(x => x.id === r.id);
@@ -453,10 +503,10 @@ function viewConfig() {
     .map(([v, l]) => `<button class="chip ${cfgDay === v ? 'on' : ''}" data-action="cfg-day" data-v="${v}">${l}</button>`).join('');
   const filtered = C().tasks.filter(t => (cfgWho === 'todos' || (cfgWho === 'casa' ? t.house : !t.house && t.memberIds.includes(cfgWho))) &&
     (cfgDay === 'todos' || (cfgDay === 'once' ? !!t.date : !t.date && t.days.includes(Number(cfgDay)))));
-  const sorted = [...sortTasks(filtered.filter(t => !t.house)), ...sortTasks(filtered.filter(t => t.house))];
+  const sorted = [...sortTasks(filtered.filter(t => !t.house)), ...houseSort(filtered.filter(t => t.house))];
   const tasks = sorted.map(t => `<div class="row">${icon(t.icon, 'sm')}
       <div class="info"><b>${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)}</b>
-        <small>${t.house ? 'Casa' : names(t.memberIds)} · ${t.date ? esc(fmtDay(t.date, { weekday: 'short', day: '2-digit', month: '2-digit' })) : daysLabel(t.days)} · ${t.points} pontos${t.alert ? ' · aparece no aviso' : ''}</small></div>
+        <small>${t.house ? `Casa · ${esc(GROUPS.find(g => g[0] === (t.group || 'outras'))[1])}` : names(t.memberIds)} · ${t.date ? esc(fmtDay(t.date, { weekday: 'short', day: '2-digit', month: '2-digit' })) : daysLabel(t.days)} · ${t.points} pontos${t.alert ? ' · aparece no aviso' : ''}</small></div>
       <div class="acts"><button class="btn soft" data-action="edit-task" data-id="${t.id}">Editar</button></div></div>`).join('');
   const rewards = (C().rewards || []).map(r => `<div class="row">${icon(r.icon, 'sm')}
       <div class="info"><b>${esc(r.title)}</b><small>${r.cost} pontos</small></div>
@@ -564,7 +614,10 @@ dlgForm.addEventListener('change', e => {
     dlgForm.querySelector('.when-weekly').hidden = once;
     dlgForm.querySelector('.when-once').hidden = !once;
   }
-  if (e.target.name === 'house') dlgForm.querySelector('.who-members').hidden = e.target.checked;
+  if (e.target.name === 'house') {
+    dlgForm.querySelector('.who-members').hidden = e.target.checked;
+    dlgForm.querySelector('.house-group').hidden = !e.target.checked;
+  }
 });
 
 function editTask(id, onDay) {
@@ -573,7 +626,8 @@ function editTask(id, onDay) {
     field('Tarefa', `<input type="text" id="f-title" name="title" value="${esc(t.title)}" required>`, 'f-title') +
     iconPicker(t.icon) +
     `<div class="field"><span>Para quem</span><div class="opts"><label><input type="checkbox" name="house" ${t.house ? 'checked' : ''}> Rotina da casa (Gabriele ou Bruno marcam quem fez)</label></div>
-      <div class="who-members" ${t.house ? 'hidden' : ''}>${memberChecks(t.house ? [] : t.memberIds)}</div></div>` +
+      <div class="who-members" ${t.house ? 'hidden' : ''}>${memberChecks(t.house ? [] : t.memberIds)}</div>
+      <label class="field house-group" for="f-group" ${t.house ? '' : 'hidden'}><span>Grupo da casa</span><select id="f-group" name="group">${opt(GROUPS, t.group || 'limpeza')}</select></label></div>` +
     field('Quando', `<select id="f-when" name="when"><option value="weekly" ${t.date ? '' : 'selected'}>Toda semana, nos dias abaixo</option>
       <option value="once" ${t.date ? 'selected' : ''}>Só uma vez, na data abaixo</option></select>`, 'f-when') +
     `<div class="field when-weekly" ${t.date ? 'hidden' : ''}><span>Dias</span><div class="opts">${WEEK_ORDER.map(d => `<label>
@@ -590,6 +644,7 @@ function editTask(id, onDay) {
         title: fd.get('title').trim(), icon: fd.get('icon') || 'estrela', note: fd.get('note').trim(),
         points: Math.max(0, parseInt(fd.get('points'), 10) || 0), time, period: time ? periodOf(time) : fd.get('period'),
         house, memberIds: house ? adults().map(m => m.id) : fd.getAll('members'), alert: fd.has('alert'),
+        ...(house ? { group: fd.get('group') || 'outras' } : {}),
         days: once ? [] : fd.getAll('days').map(Number),
       };
       if (!data.memberIds.length) { toast('Escolha para quem é a tarefa'); return false; }
@@ -781,10 +836,12 @@ function removeFrom(list, id, msg) {
 }
 
 const actions = {
-  'tab': el => { tab = el.dataset.tab; if (tab !== 'hoje') editMode = false; render(); scrollTo(0, 0); },
+  'tab': el => { tab = el.dataset.tab; if (tab !== 'hoje' && tab !== 'casa') editMode = false; if (tab === 'casa') houseDay = viewDay; render(); scrollTo(0, 0); },
   'day': el => { const n = Number(el.dataset.n); viewDay = n ? addDays(viewDay, n) : today(); render(); },
   'goto-day': el => { viewDay = el.dataset.day; tab = 'hoje'; render(); scrollTo(0, 0); },
   'week': el => { const n = Number(el.dataset.n); weekFrom = n ? addDays(weekFrom, n) : mondayOf(today()); render(); },
+  'house-day': el => { houseDay = el.dataset.day; render(); },
+  'house-week': el => { const n = Number(el.dataset.n); houseDay = n ? addDays(houseDay, n) : today(); render(); },
   'week-who': el => { weekWho = el.dataset.v; render(); },
   'week-cell': el => {
     if (!unlocked) return toast('Entre em Editar (PIN) para corrigir a semana');

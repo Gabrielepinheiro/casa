@@ -28,61 +28,7 @@ function familySeed() {
     ['Colocar a mesa', 'mesa', 10], ['Jantar', 'jantar', 5], ['Ajudar a tirar a mesa', 'tirar_mesa', 10], ['Colocar a mesa do café', 'mesa_cafe', 5],
     ['Fazer xixi', 'xixi', 5], ['Escovar os dentes', 'dentes', 5], ['Leitura', 'leitura', 5], ['Dormir', 'dormir', 5]]);
 
-  // Rotina da casa: Gabriele ou Bruno, ganha quem fizer.
-  const casa = (o, list) => add({ who: pais, house: true, ...o }, list);
-  casa({ period: 'manha' }, [
-    ['Abrir as janelas dos quartos', 'janela', 5], ['Arrumar as camas', 'cama', 5, 'Esticar bem os lençóis'],
-    ['Travesseiros e home spray', 'spray', 5], ['Banheiro rápido', 'banheiro', 5, 'Pia, secar, escova rápida no vaso'],
-    ['Cozinha em ordem', 'fogao', 5, 'Pia limpa, bancada, fogão'], ['Entrada arrumada', 'sapato', 5, 'Sapatos alinhados e casacos pendurados'],
-    ['Guardar o que está fora do lugar', 'brinquedos', 5]]);
-  casa({ time: '06:30', days: WEEK }, [['Rotina da manhã + Kindergarten', 'manha', 10, '06:30–08:10']]);
-  casa({ time: '07:55', days: [2] }, [['Levar o Arthur na escola', 'escola', 10, '08:00 em ponto · chegar 5 min antes']]);
-
-  // Limpeza do dia (10:45)
-  const day = (d, list) => casa({ time: '10:45', days: [d] }, list);
-  day(1, [
-    ['Ligar o robô aspirador', 'robo', 5], ['Separar roupas e ver bolsos', 'roupa', 5], ['Lavar roupas', 'roupa', 5],
-    ['Secadora ou varal', 'varal', 5], ['Limpar filtro da secadora', 'roupa', 5], ['Máquina aberta e gaveta seca', 'roupa', 5],
-    ['Aspirar rodapés e cantos', 'aspirador', 10], ['Escritório: mesa e papéis', 'escritorio', 5], ['Escritório: superfície e lixo', 'lixo', 5]]);
-  day(2, [
-    ['Esvaziar e limpar bancada', 'fogao', 5], ['Desengordurar fogão', 'fogao', 10], ['Pia e ralo da cozinha', 'pia', 5],
-    ['Armários e puxadores', 'spray', 5], ['Limpar eletrodomésticos', 'spray', 5], ['Limpar 1 gaveta ou armário', 'lista', 5],
-    ['Regar plantas', 'planta', 5, 'Grandes 500 ml · médias 250 ml · pequenas 100 ml'], ['Borrifar suculentas', 'suculenta', 5],
-    ['Lixo e lavar a lixeira', 'lixo', 10]]);
-  day(3, [
-    ['Aspirar cantos e base das camas', 'aspirador', 5], ['Roupa de cama das crianças', 'cama', 10],
-    ['Roupa de cama do casal', 'cama', 10, 'Semana sim, semana não'], ['Lavar e secar roupa de cama', 'roupa', 5],
-    ['Rotina da máquina', 'roupa', 5], ['Organizar 1 parte do armário', 'lista', 5, 'Gaveta ou prateleira']]);
-  day(4, [
-    ['Abrir janelas dos banheiros', 'janela', 5], ['Produto forte no vaso', 'banheiro', 5], ['Limpar espelho', 'espelho', 5],
-    ['Pia: multiuso, torneira e ralo', 'pia', 5], ['Vaso por dentro e por fora', 'banheiro', 5], ['Esfregar a banheira', 'banho', 10],
-    ['Ralo do chuveiro', 'banho', 5], ['Aspirar e passar pano', 'vassoura', 10], ['Toalhas, papel e home spray', 'toalha', 5],
-    ['Lavar toalhas', 'roupa', 5], ['Plantas: rega leve e folhas', 'planta', 5], ['Limpar 1 armário ou gaveta', 'lista', 5]]);
-  day(5, [
-    ['Verificar estoque', 'lista', 5, 'Papel, limpeza, cozinha, lancheira'], ['Lista e compras', 'compras', 15],
-    ['Guardar as compras', 'compras', 5], ['Lavar e organizar frutas', 'frutas', 5], ['Geladeira: organizar e 1 prateleira', 'geladeira', 5],
-    ['Keller: organizar e reciclagem', 'reciclar', 10], ['Lavar roupas da escola', 'roupa', 5], ['Limpar o carro por dentro', 'carro', 10]]);
-
-  // Tarde e noite com as crianças
-  casa({ time: '15:26', days: WEEK }, [['Buscar as crianças', 'carro', 5]]);
-  casa({ time: '16:00', days: WEEK }, [['Tempo das crianças', 'familia', 10, '16:00–17:40']]);
-  casa({ time: '16:30', days: [4] }, [['Levar o Arthur no futebol', 'futebol', 10]]);
-  casa({ time: '17:30', days: WEEK }, [['Preparar o jantar', 'panela', 10]]);
-  casa({ time: '17:40', days: WEEK }, [['Banho e pijama das crianças', 'banho', 10]]);
-  casa({ time: '18:00', days: WEEK }, [['Jantar em família', 'familia', 5]]);
-  casa({ time: '18:45', days: WEEK }, [['Limpar mesa e cozinha', 'pia', 10]]);
-  casa({ time: '19:00', days: WEEK }, [['Início da rotina noturna', 'noite', 15, 'Xixi, dentes, leitura e dormir']]);
-
-  // Fechamento do dia (19:40)
-  const close = (days, list) => casa({ time: '19:40', days }, list);
-  close(WEEK, [['Lava-louças', 'lava_loucas', 5, 'Tirar ou colocar']]);
-  close(MON_THU, [
-    ['Cozinha: secar a pia', 'pia', 5], ['Cozinha: bancada e lixo', 'lixo', 5], ['Roupa das crianças para amanhã', 'trocar', 5],
-    ['Verificar banheiros', 'banheiro', 5], ['Verificar entrada', 'sapato', 5], ['Deixar a sala arrumada', 'sofa', 5],
-    ['Lancheiras (parte seca)', 'lancheira', 5], ['Mochilas e itens da escola', 'mochila', 5], ['Mesa de estudo com a lição', 'licao', 5]]);
-  close([5], [
-    ['Cozinha: pia e bancada', 'pia', 5], ['Roupa das crianças para segunda', 'trocar', 5], ['Verificar banheiros e entrada', 'banheiro', 5],
-    ['Separar roupas da semana', 'trocar', 5, 'Domingo: reset'], ['Lancheiras e mochilas', 'mochila', 5], ['Mesa de estudo para segunda', 'licao', 5]]);
+  tasks.push(...houseTasks(pais, id));
 
   return {
     pin: '1234',
@@ -103,4 +49,105 @@ function familySeed() {
       { id: id(), title: 'Passeio especial', icon: 'passeio', cost: 300 },
     ],
   };
+}
+
+// Rotina da casa, como no PDF "Rotina semanal": Gabriele ou Bruno fazem, ganha quem fizer. Sem horário.
+// group: diaria (todos os dias) · limpeza (a limpeza de cada dia) · criancas · fechamento (fim do dia)
+function houseTasks(pais, id) {
+  const ALL = [0, 1, 2, 3, 4, 5, 6], WEEK = [1, 2, 3, 4, 5], MON_THU = [1, 2, 3, 4];
+  const tasks = [];
+  const add = (group, days, list) => list.forEach(([title, icon, points = 5, note = '']) => tasks.push({
+    id: id(), title, icon, points, note, time: '', period: 'livre', group, memberIds: pais, house: true, days, alert: false,
+  }));
+
+  add('diaria', ALL, [
+    ['Abrir janelas de todos os quartos', 'janela'],
+    ['Arrumar camas (esticar bem os lençóis)', 'cama'],
+    ['Alinhar travesseiros e borrifar home spray', 'spray'],
+    ['Banheiro: limpar pia, secar, escova rápida no vaso', 'banheiro'],
+    ['Cozinha: pia limpa, bancada, fogão superficial', 'fogao'],
+    ['Entrada: alinhar sapatos e pendurar casacos', 'sapato'],
+    ['Guardar brinquedos e itens fora do lugar', 'brinquedos']]);
+
+  add('limpeza', [1], [
+    ['Ligar robô aspirador em cada andar', 'robo'],
+    ['Separar roupas por volume e verificar bolsos', 'roupa'],
+    ['Lavar roupas', 'roupa'],
+    ['Transferir para secadora ou varal', 'varal'],
+    ['Limpar filtro da secadora', 'roupa'],
+    ['Deixar máquina aberta e secar gaveta de sabão', 'roupa'],
+    ['Aspirar rodapés e cantos', 'aspirador', 10],
+    ['Escritório: organizar mesa e guardar papéis', 'escritorio'],
+    ['Escritório: limpar superfície e verificar lixo', 'lixo']]);
+  add('limpeza', [2], [
+    ['Esvaziar e limpar bancada da cozinha', 'fogao'],
+    ['Desengordurar fogão (inclusive peças)', 'fogao', 10],
+    ['Limpar pia profundamente e ralo', 'pia'],
+    ['Limpar armários externos e puxadores', 'spray'],
+    ['Limpar eletrodomésticos visíveis', 'spray'],
+    ['Limpar 1 gaveta ou armário interno', 'lista'],
+    ['Regar plantas: grandes 500 ml, médias 250 ml, pequenas 100 ml', 'planta'],
+    ['Borrifar suculentas e verificar folhas', 'suculenta'],
+    ['Retirar lixo e lavar lixeira por dentro', 'lixo', 10]]);
+  add('limpeza', [3], [
+    ['Aspirar cantos e base das camas', 'aspirador'],
+    ['Trocar roupa de cama das crianças', 'cama', 10],
+    ['Trocar roupa de cama do casal (alternado)', 'cama', 10],
+    ['Lavar e secar roupa de cama', 'roupa'],
+    ['Aplicar rotina da máquina', 'roupa'],
+    ['Organizar 1 parte do armário (gaveta ou prateleira)', 'lista']]);
+  add('limpeza', [4], [
+    ['Abrir janelas dos banheiros', 'janela'],
+    ['Aplicar produto forte no vaso', 'banheiro'],
+    ['Limpar espelho com produto específico', 'espelho'],
+    ['Limpar pia: multiuso + torneira + ralo', 'pia'],
+    ['Limpar vaso por dentro e por fora', 'banheiro'],
+    ['Esfregar banheira, enxaguar e secar bordas', 'banho', 10],
+    ['Ralo: remover cabelo, água quente, produto', 'banho'],
+    ['Aspirar e passar pano com desinfetante no chão', 'vassoura', 10],
+    ['Alinhar toalhas, dobrar papel, home spray', 'toalha'],
+    ['Lavar toalhas', 'roupa'],
+    ['Plantas: rega leve e limpar folhas', 'planta'],
+    ['Limpar 1 armário interno ou gaveta', 'lista']]);
+  add('limpeza', [5], [
+    ['Verificar estoque: papel, limpeza, cozinha, lancheira', 'lista'],
+    ['Fazer lista e ir às compras', 'compras', 15],
+    ['Guardar tudo imediatamente ao chegar', 'compras'],
+    ['Lavar frutas, secar e organizar', 'frutas'],
+    ['Organizar geladeira e limpar 1 prateleira', 'geladeira'],
+    ['Keller: organização, fora do lugar, reciclagem', 'reciclar', 10],
+    ['Lavar roupas da escola', 'roupa'],
+    ['Organizar e limpar carro por dentro', 'carro', 10]]);
+
+  add('criancas', WEEK, [['Rotina matinal + Kindergarten', 'manha', 10]]);
+  add('criancas', [2], [['Levar o Arthur na escola', 'escola', 10, '08:00 em ponto · chegar 5 min antes']]);
+  add('criancas', WEEK, [['Buscar as crianças', 'carro'], ['Tempo das crianças', 'familia', 10]]);
+  add('criancas', [4], [['Levar o Arthur no futebol', 'futebol', 10, 'Às 16:30']]);
+  add('criancas', WEEK, [
+    ['Preparar jantar', 'panela', 10], ['Banho e pijama das crianças', 'banho', 10], ['Jantar em família', 'familia'],
+    ['Limpar mesa e cozinha', 'pia', 10], ['Início da rotina noturna', 'noite', 15]]);
+
+  add('fechamento', WEEK, [['Cozinha: lava-louças (tirar ou colocar)', 'lava_loucas']]);
+  add('fechamento', MON_THU, [
+    ['Cozinha: limpar e secar pia', 'pia'],
+    ['Cozinha: limpar bancada e verificar lixo', 'lixo'],
+    ['Separar roupa das crianças para amanhã', 'trocar'],
+    ['Separar as próprias roupas para amanhã', 'trocar'],
+    ['Verificar banheiros rapidamente', 'banheiro'],
+    ['Verificar entrada: sapatos e bolsas', 'sapato'],
+    ['Deixar sala arrumada', 'sofa'],
+    ['Preparar lancheiras (parte seca)', 'lancheira'],
+    ['Preparar mochilas e itens da escola', 'mochila'],
+    ['Colocar mesa do café da manhã', 'mesa_cafe'],
+    ['Preparar mesa de estudo com lição de amanhã', 'licao']]);
+  add('fechamento', [5], [
+    ['Cozinha: limpar e secar pia e bancada', 'pia'],
+    ['Separar roupa das crianças para segunda', 'trocar'],
+    ['Separar as próprias roupas', 'trocar'],
+    ['Verificar banheiros e entrada', 'banheiro'],
+    ['Separar roupas da semana (domingo: reset)', 'trocar'],
+    ['Preparar lancheiras e mochilas', 'mochila'],
+    ['Colocar mesa do café da manhã', 'mesa_cafe'],
+    ['Preparar mesa de estudo para segunda', 'licao']]);
+  return tasks;
 }
