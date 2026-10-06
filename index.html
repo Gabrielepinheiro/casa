@@ -94,6 +94,24 @@
   .who-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
   .who-pick button { border: 3px solid var(--c); background: #fff; border-radius: 16px; padding: 14px 8px; font-weight: 700; font-size: 1.05rem; }
   .who-pick button span { display: block; font-size: 2.4rem; }
+  header.top h1 { display: flex; align-items: center; gap: 6px; }
+  .boto-logo { width: 52px; height: auto; }
+  .toast { display: flex; align-items: center; gap: 10px; }
+  .toast svg { width: 56px; height: auto; flex: none; }
+  .boto-banner { display: flex; align-items: center; gap: 16px; background: #fff0f6; border-color: #f7c6d9; margin-bottom: 16px; }
+  .boto-banner svg { width: 96px; height: auto; flex: none; animation: swim 2.4s ease-in-out infinite; }
+  .boto-banner h3 { margin: 0 0 4px; font-weight: 900; color: #c94f7c; }
+  .boto-banner ul { margin: 0; padding: 0; list-style: none; }
+  .boto-banner li { font-weight: 700; padding: 2px 0; }
+  .boto-banner li .time { font-size: .85rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; margin-right: 6px; }
+  .alldone svg, .empty svg { display: block; width: 90px; height: auto; margin: 0 auto 6px; animation: swim 2.4s ease-in-out infinite; }
+  @keyframes swim { 50% { transform: translateY(-6px) rotate(-5deg); } }
+  .boto-jump { position: fixed; left: 0; bottom: 0; width: 200px; z-index: 45; pointer-events: none; animation: jump 1.7s ease-in-out forwards; }
+  @keyframes jump {
+    0% { transform: translate(-220px, 60px) rotate(-40deg); }
+    50% { transform: translate(calc(50vw - 100px), -50vh) rotate(0deg); }
+    100% { transform: translate(calc(100vw + 20px), 60px) rotate(40deg); }
+  }
   .task .pts { margin-left: auto; font-weight: 800; font-size: .9rem; color: var(--ok); background: var(--ok-soft); border-radius: 999px; padding: 3px 8px; white-space: nowrap; flex: none; }
   .task.done .pts { background: var(--ok); color: #fff; }
   .check {
@@ -178,7 +196,7 @@
 <body>
 <header class="top">
   <div>
-    <h1>🏡 Casa <span style="color:var(--primary)">Pinheiro</span></h1>
+    <h1><svg class="boto-logo" viewBox="0 0 160 110" aria-hidden="true"><path d="M24 62 C16 54 10 44 2 40 C4 50 8 57 14 62 C8 67 4 74 2 84 C10 79 16 71 24 64 Z" fill="#e57fa3"/> <path d="M64 34 C68 24 78 22 84 31 Z" fill="#e57fa3"/> <path d="M20 62 C38 40 68 28 96 30 C114 30 124 38 127 49 C138 50 151 52 157 56 C160 58 158 62 153 62 C142 63 132 63 125 64 C117 78 96 87 74 86 C50 85 32 74 20 64 Z" fill="#f7a8c4"/> <path d="M42 76 C62 86 98 86 118 70 C98 79 68 82 42 76 Z" fill="#fde4ee"/> <path d="M80 80 C78 92 70 100 60 103 C64 95 67 87 69 80 Z" fill="#e57fa3"/> <ellipse cx="100" cy="37" rx="13" ry="6" fill="#fff" opacity=".4"/> <circle cx="111" cy="47" r="5" fill="#1b1d2e"/> <circle cx="112.8" cy="45.2" r="1.7" fill="#fff"/> <ellipse cx="114" cy="58" rx="6" ry="3.5" fill="#ff6f9c" opacity=".55"/> <path d="M127 60 C135 63 145 63 153 60" fill="none" stroke="#c94f7c" stroke-width="2.5" stroke-linecap="round"/></svg> Casa <span style="color:var(--primary)">Pinheiro</span></h1>
     <div class="date" id="date"></div>
   </div>
   <nav class="tabs" id="tabs"></nav>
@@ -189,7 +207,7 @@
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <script>
-const KEY = 'casa-tarefas-v2';
+const KEY = 'casa-tarefas-v3';
 const PERIODS = [['manha', '🌅 Manhã'], ['tarde', '☀️ Tarde'], ['noite', '🌙 Noite'], ['livre', '⏰ Qualquer hora']];
 const CATS = { rotina: '🧸 Rotina', casa: '🧹 Casa', pessoal: '🙋 Pessoal' };
 const MODES = [['normal', 'Esconder no modo sobrevivência'], ['sempre', 'Mostrar sempre'], ['sobrevivencia', 'Só no modo sobrevivência']];
@@ -198,6 +216,10 @@ const COLORS = ['#7c5cf0', '#3b6fd6', '#52cfa0', '#e9a410', '#e0692b', '#e8466a'
 const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '👟', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🧽', '🚽', '🪴', '🛒', '🚗', '🏋️', '🇩🇪', '💼', '🥗', '😴', '⭐', '🎮', '📺', '🍦', '🎁', '🏞️', '🍕', '🎬'];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 const WEEKDAYS = [1, 2, 3, 4, 5];
+
+// Nosso mascote: o boto-cor-de-rosa 🐬
+const BOTO = '<path d="M24 62 C16 54 10 44 2 40 C4 50 8 57 14 62 C8 67 4 74 2 84 C10 79 16 71 24 64 Z" fill="#e57fa3"/> <path d="M64 34 C68 24 78 22 84 31 Z" fill="#e57fa3"/> <path d="M20 62 C38 40 68 28 96 30 C114 30 124 38 127 49 C138 50 151 52 157 56 C160 58 158 62 153 62 C142 63 132 63 125 64 C117 78 96 87 74 86 C50 85 32 74 20 64 Z" fill="#f7a8c4"/> <path d="M42 76 C62 86 98 86 118 70 C98 79 68 82 42 76 Z" fill="#fde4ee"/> <path d="M80 80 C78 92 70 100 60 103 C64 95 67 87 69 80 Z" fill="#e57fa3"/> <ellipse cx="100" cy="37" rx="13" ry="6" fill="#fff" opacity=".4"/> <circle cx="111" cy="47" r="5" fill="#1b1d2e"/> <circle cx="112.8" cy="45.2" r="1.7" fill="#fff"/> <ellipse cx="114" cy="58" rx="6" ry="3.5" fill="#ff6f9c" opacity=".55"/> <path d="M127 60 C135 63 145 63 153 60" fill="none" stroke="#c94f7c" stroke-width="2.5" stroke-linecap="round"/>';
+const boto = (cls = '') => `<svg class="${cls}" viewBox="0 0 160 110" aria-hidden="true">${BOTO}</svg>`;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -227,29 +249,31 @@ function defaults() {
   const tasks = [];
   const add = (o, list) => list.forEach(([title, emoji, points, note = '']) => tasks.push({
     id: uid(), title, emoji, points, note, time: o.time || '', category: o.cat, period: o.period || periodOf(o.time),
-    memberIds: o.who, days: o.days || ALL_DAYS, shared: !!o.shared, mode: o.mode || 'normal',
+    memberIds: o.who, days: o.days || ALL_DAYS, shared: !!o.shared, mode: o.mode || 'normal', alert: !!o.alert,
   }));
 
-  // Arthur (6 anos)
-  add({ cat: 'rotina', period: 'manha', who: [a], mode: 'sempre' }, [
-    ['Escovar os dentes', '🪥', 5], ['Vestir-se sozinho', '👕', 10], ['Ajudar a arrumar a cama', '🛏️', 10]]);
-  add({ cat: 'rotina', period: 'manha', who: [a], mode: 'sempre', days: WEEKDAYS }, [['Pegar mochila e lancheira', '🎒', 5]]);
-  add({ cat: 'rotina', period: 'tarde', who: [a], days: WEEKDAYS }, [
-    ['Guardar mochila e lancheira ao chegar', '🎒', 5], ['Fazer a lição de casa', '📚', 15]]);
-  add({ cat: 'rotina', period: 'tarde', who: [a] }, [['Sapatos e casaco no lugar', '👟', 5]]);
-  add({ cat: 'rotina', period: 'noite', who: [a] }, [
-    ['Ajudar a colocar a mesa', '🍽️', 10], ['Levar o prato para a pia', '🍽️', 5], ['Guardar os brinquedos', '🧸', 10]]);
-  add({ cat: 'rotina', period: 'noite', who: [a], mode: 'sempre' }, [
-    ['Tomar banho', '🛁', 5], ['Escovar os dentes', '🪥', 5], ['Pijama e roupa suja no cesto', '🧺', 5]]);
-
-  // Sophie (2 anos)
-  add({ cat: 'rotina', period: 'manha', who: [s], mode: 'sempre' }, [
-    ['Escovar os dentes (com ajuda)', '🪥', 5], ['Ajudar a se vestir', '👕', 5]]);
-  add({ cat: 'rotina', period: 'tarde', who: [s] }, [['Sapatos no lugar', '👟', 5]]);
-  add({ cat: 'rotina', period: 'noite', who: [s] }, [
-    ['Comer sentadinha à mesa', '🥣', 5], ['Guardar os brinquedos (com ajuda)', '🧸', 10], ['Roupa suja no cesto', '🧺', 5]]);
-  add({ cat: 'rotina', period: 'noite', who: [s], mode: 'sempre' }, [
-    ['Tomar banho', '🛁', 5], ['Escovar os dentes (com ajuda)', '🪥', 5]]);
+  // Arthur (6) e Sophie (2) — cada um marca as suas (a Sophie com a ajuda da mamãe).
+  const kids = [a, s];
+  const kid = (o, list) => add({ cat: 'rotina', mode: 'sempre', ...o }, list);
+  kid({ period: 'manha', who: kids }, [
+    ['Acordar', '☀️', 5], ['Ir ao banheiro', '🚽', 5], ['Lavar o rosto', '💦', 5], ['Escovar os dentes', '🪥', 5],
+    ['Se trocar', '👕', 10], ['Pentear o cabelo', '💇', 5], ['Arrumar a cama', '🛏️', 10],
+    ['Tomar café da manhã', '🥣', 5], ['Levar o que usou no café para a pia', '🍽️', 5]]);
+  kid({ period: 'manha', who: kids, days: WEEKDAYS }, [['Colocar o casaco', '🧥', 5], ['Pegar a mochila e sair', '🎒', 5]]);
+  kid({ time: '07:55', who: [a], days: [2], alert: true }, [['Escola às 08:00 em ponto', '🏫', 10, 'Atividade extra de terça · chegar 5 min antes']]);
+  // Chegada do Kindergarten
+  kid({ period: 'tarde', time: '16:00', who: kids, days: WEEKDAYS, mode: 'normal' }, [['Tirar casaco e sapato e guardar no lugar', '🧥', 5]]);
+  kid({ period: 'tarde', who: kids, days: WEEKDAYS, mode: 'normal' }, [
+    ['Lavar as mãos', '🧼', 5], ['Brotdose da mochila para a pia', '🥪', 5], ['Comer um lanche', '🍎', 5]]);
+  kid({ time: '16:30', who: [a], days: [4], alert: true }, [['Futebol', '⚽', 10]]);
+  // Noite
+  kid({ period: 'noite', time: '17:40', who: kids, mode: 'normal' }, [['Arrumar o que brincou', '🧸', 10, 'Fim do tempo livre: organizar os brinquedos']]);
+  kid({ period: 'noite', who: kids }, [['Tomar banho', '🛁', 5], ['Colocar o pijama', '👕', 5]]);
+  kid({ period: 'noite', who: [a], days: WEEKDAYS, mode: 'normal' }, [['Lição de casa ou atividade', '📚', 15]]);
+  kid({ period: 'noite', who: kids, mode: 'normal' }, [
+    ['Colocar a mesa', '🍽️', 10], ['Jantar', '🍝', 5], ['Ajudar a tirar a mesa', '🧽', 10], ['Colocar a mesa do café da manhã', '☕', 5]]);
+  kid({ period: 'noite', who: kids }, [
+    ['Fazer xixi antes de dormir', '🚽', 5], ['Escovar os dentes', '🪥', 5], ['Leitura', '📖', 5], ['Dormir', '😴', 5]]);
 
   // Rotina diária — todos os dias (quem fizer primeiro)
   add({ cat: 'casa', period: 'manha', who: pais, shared: true }, [
@@ -261,15 +285,18 @@ function defaults() {
     ['Entrada arrumada', '👟', 5, 'Alinhar sapatos e pendurar casacos'],
     ['Guardar brinquedos e itens fora do lugar', '🧸', 5]]);
 
-  // Crianças (seg a sex)
-  const kids = (time, list, cat = 'rotina', mode = 'sempre') => add({ cat, time, who: pais, shared: true, days: WEEKDAYS, mode }, list);
-  kids('06:30', [['Rotina matinal + escola', '🎒', 10, '06:30–08:10']]);
-  kids('15:26', [['Buscar as crianças', '🚗', 5, 'Saída 15:26']]);
-  kids('16:00', [['Tempo das crianças', '🧸', 10, '16:00–17:30']]);
-  kids('17:30', [['Preparar o jantar', '🍲', 10, '17:30–18:00']]);
-  kids('18:00', [['Jantar em família', '🍽️', 5, '18:00–18:45']]);
-  kids('18:45', [['Limpar mesa e cozinha', '🧽', 10, '18:45–19:00']], 'casa', 'normal');
-  kids('19:00', [['Banho + dentes + história + dormir', '🛁', 15]]);
+  // Pais com as crianças (seg a sex)
+  const withKids = (time, list, o = {}) => add({ cat: 'rotina', time, who: pais, shared: true, days: WEEKDAYS, mode: 'sempre', ...o }, list);
+  withKids('06:30', [['Rotina matinal + Kindergarten', '🎒', 10, '06:30–08:10']]);
+  withKids('07:55', [['Levar o Arthur na escola', '🏫', 10, '08:00 em ponto · chegar 5 min antes']], { days: [2] });
+  withKids('15:26', [['Buscar as crianças', '🚗', 5, 'Saída 15:26']]);
+  withKids('16:00', [['Tempo das crianças', '🧸', 10, '16:00–17:40']]);
+  withKids('16:30', [['Levar o Arthur no futebol', '⚽', 10]], { days: [4] });
+  withKids('17:30', [['Preparar o jantar', '🍲', 10, '17:30–18:00']]);
+  withKids('17:40', [['Banho e pijama das crianças', '🛁', 10]]);
+  withKids('18:00', [['Jantar em família', '🍽️', 5, '18:00–18:45']]);
+  withKids('18:45', [['Limpar mesa e cozinha', '🧽', 10, '18:45–19:00']], { cat: 'casa', mode: 'normal' });
+  withKids('19:00', [['Subir: xixi, dentes, leitura e dormir', '📖', 15]]);
 
   // Fechamento do dia (19:40–20:40)
   const close = (days, list) => add({ cat: 'casa', time: '19:40', who: pais, shared: true, days }, list);
@@ -358,7 +385,7 @@ function normalize(d) {
   d.completions ||= {};
   d.survival ||= {};
   d.log ||= [];
-  d.tasks = d.tasks.map(t => ({ note: '', time: '', shared: false, mode: 'normal', days: ALL_DAYS, memberIds: [], ...t }));
+  d.tasks = d.tasks.map(t => ({ note: '', time: '', shared: false, mode: 'normal', alert: false, days: ALL_DAYS, memberIds: [], ...t }));
   return d;
 }
 function load() {
@@ -392,8 +419,15 @@ const keyOf = (t, mid) => t.id + '|' + (t.shared ? '*' : mid);
 const doneValue = (t, mid) => (S.completions[dayKey()] || {})[keyOf(t, mid)];
 const isDone = (t, mid) => !!doneValue(t, mid);
 const periodIdx = p => PERIODS.findIndex(x => x[0] === p);
-const sortTasks = list => [...list].sort((x, y) =>
-  periodIdx(x.period) - periodIdx(y.period) || (x.time || '99').localeCompare(y.time || '99'));
+// Tarefas sem horário ficam logo depois da última com horário do mesmo período (mantém a sequência da rotina).
+function sortTasks(list) {
+  const last = {};
+  return list.map((t, i) => {
+    const key = t.time || last[t.period] || '';
+    last[t.period] = key;
+    return { t, i, key };
+  }).sort((x, y) => periodIdx(x.t.period) - periodIdx(y.t.period) || x.key.localeCompare(y.key) || x.i - y.i).map(x => x.t);
+}
 
 function visibleToday(t) {
   if (!t.days.includes(new Date().getDay())) return false;
@@ -440,6 +474,9 @@ function viewToday() {
     + `<button class="chip sos ${sos ? 'on' : ''}" data-action="survival">🆘 Modo sobrevivência</button>`;
   const people = [`<button class="chip ${memberFilter === 'todos' ? 'on' : ''}" data-action="who" data-v="todos">👨‍👩‍👧‍👦 Todos</button>`]
     .concat(S.members.map(m => `<button class="chip ${memberFilter === m.id ? 'on' : ''}" data-action="who" data-v="${m.id}">${esc(m.emoji)} ${esc(m.name)}</button>`)).join('');
+  const alerts = sortTasks(S.tasks.filter(t => t.alert && visibleToday(t)));
+  const botoBanner = alerts.length ? `<section class="card boto-banner">${boto()}<div><h3>O boto avisa: hoje tem!</h3><ul>${alerts.map(t =>
+    `<li>${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.emoji)} ${t.memberIds.map(id => esc(member(id)?.name)).join(', ')}: ${esc(t.title)}${t.note ? ` <small style="color:var(--muted);font-weight:500">(${esc(t.note)})</small>` : ''}</li>`).join('')}</ul></div></section>` : '';
   const banner = sos ? `<section class="card sos-banner"><b>🆘 Modo sobrevivência ligado.</b> Hoje só o essencial:
     limpar a pia da cozinha, garantir roupa essencial e 10 min de organização. <b>Ignorar o restante</b> 💛</section>` : '';
 
@@ -465,11 +502,11 @@ function viewToday() {
         <div class="balance">${balance(m.id)} ⭐<small>pontos</small></div>
       </div>
       <div class="progress"><div style="width:${pct}%"></div></div>
-      ${tasks.length ? taskList(tasks, m.id) : `<div class="empty">${shared.some(t => t.memberIds.includes(m.id)) ? 'Pegue tarefas no cartão 🤝' : 'Nada para hoje 😎'}</div>`}
-      ${tasks.length && done === tasks.length ? '<div class="alldone">🎉 Tudo feito! Parabéns!</div>' : ''}
+      ${tasks.length ? taskList(tasks, m.id) : `<div class="empty">${boto()}${shared.some(t => t.memberIds.includes(m.id)) ? 'Pegue tarefas no cartão 🤝' : 'Nada para hoje 😎'}</div>`}
+      ${tasks.length && done === tasks.length ? `<div class="alldone">${boto()}🎉 Tudo feito! Parabéns!</div>` : ''}
     </section>`;
   }).join('');
-  return `<div class="bar">${chips}</div><div class="bar">${people}</div>${banner}<div class="grid">${cards}${sharedCard}</div>`;
+  return `<div class="bar">${chips}</div><div class="bar">${people}</div>${botoBanner}${banner}<div class="grid">${cards}${sharedCard}</div>`;
 }
 
 function viewScore() {
@@ -511,12 +548,12 @@ function viewConfig() {
       <div class="info"><b style="color:${esc(m.color)}">●</b> ${esc(m.name)}<small>${balance(m.id)} pontos</small></div>
       <div class="acts"><button class="btn" data-action="edit-member" data-id="${m.id}">Editar</button>
       <button class="btn danger" data-action="del-member" data-id="${m.id}">Excluir</button></div></div>`).join('');
-  const sorted = [...S.tasks].sort((a, b) => a.category.localeCompare(b.category) || periodIdx(a.period) - periodIdx(b.period) || (a.time || '99').localeCompare(b.time || '99'));
+  const sorted = Object.keys(CATS).flatMap(c => sortTasks(S.tasks.filter(t => t.category === c)));
   const tasks = sorted.map(t => `<div class="row"><span class="emo">${esc(t.emoji)}</span>
       <div class="info">${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)} <b style="color:var(--primary)">+${t.points}</b>
         <small>${CATS[t.category]} · ${PERIODS[periodIdx(t.period)][1]} · ${daysLabel(t.days)} ·
         ${t.memberIds.map(id => member(id)?.name).filter(Boolean).map(esc).join(t.shared ? ' ou ' : ', ')}
-        ${t.mode === 'sobrevivencia' ? ' · 🆘 só sobrevivência' : t.mode === 'sempre' ? ' · 🆘 sempre' : ''}</small></div>
+        ${t.mode === 'sobrevivencia' ? ' · 🆘 só sobrevivência' : t.mode === 'sempre' ? ' · 🆘 sempre' : ''}${t.alert ? ' · 🐬 aviso' : ''}</small></div>
       <div class="acts"><button class="btn" data-action="edit-task" data-id="${t.id}">Editar</button>
       <button class="btn danger" data-action="del-task" data-id="${t.id}">Excluir</button></div></div>`).join('');
   const rewards = S.rewards.map(r => `<div class="row"><span class="emo">${esc(r.emoji)}</span>
@@ -581,7 +618,7 @@ function editMember(id) {
 }
 
 function editTask(id) {
-  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, note: '', time: '', category: 'casa', period: 'livre', memberIds: [], days: ALL_DAYS, shared: false, mode: 'normal' };
+  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, note: '', time: '', category: 'casa', period: 'livre', memberIds: [], days: ALL_DAYS, shared: false, mode: 'normal', alert: false };
   const opt = (list, cur) => list.map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
   openDlg(id ? 'Editar tarefa' : 'Nova tarefa',
     field('Tarefa', `<input type="text" name="title" value="${esc(t.title)}" required>`) + emojiField(t.emoji) +
@@ -596,14 +633,16 @@ function editTask(id) {
       🤝 Basta um fazer (ganha quem fizer primeiro)</label></div></div>` +
     `<div class="field"><span>Dias</span><div class="opts">${DAYS.map((d, i) => `<label>
       <input type="checkbox" name="days" value="${i}" ${t.days.includes(i) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>` +
-    field('Modo sobrevivência', `<select name="mode">${opt(MODES, t.mode)}</select>`),
+    field('Modo sobrevivência', `<select name="mode">${opt(MODES, t.mode)}</select>`) +
+    `<div class="field"><div class="opts"><label><input type="checkbox" name="alert" ${t.alert ? 'checked' : ''}>
+      🐬 Mostrar no aviso do boto (compromisso importante)</label></div></div>`,
     fd => {
       const time = fd.get('time') || '';
       const data = {
         title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '⭐', note: fd.get('note').trim(),
         points: Math.max(0, parseInt(fd.get('points'), 10) || 0), category: fd.get('category'),
         time, period: time ? periodOf(time) : fd.get('period'),
-        memberIds: fd.getAll('members'), shared: fd.has('shared'), days: fd.getAll('days').map(Number), mode: fd.get('mode'),
+        memberIds: fd.getAll('members'), shared: fd.has('shared'), alert: fd.has('alert'), days: fd.getAll('days').map(Number), mode: fd.get('mode'),
       };
       if (!data.memberIds.length) { toast('Escolha pelo menos uma pessoa'); return false; }
       if (!data.days.length) { toast('Escolha pelo menos um dia'); return false; }
@@ -636,7 +675,7 @@ function redeem(id) {
       const mid = fd.get('member');
       if (!mid || balance(mid) < r.cost) { toast('Pontos insuficientes'); return false; }
       S.log.push({ t: Date.now(), memberId: mid, type: 'reward', label: `Trocou: ${r.title}`, points: -r.cost });
-      celebrate(`🎁 ${member(mid).name} ganhou: ${r.title}!`);
+      celebrate(`🎁 ${member(mid).name} ganhou: ${r.title}!`, true);
     }, 'Trocar');
 }
 
@@ -686,7 +725,7 @@ function complete(t, mid) {
   today[keyOf(t, mid)] = t.shared ? mid : Date.now();
   S.log.push({ t: Date.now(), day, taskId: t.id, memberId: mid, type: 'task', label: t.title, points: t.points });
   const left = t.shared ? 1 : ownTasks(mid).filter(x => !isDone(x, mid)).length;
-  celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo de hoje!`);
+  celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo de hoje!`, !left);
   save();
   render();
 }
@@ -772,17 +811,24 @@ document.addEventListener('click', e => {
 
 // ---------- Efeitos ----------
 let toastTimer;
-function toast(msg) {
+function toast(msg, withBoto = false) {
   document.querySelector('.toast')?.remove();
   const el = document.createElement('div');
   el.className = 'toast';
-  el.textContent = msg;
+  el.innerHTML = (withBoto ? boto() : '') + `<span>${esc(msg)}</span>`;
   document.body.appendChild(el);
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => el.remove(), 2200);
 }
-function celebrate(msg) {
-  toast(msg);
+function celebrate(msg, big = false) {
+  toast(msg, true);
+  if (big) {
+    const j = document.createElement('div');
+    j.className = 'boto-jump';
+    j.innerHTML = boto();
+    document.body.appendChild(j);
+    setTimeout(() => j.remove(), 1800);
+  }
   const bits = ['⭐', '🎉', '✨', '🌟', '💫'];
   for (let i = 0; i < 14; i++) {
     const s = document.createElement('span');
