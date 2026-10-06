@@ -317,16 +317,26 @@ function taskList(k, tasks, mid, big) {
     const list = tasks.filter(t => t.period === p);
     if (!list.length) return '';
     // Crianças: cartões com a figura grande e o nome embaixo, como na tabela de rotina.
-    return big ? `<div class="period">${label}</div><div class="tiles">${list.map(t => tileRow(k, t, mid)).join('')}</div>`
+    const away = awayOf();
+    const gap = big && p === 'tarde' && away.days.includes(parseDay(k).getDay())
+      ? `<div class="away">${icon('t_escola', 'away-ico')}<div><b>${esc(away.label)}</b><small>${esc(away.from)} – ${esc(away.to)}</small></div></div>` : '';
+    return big ? `${gap}<div class="period">${label}</div><div class="tiles">${list.map(t => tileRow(k, t, mid)).join('')}</div>`
       : `<div class="period">${label}</div>` + list.map(t => taskRow(k, t, mid, big)).join('');
   }).join('');
 }
+// Casa em blocos do dia: manhã, tarde e noite (com o tempo de cada bloco).
 function houseList(k, tasks) {
-  return GROUPS.map(([g]) => {
-    const list = tasks.filter(t => (t.group || 'outras') === g);
-    return list.length ? `<div class="period">${esc(groupLabel(g, k))}</div>` + list.map(t => taskRow(k, t, '', false)).join('') : '';
+  return PERIODS.map(([p, label]) => {
+    const list = tasks.filter(t => (t.period || 'livre') === p);
+    if (!list.length) return '';
+    const mins = minutesOf(list.filter(t => !t.skip));
+    return `<div class="period">${label}${mins ? ` · ~${fmtMin(mins)}` : ''}</div>` + list.map(t => taskRow(k, t, '', false)).join('');
   }).join('');
 }
+// Pontos pelo tempo: 1 ponto por minuto, arredondado de 5 em 5 (mínimo 5).
+const pointsFor = min => Math.max(5, Math.round((min || 0) / 5) * 5);
+// Horário em que as crianças estão fora (escolinha), mostrado como um intervalo na rotina delas.
+const awayOf = () => C()?.away || { days: [1, 2, 3, 4, 5], from: '08:00', to: '16:00', label: 'Na escolinha' };
 function skippedList(list) {
   const sk = list.filter(t => t.skip);
   return sk.length && !editMode ? `<div class="skipped-list">${sk.map(t => `<div>${ui('pular')} ${esc(t.title)}${t.dayNote ? ` — ${esc(t.dayNote)}` : ''}</div>`).join('')}</div>` : '';
@@ -429,16 +439,18 @@ function viewHouse() {
   }).join('');
   const k = houseDay;
   const list = houseSort(houseOn(k, true));
-  const groups = GROUPS.map(([g]) => {
-    const items = list.filter(t => (t.group || 'outras') === g);
+  const groups = PERIODS.map(([p, label]) => {
+    const items = list.filter(t => (t.period || 'livre') === p);
     if (!items.length) return '';
     const real = items.filter(t => !t.skip), done = real.filter(t => doneOf(k, t)).length;
     const mins = minutesOf(real);
-    return `<section class="card group-card"><div class="section-head"><h2>${esc(groupLabel(g, k))}</h2><span class="pill">${done}/${real.length}${mins ? ` · ~${fmtMin(mins)}` : ''}</span></div>
+    return `<section class="card group-card"><div class="section-head"><h2>${label}</h2><span class="pill">${done}/${real.length}${mins ? ` · ~${fmtMin(mins)}` : ''}</span></div>
       ${items.map(t => taskRow(k, t, '', false)).join('')}</section>`;
   }).join('');
+  const focus = C()?.focus?.[parseDay(k).getDay()];
   return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? `<div class="top-cards">${healthCard()}${prioritiesCard()}</div>` : ''}
     ${k > today() && !editMode ? `<section class="hint">${ui('agenda')}<div>${esc(dayLabel(k))} ainda não chegou. Aqui você vê o que precisa ser feito. Use <b>Editar</b> para anotar, tirar ou mudar de dia.</div></section>` : ''}
+    ${focus ? `<p class="focus-line">${ui('casa')} Foco de ${esc(WEEKDAY_NAMES[parseDay(k).getDay()])}: <b>${esc(focus)}</b></p>` : ''}
     <div class="groups">${groups || '<section class="card"><p class="muted">Nada da casa neste dia.</p></section>'}</div>`;
 }
 
@@ -1078,6 +1090,12 @@ function editMember(id) {
 }
 // Foto: recorta quadrada e reduz para caber nos dados da página.
 let pendingPhoto = null;
+// Tempo médio digitado: sugere os pontos na hora.
+dlgForm.addEventListener('input', e => {
+  if (e.target.name !== 'minutes' || !e.target.value) return;
+  const pts = dlgForm.querySelector('input[name=points]');
+  if (pts) pts.value = pointsFor(parseInt(e.target.value, 10));
+});
 dlgForm.addEventListener('change', e => {
   if (e.target.id === 'f-rphoto' && e.target.files[0]) {
     const img = new Image();
@@ -1105,6 +1123,10 @@ dlgForm.addEventListener('change', e => {
       URL.revokeObjectURL(img.src);
     };
     img.src = URL.createObjectURL(e.target.files[0]);
+  }
+  if (e.target.name === 'minutes' && e.target.value) {
+    const pts = dlgForm.querySelector('input[name=points]');
+    if (pts) pts.value = pointsFor(parseInt(e.target.value, 10));
   }
   if (e.target.name === 'when') {
     const v = e.target.value;
@@ -1141,9 +1163,9 @@ function editTask(id, onDay) {
       ${t.last ? `<p class="legend">Última vez: ${esc(fmtDay(t.last, { weekday: 'short', day: '2-digit', month: '2-digit' }))}</p>` : ''}</div>` +
     `<label class="field when-once" for="f-date" ${rep0 === 'once' ? '' : 'hidden'}><span>Data</span><input type="date" id="f-date" name="date" value="${esc(t.date || today())}"></label>` +
     `<div class="field-row">${field('Horário (opcional)', `<input type="time" id="f-time" name="time" value="${esc(t.time)}">`, 'f-time')}
-      ${field('Período (sem horário)', `<select id="f-period" name="period">${opt(PERIODS, t.period)}</select>`, 'f-period')}
+      ${field('Bloco do dia', `<select id="f-period" name="period">${opt(PERIODS, t.period)}</select>`, 'f-period')}
       ${field('Pontos', `<input type="number" id="f-points" name="points" min="0" max="1000" value="${t.points}" required>`, 'f-points')}</div>` +
-    `<div class="field-row">${field('Tempo médio (min)', `<input type="number" id="f-min" name="minutes" min="0" max="600" value="${t.minutes || ''}" placeholder="Ex.: 15">`, 'f-min')}
+    `<div class="field-row">${field('Tempo médio (min) · ajusta os pontos', `<input type="number" id="f-min" name="minutes" min="0" max="600" value="${t.minutes || ''}" placeholder="Ex.: 15">`, 'f-min')}
       ${field('Cômodo (saúde da casa)', `<select id="f-room" name="room"><option value="">Nenhum</option>${opt(ROOMS, t.room || '')}</select>`, 'f-room')}</div>` +
     field('Observação (opcional)', `<input type="text" id="f-note" name="note" value="${esc(t.note)}" placeholder="Ex.: o que levar, quantidade">`, 'f-note') +
     `<div class="field"><div class="opts"><label><input type="checkbox" name="alert" ${t.alert ? 'checked' : ''}> Mostrar no aviso do tucano (compromisso importante)</label></div></div>`,

@@ -79,11 +79,9 @@ function houseTasks(pais, id, bruno) {
     ['Cozinha: pia limpa e bancada', 'pia']]);
 
   // Com as crianças (dias de Kindergarten)
-  weekly('criancas', WEEK, [['Rotina matinal + Kindergarten', 'manha', 10]]);
-  weekly('criancas', [2], [['Levar o Arthur na escola', 'escola', 10, '08:00 em ponto · chegar 5 min antes']]);
-  weekly('criancas', WEEK, [['Buscar as crianças', 'carro'], ['Tempo das crianças', 'familia', 10]]);
+  weekly('criancas', WEEK, [['Buscar as crianças', 'carro']]);
   weekly('criancas', [4], [['Levar o Arthur no futebol', 'futebol', 10, 'Às 16:30']]);
-  weekly('criancas', WEEK, [['Preparar jantar', 'panela', 10], ['Banho e pijama das crianças', 'banho', 10], ['Jantar em família', 'familia'], ['Início da rotina noturna', 'noite', 15]]);
+  weekly('criancas', WEEK, [['Preparar jantar', 'panela', 10], ['Jantar em família', 'familia'], ['Início da rotina noturna', 'noite', 15]]);
 
   // Foco do dia
   // Segunda: roupas e escritório
@@ -132,15 +130,19 @@ function houseTasks(pais, id, bruno) {
     ['Guardar brinquedos e itens fora do lugar', 'brinquedos'], ['Entrada: alinhar sapatos e pendurar casacos', 'sapato'],
     ['Deixar sala arrumada', 'sofa'], ['Colocar mesa do café da manhã', 'mesa_cafe']]);
   weekly('fechamento', SCHOOL_EVE, [
-    ['Separar roupa das crianças para o dia seguinte', 'trocar'], ['Separar as próprias roupas para amanhã', 'trocar'],
+    ['Separar roupa das crianças para o dia seguinte', 'trocar'],
     ['Verificar banheiros rapidamente', 'banheiro'], ['Preparar lancheiras (parte seca)', 'lancheira'],
-    ['Preparar mochilas e itens da escola', 'mochila'], ['Preparar mesa de estudo com lição de amanhã', 'licao']]);
+    ['Preparar mochilas e itens da escola', 'mochila']]);
   weekly('fechamento', [6], [['Separar roupas da semana (domingo: reset)', 'trocar']]);
   // Espalha o começo: quinzenais na semana que vem, mensais daqui a duas semanas (não cai tudo na primeira semana).
   const plus = (k, n) => { const [y, m, d] = k.split('-').map(Number); const x = new Date(y, m - 1, d + n); const z = v => String(v).padStart(2, '0'); return `${x.getFullYear()}-${z(x.getMonth() + 1)}-${z(x.getDate())}`; };
   tasks.forEach(t => { if (t.repeat === 'interval' && !t.last) t.start = plus(t.start, t.unit === 'meses' ? 14 : t.every === 2 ? 7 : 0); });
+  // Bloco do dia: manhã (rotina diária e foco do cômodo), tarde (buscar, futebol, jantar, grama) e noite (jantar e fechamento).
+  const TARDE = ['Buscar as crianças', 'Levar o Arthur no futebol', 'Preparar jantar', 'Cortar a grama'];
+  tasks.forEach(t => { if (!t.house && t.memberIds !== pais) return; t.period = TARDE.includes(t.title) ? 'tarde' : t.group === 'fechamento' || t.group === 'criancas' ? 'noite' : 'manha'; });
   // Tempo médio (min) e cômodo de cada tarefa — usados no "tempo estimado" e na "saúde da casa".
-  tasks.forEach(t => { const m = HOUSE_META[t.title]; if (m) { t.minutes = m[0]; if (m[1]) t.room = m[1]; } });
+  // Pontos pelo tempo: 1 ponto por minuto, arredondado de 5 em 5 (mínimo 5).
+  tasks.forEach(t => { const m = HOUSE_META[t.title]; if (m) { t.minutes = m[0]; if (m[1]) t.room = m[1]; t.points = Math.max(5, Math.round(m[0] / 5) * 5); } });
   return tasks;
 }
 
