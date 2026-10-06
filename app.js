@@ -451,8 +451,7 @@ function viewHouse() {
   const chips = days.map(k => {
     const l = houseOn(k), done = l.filter(t => doneOf(k, t)).length;
     return `<button class="day-chip ${k === houseDay ? 'on' : ''} ${k === today() ? 'is-today' : ''}" data-action="house-day" data-day="${k}">
-      <b>${DAYS[parseDay(k).getDay()]}</b><small>${shortDay(k)}</small><span class="${l.length && done === l.length ? 'full' : ''}">${done}/${l.length}</span>
-      ${minutesOf(l) ? `<small>~${fmtMin(minutesOf(l))}</small>` : ''}${C()?.focus?.[parseDay(k).getDay()] ? `<em>${esc(C().focus[parseDay(k).getDay()])}</em>` : ''}</button>`;
+      <b>${DAYS[parseDay(k).getDay()]} <small>${parseDay(k).getDate()}</small></b><span class="${l.length && done === l.length ? 'full' : ''}">${done}/${l.length}</span></button>`;
   }).join('');
   const k = houseDay;
   const list = houseSort(houseOn(k, true));

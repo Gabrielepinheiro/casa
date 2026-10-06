@@ -79,6 +79,7 @@ const ICONS = {
   pizza: ['Escolher o jantar', '<path d="M32 58L6 14c16-8 36-8 52 0z" fill="#f7c948"/><path d="M8 18c14-6 34-6 48 0" stroke="#e0692b" stroke-width="5"/><circle cx="28" cy="28" r="4" fill="#ef8a80"/><circle cx="40" cy="30" r="4" fill="#ef8a80"/><circle cx="32" cy="42" r="4" fill="#ef8a80"/>'],
   cinema: ['Cinema', '<path d="M14 22h36l-6 36H20z" fill="#fff"/><path d="M22 22l2 36M32 22v36M42 22l-2 36" stroke="#ef8a80" stroke-width="3"/><circle cx="20" cy="16" r="6" fill="#fff6d6"/><circle cx="30" cy="12" r="7" fill="#fff6d6"/><circle cx="42" cy="15" r="7" fill="#fff6d6"/>'],
   folga: ['Folga', '<path d="M8 40h48l-4 14H12z" fill="#7aa7e8"/><path d="M16 40c0-10 6-18 16-18s16 8 16 18" fill="#f7c948"/><path d="M44 10h8l-8 8h8"/>'],
+  jogo: ['Jogo em família', '<rect x="8" y="22" width="26" height="26" rx="5" fill="#fff" transform="rotate(-12 21 35)"/><circle cx="15" cy="30" r="2.2" fill="#3d4260"/><circle cx="22" cy="36" r="2.2" fill="#3d4260"/><circle cx="28" cy="41" r="2.2" fill="#3d4260"/><rect x="30" y="28" width="26" height="26" rx="5" fill="#ef8a80" transform="rotate(10 43 41)"/><circle cx="37" cy="35" r="2.2" fill="#fff"/><circle cx="49" cy="35" r="2.2" fill="#fff"/><circle cx="37" cy="47" r="2.2" fill="#fff"/><circle cx="49" cy="47" r="2.2" fill="#fff"/><path d="M8 58h48"/>'],
   passeio: ['Passeio', '<path d="M4 54l18-28 12 16 8-10 18 22z" fill="#6cc7a0"/><circle cx="46" cy="16" r="8" fill="#f7c948"/>'],
 };
 

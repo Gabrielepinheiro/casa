@@ -42,13 +42,13 @@ function familySeed() {
     focus: HOUSE_FOCUS,
     approval: true,
     rewards: [
-      { id: id(), title: 'Escolher o desenho', icon: 'tv', cost: 30 },
-      { id: id(), title: 'Escolher a sobremesa', icon: 'sorvete', cost: 50 },
-      { id: id(), title: 'Ir ao parquinho', icon: 'parquinho', cost: 80 },
-      { id: id(), title: 'Escolher o jantar', icon: 'pizza', cost: 100 },
-      { id: id(), title: 'Noite de cinema', icon: 'cinema', cost: 150 },
-      { id: id(), title: 'Folga de uma tarefa', icon: 'folga', cost: 150 },
-      { id: id(), title: 'Passeio especial', icon: 'passeio', cost: 300 },
+      { id: id(), title: 'Escolher a brincadeira da tarde', icon: 'brinquedos', cost: 60 },
+      { id: id(), title: 'Escolher um jogo em família', icon: 'jogo', cost: 60 },
+      { id: id(), title: 'Escolher o que assistir', icon: 'tv', cost: 100 },
+      { id: id(), title: 'Escolher a sobremesa do fim de semana', icon: 'sorvete', cost: 100 },
+      { id: id(), title: 'Ir ao parquinho', icon: 'parquinho', cost: 100 },
+      { id: id(), title: 'Escolher o jantar', icon: 'pizza', cost: 200 },
+      { id: id(), title: 'Noite de cinema', icon: 'cinema', cost: 300 },
     ],
   };
 }
