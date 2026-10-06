@@ -25,7 +25,7 @@ Quadro da família para o tablet: a rotina do Arthur e da Sophie com figuras (pa
 ## Onde ficam os dados
 
 - **Aberto pelo claude.ai** (link da página): os dados ficam salvos na própria página e aparecem em todos os aparelhos. Para o Bruno editar e colocar lembretes pelo celular, compartilhe a página com ele como **Editor**.
-- **App próprio** (pasta `app/`, SvelteKit + Supabase em Frankfurt, site no Netlify): cada um entra com e-mail e senha, a família tem um código de convite e os dados aparecem ao vivo em todos os aparelhos. Passo a passo em [`app/GUIA.md`](app/GUIA.md).
+- **App próprio** (pasta `app/`, SvelteKit + Supabase em Frankfurt, site no Render): cada um entra com e-mail e senha, a família tem um código de convite e os dados aparecem ao vivo em todos os aparelhos. Passo a passo em [`app/GUIA.md`](app/GUIA.md).
 - **Aberto como arquivo** (`index.html` direto): os dados ficam só naquele aparelho; use *Ajustes → Baixar backup*.
 
 ## Arquivos

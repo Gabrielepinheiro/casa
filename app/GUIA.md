@@ -1,6 +1,6 @@
 # Como colocar o app da família no ar
 
-É o mesmo app que já usamos no Claude, com as mesmas telas, figuras e regras. Só muda onde os dados ficam guardados (no **Supabase**, num servidor em Frankfurt) e que cada um entra com e-mail e senha. O site fica no **Netlify**. As duas contas são gratuitas.
+É o mesmo app que já usamos no Claude, com as mesmas telas, figuras e regras. Só muda onde os dados ficam guardados (no **Supabase**, num servidor em Frankfurt) e que cada um entra com e-mail e senha. O site fica no **Render**. As duas contas são gratuitas.
 
 Leva uns 20 minutos, uma vez só.
 
@@ -32,28 +32,28 @@ No app atual (no Claude), vá em **Ajustes → Baixar backup**. Guarde o arquivo
    Se deixar ligado, tudo funciona igual, só que cada um precisa clicar no link do e-mail na primeira vez.
 7. Em **Authentication → URL Configuration**, coloque em **Site URL** o endereço do site, que você recebe no passo 3. Isso faz o link de "Esqueci a senha" voltar para o app.
 
-## 3. Netlify (onde o site fica)
+## 3. Render (onde o site fica)
 
-1. Entre em https://netlify.com e crie a conta **com o GitHub**.
-2. Clique em **Add new site → Import an existing project → GitHub** e escolha o repositório `casa`.
+1. Entre em https://render.com e crie a conta **com o GitHub**.
+2. Clique em **New → Static Site** e escolha o repositório `casa`. Se ele não aparecer, clique em **Configure account** e libere o acesso a ele.
 3. Preencha:
-   - Branch to deploy: `claude/vibrant-pascal-p9a5u7` (ou a branch principal, quando existir)
-   - **Base directory: `app`**
-   - Build command: `npm run build`
-   - Publish directory: `app/build`
-4. Em **Environment variables** (pode ser em **Add environment variables** nessa mesma tela, ou depois em **Site configuration → Environment variables**), crie:
+   - Name: `familia` (vira o endereço, ex.: `https://familia.onrender.com`)
+   - Branch: `claude/vibrant-pascal-p9a5u7` (ou a branch principal, quando existir)
+   - **Root Directory: `app`**
+   - Build Command: `npm install && npm run build`
+   - **Publish Directory: `build`**
+4. Em **Advanced → Add Environment Variable** (ou depois em **Environment**), crie:
 
    | Key | Value |
    |---|---|
    | `VITE_SUPABASE_URL` | o Project URL do passo 2.5 |
    | `VITE_SUPABASE_ANON_KEY` | a chave anon public do passo 2.5 |
+   | `NODE_VERSION` | `22` |
 
-5. Clique em **Deploy**. Em 1 ou 2 minutos aparece o endereço, algo como `https://familia-xyz.netlify.app`.
-
-   Dá para trocar o nome em **Site configuration → Change site name**.
+5. Clique em **Deploy Static Site**. Em 2 ou 3 minutos aparece o endereço no topo da página.
 6. Volte ao Supabase (passo 2.7) e coloque esse endereço em **Site URL**.
 
-Se você mudou as variáveis depois do primeiro deploy, vá em **Deploys → Trigger deploy → Deploy site** para elas valerem.
+Se você mudar as variáveis depois, clique em **Manual Deploy → Deploy latest commit** para elas valerem. A cada mudança na branch, o Render publica sozinho.
 
 ## 4. Primeira vez no app (você)
 
@@ -79,7 +79,7 @@ O tablet fica conectado. Não precisa entrar de novo toda vez.
 
   O Supabase gratuito **pausa o projeto se ninguém usar por 7 dias seguidos**. Como o tablet abre todo dia, não acontece. Se acontecer (ex.: nas férias), entre em supabase.com e clique em **Restore project**: nada se perde.
 - **Backup:** continue baixando um backup uma vez por mês, em **Ajustes → Baixar backup**.
-- **Mudanças no app:** o que for alterado aqui no repositório (no app.js, icons.js, seed.js, styles.css da raiz) vale para os dois: a versão do Claude e esta. O Netlify publica sozinho a cada mudança na branch.
+- **Mudanças no app:** o que for alterado aqui no repositório (no app.js, icons.js, seed.js, styles.css da raiz) vale para os dois: a versão do Claude e esta. O Render publica sozinho a cada mudança na branch.
 - **Precisa de internet** para abrir e salvar (como no Claude).
 
 ## Para testar no computador (opcional, para quem programa)
