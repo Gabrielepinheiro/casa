@@ -32,6 +32,24 @@ No app atual (no Claude), vá em **Ajustes → Baixar backup**. Guarde o arquivo
    Se deixar ligado, tudo funciona igual, só que cada um precisa clicar no link do e-mail na primeira vez.
 7. Em **Authentication → URL Configuration**, coloque em **Site URL** o endereço do site, que você recebe no passo 3. Isso faz o link de "Esqueci a senha" voltar para o app.
 
+## 2b. Opcional: e-mails pelo Resend
+
+O Supabase grátis manda pouquíssimos e-mails por hora, para o "Esqueci a senha" e a confirmação de conta. Com o Resend, os e-mails saem de um endereço seu, por exemplo `familia@gabrielepinheiro.com`, sem esse limite.
+
+1. No Resend, abra **Domains → Add domain** e digite `gabrielepinheiro.com`.
+2. O Resend mostra alguns registros (MX e TXT).
+3. No Wix, abra **Domínios → ⋯ → Gerenciar registros DNS** e crie cada registro exatamente como o Resend mostrou.
+4. Volte ao Resend e clique em **Verify**. Pode levar de minutos a algumas horas.
+5. No Resend, abra **Settings → Integrations → Supabase → Connect** e escolha o projeto `familia`. O Resend preenche tudo sozinho no Supabase.
+
+   Se preferir fazer à mão: no Supabase, vá em **Authentication → Emails → SMTP Settings**, ligue **Enable Custom SMTP** e preencha:
+   - Host: `smtp.resend.com`
+   - Port: `465`
+   - Username: `resend`
+   - Password: uma chave criada em **API Keys** no Resend
+   - Sender email: `familia@gabrielepinheiro.com`
+   - Sender name: `Família Pinheiro`
+
 ## 3. Render (onde o site fica)
 
 1. Entre em https://render.com e crie a conta **com o GitHub**.
