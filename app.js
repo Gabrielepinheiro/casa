@@ -332,7 +332,15 @@ function houseList(k, tasks) {
     const list = tasks.filter(t => (t.period || 'livre') === p);
     if (!list.length) return '';
     const mins = minutesOf(list.filter(t => !t.skip));
-    return `<div class="period">${label}${mins ? ` · ~${fmtMin(mins)}` : ''}</div>` + list.map(t => taskRow(k, t, '', false)).join('');
+    return `<div class="period">${label}${mins ? ` · ~${fmtMin(mins)}` : ''}</div>` + houseGroups(k, list);
+  }).join('');
+}
+// Dentro de cada bloco, as tarefas ficam com o título do grupo (o foco do dia aparece como "Foco de quarta: quartos").
+function houseGroups(k, list) {
+  return GROUPS.map(([g]) => {
+    const items = list.filter(t => (t.group || 'outras') === g);
+    if (!items.length) return '';
+    return `<div class="subgroup ${g === 'limpeza' ? 'focus' : ''}">${g === 'limpeza' ? ui('casa') : ''}${esc(groupLabel(g, k))}</div>` + items.map(t => taskRow(k, t, '', false)).join('');
   }).join('');
 }
 // Pontos pelo tempo: 1 ponto por minuto, arredondado de 5 em 5 (mínimo 5).
@@ -398,7 +406,7 @@ function viewDayScreen() {
       ${houseOpen ? `${house.length ? houseList(k, house) : '<p class="muted pad">Nada da casa neste dia.</p>'}
         ${skippedList(houseOn(k, true))}
         <button class="btn ghost small full" data-action="tab" data-tab="casa">Ver a semana da casa</button>`
-      : `<div class="house-blocks">${blocks}</div>`}
+      : `${C()?.focus?.[parseDay(k).getDay()] ? `<p class="focus-mini">${ui('casa')} Foco: <b>${esc(C().focus[parseDay(k).getDay()])}</b></p>` : ''}<div class="house-blocks">${blocks}</div>`}
     </section>`;
 
   const cols = members().map(m => {
@@ -444,7 +452,7 @@ function viewHouse() {
     const l = houseOn(k), done = l.filter(t => doneOf(k, t)).length;
     return `<button class="day-chip ${k === houseDay ? 'on' : ''} ${k === today() ? 'is-today' : ''}" data-action="house-day" data-day="${k}">
       <b>${DAYS[parseDay(k).getDay()]}</b><small>${shortDay(k)}</small><span class="${l.length && done === l.length ? 'full' : ''}">${done}/${l.length}</span>
-      ${minutesOf(l) ? `<small>~${fmtMin(minutesOf(l))}</small>` : ''}</button>`;
+      ${minutesOf(l) ? `<small>~${fmtMin(minutesOf(l))}</small>` : ''}${C()?.focus?.[parseDay(k).getDay()] ? `<em>${esc(C().focus[parseDay(k).getDay()])}</em>` : ''}</button>`;
   }).join('');
   const k = houseDay;
   const list = houseSort(houseOn(k, true));
@@ -454,7 +462,7 @@ function viewHouse() {
     const real = items.filter(t => !t.skip), done = real.filter(t => doneOf(k, t)).length;
     const mins = minutesOf(real);
     return `<section class="card group-card"><div class="section-head"><h2>${label}</h2><span class="pill">${done}/${real.length}${mins ? ` · ~${fmtMin(mins)}` : ''}</span></div>
-      ${items.map(t => taskRow(k, t, '', false)).join('')}</section>`;
+      ${houseGroups(k, items)}</section>`;
   }).join('');
   const focus = C()?.focus?.[parseDay(k).getDay()];
   return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? `<div class="top-cards">${healthCard()}${prioritiesCard()}</div>` : ''}
