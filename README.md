@@ -8,9 +8,13 @@ Quadro da família para o tablet: a rotina do Arthur e da Sophie com figuras (pa
   - Crianças: cada tarefa tem uma figura. É só tocar para marcar.
   - Casa: tarefas que a Gabriele ou o Bruno fazem. Ao tocar, o app pergunta **quem fez**; a tarefa aparece em “Fez na casa” na coluna de quem fez e os pontos vão para essa pessoa.
   - ◀ ▶ muda o dia. **Editar** (PIN) permite, só para aquele dia: escrever uma nota, repassar para outra pessoa, marcar que não precisa ou mudar de dia.
+- **Casa** – o panorama da semana: escolha o dia e veja tudo o que precisa ser feito, com o cômodo de foco do dia (seg: roupas e escritório · ter: cozinha · qua: quartos · qui: banheiros · sex: sala e geladeira · sáb: carro e compras).
+- **Prioridades da semana** – o que acumulou (ex.: vidro da sala). Fica no topo até alguém marcar como feito.
+- **Cardápio** – jantar todo dia e almoço quando tiver; receitas com ingredientes, link e foto; cardápios prontos para reaproveitar; lista de compras que soma os ingredientes iguais.
 - **Agenda** – lembretes e compromissos (ex.: “amanhã não precisa levar lancheira”). O tucano mostra no topo o que tem hoje e amanhã.
 - **Semana** – o que foi feito em cada dia, por pessoa e na casa, mais as notas da semana.
-- **Placar** e **Prêmios** – pontos da semana e troca por prêmios (pede o PIN).
+- **Pontos** – ranking da semana e troca de pontos por prêmios (pede o PIN).
+- **Repetição das tarefas** – toda semana em dias fixos, a cada X dias/semanas/meses (conta da última vez que foi feita) ou tarefa única. Tarefa atrasada continua aparecendo até ser feita.
 - **Ajustes** (PIN, padrão **1234**) – pessoas (com foto), tarefas com figura, prêmios, pontos extras.
 
 ## Onde ficam os dados

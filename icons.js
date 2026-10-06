@@ -59,6 +59,12 @@ const ICONS = {
   noite: ['Rotina da noite', '<rect x="6" y="6" width="52" height="52" rx="10" fill="#5b6aa8"/><path d="M34 16a14 14 0 1010 22 12 12 0 01-10-22z" fill="#f7c948"/><circle cx="18" cy="20" r="2" fill="#fff"/><circle cx="48" cy="46" r="2" fill="#fff"/><circle cx="16" cy="44" r="1.5" fill="#fff"/>'],
   manha: ['Rotina da manhã', '<rect x="6" y="6" width="52" height="52" rx="10" fill="#bfe6ff"/><circle cx="32" cy="38" r="10" fill="#f7c948"/><path d="M32 20v-6M18 26l-4-4M46 26l4-4M12 40H6M58 40h-6"/><path d="M6 48h52v10H6z" fill="#6cc7a0"/>'],
   relogio: ['Relógio', '<circle cx="32" cy="32" r="24" fill="#fff"/><path d="M32 18v14l9 6"/>'],
+  grama: ['Cortar a grama', '<path d="M4 50c2-8 4-8 6 0M12 50c2-10 4-10 6 0M44 50c2-8 4-8 6 0M52 50c2-10 4-10 6 0" stroke="#4fae86"/><path d="M4 52h56"/><path d="M22 24l8 16" stroke-width="3"/><rect x="24" y="36" width="24" height="12" rx="4" fill="#ef8a80"/><circle cx="28" cy="50" r="4" fill="#3d4260"/><circle cx="44" cy="50" r="4" fill="#3d4260"/><path d="M18 22h8"/>'],
+  coifa: ['Coifa', '<path d="M26 6h12v12H26z" fill="#dfe8f7"/><path d="M14 18h36l8 14H6z" fill="#c7cede"/><path d="M14 26h36M18 22h28" stroke-width="1.5"/><path d="M8 44h48v6H8z" fill="#3d4260"/><path d="M20 40q-3-4 0-8M32 40q-3-4 0-8M44 40q-3-4 0-8"/>'],
+  po: ['Tirar o pó', '<path d="M8 50h48v6H8z" fill="#b98560"/><path d="M42 6L30 30" stroke-width="4" stroke="#b98560"/><path d="M42 6L30 30"/><path d="M22 26c4-4 14 0 12 8-2 10-14 10-18 4s2-8 6-12z" fill="#f2c4dc"/><circle cx="50" cy="40" r="2" fill="#c7cede"/><circle cx="12" cy="40" r="2" fill="#c7cede"/><circle cx="46" cy="30" r="1.5" fill="#c7cede"/>'],
+  vidro: ['Limpar vidros', '<rect x="8" y="6" width="48" height="52" rx="3" fill="#bfe6ff"/><path d="M8 32h48M32 6v52"/><path d="M14 20l8-8M18 24l10-10M38 46l8-8M42 50l10-10" stroke="#fff" stroke-width="3"/>'],
+  saco_lixo: ['Levar o lixo', '<path d="M18 22c-6 8-8 20-6 30 1 6 6 8 20 8s19-2 20-8c2-10 0-22-6-30z" fill="#5b6aa8"/><path d="M22 22c2-4 6-6 10-6s8 2 10 6"/><path d="M28 16l4-8 4 8"/><path d="M24 36q8 4 16 0"/>'],
+  inducao: ['Fogão de indução', '<rect x="6" y="14" width="52" height="36" rx="6" fill="#3d4260"/><circle cx="22" cy="32" r="9" fill="none" stroke="#9aa5bd"/><circle cx="44" cy="32" r="7" fill="none" stroke="#9aa5bd"/><path d="M12 44h8" stroke="#ef8a80"/><path d="M48 6l4 4M52 6l-4 4" stroke="#7cc3f0"/>'],
   estrela: ['Estrela', '<path d="M32 6l7 16 18 2-13 12 4 18-16-9-16 9 4-18L7 24l18-2z" fill="#f7c948"/>'],
 
   // Agenda e prêmios

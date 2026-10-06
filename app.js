@@ -26,6 +26,12 @@ const UI = {
   placar: '<path d="M7 4h10v5a5 5 0 01-10 0zM12 14v4M8 21h8M7 6H4a3 3 0 003 5M17 6h3a3 3 0 01-3 5"/>',
   premios: '<rect x="3" y="9" width="18" height="12" rx="2"/><path d="M3 13h18M12 9v12M12 9c-2-5-7-5-7-2s7 2 7 2zM12 9c2-5 7-5 7-2s-7 2-7 2z"/>',
   ajustes: '<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>',
+  cardapio: '<path d="M7 3v8a2 2 0 002 2v8M5 3v6M9 3v6M17 3c-2 2-2 8 0 9v9"/>',
+  bandeira: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  foto: '<rect x="3" y="6" width="18" height="14" rx="3"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l2-3h4l2 3"/>',
+  link: '<path d="M10 14a4 4 0 006 0l3-3a4 4 0 00-6-6l-1 1M14 10a4 4 0 00-6 0l-3 3a4 4 0 006 6l1-1"/>',
+  coracao: '<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.5-7 10-7 10z"/>',
+  lixeira: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
   cadeado: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
   voltar: '<path d="M15 5l-7 7 7 7"/>',
   avancar: '<path d="M9 5l7 7-7 7"/>',
@@ -66,7 +72,10 @@ const monthOf = k => k.slice(0, 7);
 // ---------- Dados ----------
 // config: pessoas, tarefas, prêmios e PIN · days: o que foi feito e as notas de cada dia
 // agenda: compromissos e lembretes · ledger: prêmios trocados e pontos extras · archive: pontos de dias antigos
-let S = { config: null, days: {}, agenda: {}, ledger: {}, archive: { points: {}, through: '' } };
+let S = { config: null, days: {}, agenda: {}, ledger: {}, archive: { points: {}, through: '' },
+  priorities: {}, recipes: {}, menus: {}, shopping: {}, templates: {} };
+// Coleções simples (um documento por item), guardadas do mesmo jeito.
+const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates'];
 let mode = 'loading', db = null, loaded = false;
 
 function loadLocal() {
@@ -97,6 +106,7 @@ function put(path, body, quiet = false) {
 const saveConfig = () => put('config/main', S.config);
 const saveDay = k => put('days/' + k, S.days[k] || null);
 const saveAgenda = id => put('agenda/' + id, S.agenda[id] || null);
+const saveItem = (col, id) => put(col + '/' + id, S[col][id] || null);
 const saveLedger = m => put('ledger/' + m, S.ledger[m] || null);
 
 async function connect() {
@@ -107,12 +117,12 @@ async function connect() {
   if (!d) { mode = 'local'; loadLocal(); return start(); }
   db = d; mode = 'db';
   const ready = new Set();
-  const done = name => { ready.add(name); if (ready.size === 5 && !loaded) { loaded = true; maintenance(); } if (loaded) render(); };
+  const done = name => { ready.add(name); if (ready.size === 4 + COLLECTIONS.length && !loaded) { loaded = true; maintenance(); } if (loaded) render(); };
   const fail = () => { toast('Sem conexão com os dados da família. Recarregue a página.'); };
   const toMap = q => Object.fromEntries(q.docs.map(x => [x.id, clone(x.data())]));
   db.doc('config/main').onSnapshot(s => { S.config = s.exists ? clone(s.data()) : null; done('config'); }, fail);
   db.collection('days').onSnapshot(q => { S.days = toMap(q); done('days'); }, fail);
-  db.collection('agenda').onSnapshot(q => { S.agenda = toMap(q); done('agenda'); }, fail);
+  COLLECTIONS.forEach(col => db.collection(col).onSnapshot(q => { S[col] = toMap(q); done(col); }, fail));
   db.collection('ledger').onSnapshot(q => { S.ledger = toMap(q); done('ledger'); }, fail);
   db.doc('meta/archive').onSnapshot(s => { S.archive = s.exists ? clone(s.data()) : { points: {}, through: '' }; done('archive'); }, fail);
 }
@@ -139,6 +149,8 @@ function maintenance() {
     old.forEach(k => { delete S.days[k]; put('days/' + k, null, true); });
   }
   Object.values(S.agenda).filter(a => a.date < addDays(today(), -180)).forEach(a => { delete S.agenda[a.id]; put('agenda/' + a.id, null, true); });
+  Object.values(S.priorities).filter(p => p.done && p.doneOn < addDays(today(), -30)).forEach(p => { delete S.priorities[p.id]; put('priorities/' + p.id, null, true); });
+  for (const col of ['menus', 'shopping']) Object.keys(S[col]).filter(w => w < addDays(today(), -120)).forEach(w => { delete S[col][w]; put(col + '/' + w, null, true); });
   if (mode === 'local') saveLocal();
 }
 
@@ -176,13 +188,50 @@ function sortTasks(list) {
 const groupIdx = t => { const i = GROUPS.findIndex(g => g[0] === (t.group || 'outras')); return i < 0 ? GROUPS.length : i; };
 const houseSort = list => list.map((t, i) => ({ t, i })).sort((a, b) => groupIdx(a.t) - groupIdx(b.t) || a.i - b.i).map(x => x.t);
 const WEEKDAY_NAMES = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
-const groupLabel = (g, k) => g === 'limpeza' ? `Limpeza de ${WEEKDAY_NAMES[parseDay(k).getDay()]}` : GROUPS.find(x => x[0] === g)?.[1] || 'Outras';
-const scheduled = (t, k) => t.date ? t.date === k : t.days.includes(parseDay(k).getDay());
+function groupLabel(g, k) {
+  if (g !== 'limpeza') return GROUPS.find(x => x[0] === g)?.[1] || 'Outras';
+  const wd = parseDay(k).getDay(), focus = C()?.focus?.[wd];
+  return focus ? `Foco de ${WEEKDAY_NAMES[wd]}: ${focus}` : `Limpeza de ${WEEKDAY_NAMES[wd]}`;
+}
+
+// Repetição: toda semana em dias fixos · a cada N dias/semanas/meses (conta da última vez que foi feita) · uma vez só.
+const UNITS = [['dias', 'dias'], ['semanas', 'semanas'], ['meses', 'meses']];
+const isFlexible = t => !!t.date || t.repeat === 'interval';
+function addInterval(k, n, unit) {
+  if (unit === 'meses') { const d = parseDay(k); d.setMonth(d.getMonth() + n); return dayKey(d); }
+  return addDays(k, unit === 'semanas' ? n * 7 : n);
+}
+// Próxima data em que a tarefa precisa ser feita.
+function nextDue(t) {
+  if (t.date) return t.date;
+  let k = t.last ? addInterval(t.last, t.every || 1, t.unit || 'semanas') : (t.start || C()?.since || today());
+  if (t.weekday !== '' && t.weekday != null) for (let i = 0; i < 7 && parseDay(k).getDay() !== Number(t.weekday); i++) k = addDays(k, 1);
+  return k;
+}
+const doneOnDay = (t, k) => Object.keys(S.days[k]?.done || {}).some(key => key === t.id || key.startsWith(t.id + '|'));
+function scheduled(t, k) {
+  if (!isFlexible(t)) return t.days.includes(parseDay(k).getDay());
+  if (doneOnDay(t, k)) return true;
+  if (t.date && t.last) return false; // tarefa única já feita
+  const due = nextDue(t);
+  return k === due || (k === today() && due < k); // atrasada continua aparecendo hoje até ser feita
+}
+function repeatLabel(t) {
+  if (t.date) return `uma vez · ${shortDay(t.date)}`;
+  if (t.repeat === 'interval') {
+    const n = t.every || 1, u = t.unit || 'semanas';
+    const txt = n === 1 ? { dias: 'todo dia', semanas: 'toda semana', meses: 'todo mês' }[u] : n === 2 && u === 'semanas' ? 'a cada 15 dias' : `a cada ${n} ${u}`;
+    return txt + (t.weekday !== '' && t.weekday != null ? ` (${DAYS[t.weekday]})` : '');
+  }
+  return daysLabel(t.days);
+}
 function tasksOn(k, withSkipped = false) {
   const notes = S.days[k]?.notes || {};
   return (C()?.tasks || []).filter(t => scheduled(t, k)).map(t => {
     const o = notes[t.id] || {};
-    return { ...t, memberIds: o.memberIds || t.memberIds, dayNote: o.note || '', skip: !!o.skip, passed: !!o.memberIds };
+    const due = isFlexible(t) ? nextDue(t) : '';
+    return { ...t, memberIds: o.memberIds || t.memberIds, dayNote: o.note || '', skip: !!o.skip, passed: !!o.memberIds,
+      late: due && due < k && !doneOnDay(t, k) ? due : '' };
   }).filter(t => withSkipped || !t.skip);
 }
 const houseOn = (k, ws) => tasksOn(k, ws).filter(t => t.house);
@@ -209,7 +258,7 @@ function pointsBetween(mid, from, to) {
 // ---------- Telas ----------
 function render() {
   $('#date').textContent = fmtDay(today());
-  const tabs = [['hoje', 'Dia', 'dia'], ['casa', 'Casa', 'casa'], ['semana', 'Semana', 'semana'], ['agenda', 'Agenda', 'agenda'], ['placar', 'Placar', 'placar'], ['premios', 'Prêmios', 'premios'], ['config', 'Ajustes', unlocked ? 'ajustes' : 'cadeado']];
+  const tabs = [['hoje', 'Dia', 'dia'], ['casa', 'Casa', 'casa'], ['semana', 'Semana', 'semana'], ['agenda', 'Agenda', 'agenda'], ['cardapio', 'Cardápio', 'cardapio'], ['premios', 'Pontos', 'premios'], ['config', 'Ajustes', unlocked ? 'ajustes' : 'cadeado']];
   $('#tabs').innerHTML = tabs.map(([k, l, i]) => `<button class="${tab === k ? 'on' : ''}" data-action="tab" data-tab="${k}">${ui(i)}<span>${l}</span></button>`).join('');
   if (!loaded) { $('#app').innerHTML = `<div class="empty-page">${tucano('big')}<p>Carregando a rotina da família…</p></div>`; return; }
   if (!C()) {
@@ -219,7 +268,7 @@ function render() {
   }
   // Mantém o quadro onde estava (no tablet ou celular ele rola para o lado).
   const boardX = document.querySelector('.board-wrap')?.scrollLeft || 0;
-  $('#app').innerHTML = { hoje: viewDayScreen, casa: viewHouse, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
+  $('#app').innerHTML = { hoje: viewDayScreen, casa: viewHouse, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, cardapio: viewMenu, config: viewConfig }[tab]();
   const board = document.querySelector('.board-wrap');
   if (board && boardX) board.scrollLeft = boardX;
 }
@@ -228,12 +277,14 @@ function taskRow(k, t, mid, big) {
   const v = !t.skip && doneOf(k, t, mid);
   const by = t.house && v ? member(v.by) : null;
   const check = by ? avatar(by, 'mini') : `<span class="check">${v ? ui('ok') : ''}</span>`;
-  const sub = [t.note ? esc(t.note) : '', t.passed ? `repassada para ${names(t.memberIds)}` : '', t.date ? 'só neste dia' : ''].filter(Boolean).join(' · ');
+  const sub = [t.note ? esc(t.note) : '', t.passed ? `repassada para ${names(t.memberIds)}` : '',
+    t.repeat === 'interval' ? repeatLabel(t) : t.date ? 'tarefa única' : ''].filter(Boolean).join(' · ');
   return `<button class="task ${big ? 'big' : ''} ${v ? 'done' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
     ${icon(t.icon)}
     <span class="text">
       <span class="title">${t.time && !t.house ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
       ${sub ? `<span class="note">${sub}</span>` : ''}
+      ${t.late && !v ? `<span class="late">Atrasada desde ${esc(shortDay(t.late))}</span>` : ''}
       ${t.skip ? `<span class="daynote">Não precisa neste dia${t.dayNote ? ': ' + esc(t.dayNote) : ''}</span>` : t.dayNote ? `<span class="daynote">${esc(t.dayNote)}</span>` : ''}
     </span>
     ${editMode ? `<span class="edit-dot">${ui('lapis')}</span>` : check}
@@ -327,7 +378,7 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(290px, 1.35fr) repeat(${members().length}, minmax(220px, 1fr))">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}${isToday ? prioritiesCard() : ''}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(290px, 1.35fr) repeat(${members().length}, minmax(220px, 1fr))">${houseCol}${cols}</div></div>`;
 }
 
 // ---------- Casa: panorama da semana ----------
@@ -357,7 +408,7 @@ function viewHouse() {
     return `<section class="card group-card"><div class="section-head"><h2>${esc(groupLabel(g, k))}</h2><span class="pill">${done}/${real.length}</span></div>
       ${items.map(t => taskRow(k, t, '', false)).join('')}</section>`;
   }).join('');
-  return `${nav}<div class="day-chips">${chips}</div>
+  return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? prioritiesCard() : ''}
     ${k > today() && !editMode ? `<section class="hint">${ui('agenda')}<div>${esc(dayLabel(k))} ainda não chegou. Aqui você vê o que precisa ser feito. Use <b>Editar</b> para anotar, tirar ou mudar de dia.</div></section>` : ''}
     <div class="groups">${groups || '<section class="card"><p class="muted">Nada da casa neste dia.</p></section>'}</div>`;
 }
@@ -483,9 +534,9 @@ function viewScore() {
 
 function viewRewards() {
   const list = C().rewards || [];
-  if (!list.length) return `<div class="empty-page">${tucano('big')}<p>Nenhum prêmio cadastrado. Adicione em Ajustes.</p></div>`;
+  if (!list.length) return viewScore() + `<div class="empty-page">${tucano('big')}<p>Nenhum prêmio cadastrado. Adicione em Ajustes.</p></div>`;
   const best = Math.max(0, ...members().map(m => balance(m.id)));
-  return `<div class="rewards">${list.map(r => `<section class="card reward">
+  return viewScore() + `<h2 class="page-title">Prêmios</h2><div class="rewards">${list.map(r => `<section class="card reward">
       ${icon(r.icon, 'lg')}<div class="title">${esc(r.title)}</div><span class="pill">${star()}${r.cost}</span>
       <button class="btn primary" data-action="redeem" data-id="${r.id}" ${best < r.cost ? 'disabled' : ''}>Trocar pontos</button>
     </section>`).join('')}</div>`;
@@ -499,14 +550,15 @@ function viewConfig() {
       <div class="acts"><button class="btn soft" data-action="edit-member" data-id="${m.id}">Editar</button></div></div>`).join('');
   const whoChips = [['todos', 'Todas'], ['casa', 'Casa'], ...members().filter(m => !m.adult || C().tasks.some(t => !t.house && t.memberIds.includes(m.id))).map(m => [m.id, esc(m.name)])]
     .map(([v, l]) => `<button class="chip ${cfgWho === v ? 'on' : ''}" data-action="cfg-who" data-v="${v}">${l}</button>`).join('');
-  const dayChips = [['todos', 'Todos os dias'], ...WEEK_ORDER.map(d => [String(d), DAYS[d]]), ['once', 'Só um dia']]
+  const dayChips = [['todos', 'Todos os dias'], ...WEEK_ORDER.map(d => [String(d), DAYS[d]]), ['once', 'Sem dia fixo']]
     .map(([v, l]) => `<button class="chip ${cfgDay === v ? 'on' : ''}" data-action="cfg-day" data-v="${v}">${l}</button>`).join('');
   const filtered = C().tasks.filter(t => (cfgWho === 'todos' || (cfgWho === 'casa' ? t.house : !t.house && t.memberIds.includes(cfgWho))) &&
-    (cfgDay === 'todos' || (cfgDay === 'once' ? !!t.date : !t.date && t.days.includes(Number(cfgDay)))));
+    (cfgDay === 'todos' || (cfgDay === 'once' ? isFlexible(t) && (t.date || t.weekday === '' || t.weekday == null)
+      : t.days.includes(Number(cfgDay)) || (t.repeat === 'interval' && String(t.weekday) === cfgDay))));
   const sorted = [...sortTasks(filtered.filter(t => !t.house)), ...houseSort(filtered.filter(t => t.house))];
   const tasks = sorted.map(t => `<div class="row">${icon(t.icon, 'sm')}
       <div class="info"><b>${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)}</b>
-        <small>${t.house ? `Casa · ${esc(GROUPS.find(g => g[0] === (t.group || 'outras'))[1])}` : names(t.memberIds)} · ${t.date ? esc(fmtDay(t.date, { weekday: 'short', day: '2-digit', month: '2-digit' })) : daysLabel(t.days)} · ${t.points} pontos${t.alert ? ' · aparece no aviso' : ''}</small></div>
+        <small>${t.house ? `Casa · ${esc(GROUPS.find(g => g[0] === (t.group || 'outras'))[1])}` : names(t.memberIds)} · ${esc(repeatLabel(t))}${isFlexible(t) && !(t.date && t.last) ? ` · próxima ${esc(shortDay(nextDue(t)))}` : ''} · ${t.points} pontos${t.alert ? ' · aparece no aviso' : ''}</small></div>
       <div class="acts"><button class="btn soft" data-action="edit-task" data-id="${t.id}">Editar</button></div></div>`).join('');
   const rewards = (C().rewards || []).map(r => `<div class="row">${icon(r.icon, 'sm')}
       <div class="info"><b>${esc(r.title)}</b><small>${r.cost} pontos</small></div>
@@ -540,12 +592,250 @@ function daysLabel(days) {
   return WEEK_ORDER.filter(d => days.includes(d)).map(d => DAYS[d]).join(', ');
 }
 
+// ---------- Prioridades da semana ----------
+// O que acumulou e precisa de atenção (ex.: vidro da sala). Fica no topo até alguém marcar como feito.
+function prioritiesCard() {
+  const ws = mondayOf(today());
+  const list = Object.values(S.priorities).filter(p => !p.done || p.doneOn >= ws)
+    .sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.created || 0) - (b.created || 0));
+  return `<section class="card priorities"><div class="section-head"><h2>${ui('bandeira')} Prioridades da semana</h2>
+    <button class="btn soft small" data-action="new-priority">${ui('mais')} Prioridade</button></div>
+    ${list.length ? list.map(p => `<div class="prio ${p.done ? 'done' : ''}">
+      <button class="prio-check" data-action="toggle-priority" data-id="${p.id}" aria-label="${p.done ? 'Desmarcar' : 'Marcar como feita'}">${p.done ? ui('ok') : ''}</button>
+      <button class="prio-text" data-action="edit-priority" data-id="${p.id}"><span>${esc(p.title)}</span>${p.memberId ? avatar(member(p.memberId), 'mini') : ''}</button></div>`).join('')
+    : '<p class="muted pad">Nada urgente. Anote aqui o que acumulou, como “vidro da sala”.</p>'}</section>`;
+}
+function editPriority(id) {
+  const p = S.priorities[id] || { title: '', memberId: '' };
+  openDlg(id ? 'Prioridade' : 'Nova prioridade',
+    field('O que precisa ser feito', `<input type="text" id="f-ptitle" name="title" value="${esc(p.title)}" required placeholder="Ex.: Limpar o vidro da sala">`, 'f-ptitle') +
+    `<div class="field"><span>Quem vai fazer (opcional)</span><div class="opts"><label><input type="radio" name="member" value="" ${p.memberId ? '' : 'checked'}> Qualquer um</label>
+      ${members().map(m => `<label><input type="radio" name="member" value="${m.id}" ${p.memberId === m.id ? 'checked' : ''}>${avatar(m, 'mini')} ${esc(m.name)}</label>`).join('')}</div></div>`,
+    fd => {
+      const key = id || uid();
+      S.priorities[key] = { ...p, id: key, title: fd.get('title').trim(), memberId: fd.get('member') || '', created: p.created || Date.now(), done: !!p.done };
+      saveItem('priorities', key);
+    }, 'Salvar',
+    id ? `<button type="button" class="btn danger" data-action="del-priority" data-id="${id}">Excluir</button>` : '');
+}
+
+// ---------- Cardápio, receitas e lista de compras ----------
+let menuWeek = mondayOf(today()), menuView = 'semana', pendingRecipePhoto;
+const menuDoc = w => S.menus[w] || { week: w, days: {} };
+// Durante a semana é só jantar (o almoço é a sobra da noite); fim de semana tem almoço. Dá para ligar o almoço em qualquer dia.
+const hasLunch = (w, k) => menuDoc(w).days?.[k]?.lunch ?? [0, 6].includes(parseDay(k).getDay());
+const mealOf = (w, k, meal) => menuDoc(w).days?.[k]?.[meal] || null;
+const mealName = m => !m ? '' : m.recipeId ? (S.recipes[m.recipeId]?.name || 'Receita apagada') : (m.text || '');
+function editMenu(w, fn) {
+  const doc = S.menus[w] = clone(menuDoc(w));
+  doc.days ||= {};
+  fn(doc);
+  saveItem('menus', w);
+}
+const setMeal = (w, k, meal, val) => editMenu(w, doc => { const d = doc.days[k] ||= {}; if (val) d[meal] = val; else delete d[meal]; });
+
+function viewMenu() {
+  const sub = [['semana', 'Cardápio da semana'], ['receitas', 'Receitas'], ['compras', 'Lista de compras']]
+    .map(([v, l]) => `<button class="chip ${menuView === v ? 'on' : ''}" data-action="menu-view" data-v="${v}">${l}</button>`).join('');
+  return `<div class="chips">${sub}</div>${menuView === 'receitas' ? viewRecipes() : menuView === 'compras' ? viewShopping() : viewMenuWeek()}`;
+}
+function weekNav(action, w) {
+  const isThis = w === mondayOf(today());
+  return `<div class="daynav"><button class="btn icon-btn" data-action="${action}" data-n="-7" aria-label="Semana anterior">${ui('voltar')}</button>
+    <div class="daynav-label"><b>${isThis ? 'Esta semana' : 'Semana'}</b><small>${shortDay(w)} a ${shortDay(addDays(w, 6))}</small></div>
+    <button class="btn icon-btn" data-action="${action}" data-n="7" aria-label="Próxima semana">${ui('avancar')}</button>
+    ${isThis ? '' : `<button class="btn soft" data-action="${action}" data-n="0">Voltar para esta semana</button>`}</div>`;
+}
+function viewMenuWeek() {
+  const w = menuWeek, days = WEEK_ORDER.map((_, i) => addDays(w, i));
+  const slot = (k, meal) => {
+    const m = mealOf(w, k, meal), r = m?.recipeId ? S.recipes[m.recipeId] : null;
+    return `<button class="meal ${m ? 'filled' : ''}" data-action="pick-meal" data-day="${k}" data-meal="${meal}">
+      ${r?.photo ? `<img src="${esc(r.photo)}" alt="">` : `<span class="ph">${ui('cardapio')}</span>`}
+      <span><small>${meal === 'almoco' ? 'Almoço' : 'Jantar'}</small>${m ? esc(mealName(m)) : 'Escolher'}</span></button>`;
+  };
+  const cards = days.map(k => `<section class="card menu-day ${k === today() ? 'is-today' : ''}">
+    <div class="section-head"><h2>${esc(WEEKDAY_NAMES[parseDay(k).getDay()])} <small>${shortDay(k)}</small></h2>
+      <label class="switch"><input type="checkbox" data-action="toggle-lunch" data-day="${k}" ${hasLunch(w, k) ? 'checked' : ''}> Almoço</label></div>
+    ${hasLunch(w, k) ? slot(k, 'almoco') : ''}${slot(k, 'jantar')}</section>`).join('');
+  return `${weekNav('menu-week', w)}
+    <div class="row-btns top"><button class="btn soft" data-action="copy-last-week">Copiar a semana passada</button>
+      ${Object.keys(S.templates).length ? '<button class="btn soft" data-action="use-template">Usar cardápio pronto</button>' : ''}
+      <button class="btn soft" data-action="save-template">Salvar como cardápio pronto</button>
+      <button class="btn primary" data-action="menu-view" data-v="compras">Lista de compras</button></div>
+    <div class="menu-grid">${cards}</div>`;
+}
+function pickMeal(k, meal) {
+  const w = mondayOf(k), cur = mealOf(w, k, meal);
+  const rs = Object.values(S.recipes).sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || a.name.localeCompare(b.name));
+  openDlg(`${meal === 'almoco' ? 'Almoço' : 'Jantar'}<small class="dlg-sub">${esc(fmtDay(k))}</small>`,
+    `<div class="field"><span>Receitas${rs.some(r => r.fav) ? ' (favoritas primeiro)' : ''}</span><div class="recipe-pick">${rs.map(r => `<label>
+      <input type="radio" name="recipe" value="${r.id}" ${cur?.recipeId === r.id ? 'checked' : ''}>
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="">` : `<span class="ph">${ui('cardapio')}</span>`}<span>${r.fav ? ui('coracao', 'fav') : ''}${esc(r.name)}</span></label>`).join('')}
+      <label><input type="radio" name="recipe" value="" ${cur && !cur.recipeId ? 'checked' : ''}><span class="ph">${ui('lapis')}</span><span>Outro (escrever abaixo)</span></label></div></div>` +
+    (rs.length ? '' : '<p class="legend">Ainda não tem receitas. Cadastre na aba Receitas ou escreva abaixo.</p>') +
+    field('Escrever (ex.: sobras, comer fora, pizza)', `<input type="text" id="f-mtext" name="text" value="${esc(cur?.text || '')}">`, 'f-mtext'),
+    fd => {
+      const rid = fd.get('recipe'), text = fd.get('text').trim();
+      if (rid) return setMeal(w, k, meal, { recipeId: rid });
+      if (!text) { toast('Escolha uma receita ou escreva o que vai ter'); return false; }
+      setMeal(w, k, meal, { text });
+    }, 'Salvar', cur ? `<button type="button" class="btn danger" data-action="clear-meal" data-day="${k}" data-meal="${meal}">Tirar</button>` : '');
+}
+function copyLastWeek() {
+  const prev = menuDoc(addDays(menuWeek, -7));
+  const days = Object.fromEntries(Object.entries(prev.days || {}).map(([k, v]) => [addDays(k, 7), v]));
+  if (!Object.keys(days).length) return toast('A semana passada está vazia');
+  const go = () => { editMenu(menuWeek, doc => { doc.days = days; }); render(); toast('Cardápio copiado'); };
+  Object.keys(menuDoc(menuWeek).days || {}).length ? askConfirm('Trocar o cardápio desta semana pelo da semana passada?', go, 'Trocar') : go();
+}
+function saveTemplate() {
+  if (!Object.keys(menuDoc(menuWeek).days || {}).length) return toast('Monte o cardápio da semana primeiro');
+  openDlg('Salvar cardápio pronto', field('Nome', '<input type="text" id="f-tname" name="name" required placeholder="Ex.: Semana corrida">', 'f-tname'), fd => {
+    const id = uid();
+    const days = Object.fromEntries(Object.entries(menuDoc(menuWeek).days).map(([k, v]) => [parseDay(k).getDay(), v]));
+    S.templates[id] = { id, name: fd.get('name').trim(), days };
+    saveItem('templates', id);
+    toast('Cardápio pronto salvo');
+  });
+}
+function useTemplate() {
+  const list = Object.values(S.templates);
+  openDlg('Usar cardápio pronto', `<div class="field"><div class="opts column">${list.map(t => `<label><input type="radio" name="tpl" value="${t.id}" required> ${esc(t.name)}</label>`).join('')}</div></div>`, fd => {
+    const t = S.templates[fd.get('tpl')];
+    if (!t) return false;
+    editMenu(menuWeek, doc => { doc.days = Object.fromEntries(WEEK_ORDER.map((d, i) => [addDays(menuWeek, i), t.days[d]]).filter(([, v]) => v)); });
+    toast(`Cardápio “${t.name}” aplicado`);
+  }, 'Usar', `<button type="button" class="btn danger" data-action="del-template">Apagar o marcado</button>`);
+}
+
+// Receitas: ingredientes um por linha ("2 tomates", "200 g de queijo", "1 xícara de arroz").
+function viewRecipes() {
+  const rs = Object.values(S.recipes).sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || a.name.localeCompare(b.name));
+  return `<div class="row-btns top"><button class="btn primary" data-action="edit-recipe">${ui('mais')} Receita</button></div>
+    ${rs.length ? `<div class="recipes">${rs.map(r => `<button class="card recipe" data-action="show-recipe" data-id="${r.id}">
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="">` : `<span class="ph big">${ui('cardapio')}</span>`}
+      <b>${r.fav ? ui('coracao', 'fav') : ''}${esc(r.name)}</b><small>${ingredientLines(r).length} ingredientes${r.link ? ' · tem link' : ''}</small></button>`).join('')}</div>`
+    : `<div class="empty-page">${tucano('big')}<p>Nenhuma receita ainda.</p><p class="muted">Cadastre as receitas que vocês sempre fazem, com foto e link do Instagram. Depois é só escolher no cardápio e a lista de compras sai pronta.</p></div>`}`;
+}
+const ingredientLines = r => (r.ingredients || '').split('\n').map(l => l.trim()).filter(Boolean);
+function showRecipe(id) {
+  const r = S.recipes[id];
+  if (!r) return;
+  openDlg(esc(r.name),
+    `${r.photo ? `<img class="recipe-photo" src="${esc(r.photo)}" alt="">` : ''}
+    ${r.link ? `<p><a class="btn soft" href="${esc(r.link)}" target="_blank" rel="noopener">${ui('link')} Abrir a receita original</a></p>` : ''}
+    ${r.servings ? `<p class="muted">Rende ${esc(r.servings)} porções</p>` : ''}
+    <h3 class="sub-title">Ingredientes</h3><ul class="ing-list">${ingredientLines(r).map(l => `<li>${esc(l)}</li>`).join('')}</ul>
+    ${r.steps ? `<h3 class="sub-title">Modo de preparo</h3><p class="steps">${esc(r.steps)}</p>` : ''}`,
+    null, '', `<button type="button" class="btn soft" data-action="edit-recipe" data-id="${id}">${ui('lapis')} Editar</button>`);
+}
+function editRecipe(id) {
+  const r = S.recipes[id] || { name: '', link: '', servings: '', ingredients: '', steps: '', fav: false, photo: '' };
+  pendingRecipePhoto = undefined;
+  openDlg(id ? 'Editar receita' : 'Nova receita',
+    field('Nome', `<input type="text" id="f-rname" name="name" value="${esc(r.name)}" required placeholder="Ex.: Strogonoff de frango">`, 'f-rname') +
+    `<div class="field"><span>Foto (opcional)</span><div class="photo-row">${r.photo ? `<img class="recipe-thumb" src="${esc(r.photo)}" alt="">` : `<span class="recipe-thumb ph">${ui('foto')}</span>`}
+      <input type="file" id="f-rphoto" accept="image/*">${r.photo ? '<label><input type="checkbox" name="nophoto"> Tirar foto</label>' : ''}</div></div>` +
+    `<div class="field-row">${field('Link (Instagram ou site)', `<input type="url" id="f-rlink" name="link" value="${esc(r.link)}" placeholder="https://www.instagram.com/…">`, 'f-rlink')}
+      ${field('Porções', `<input type="text" id="f-rserv" name="servings" value="${esc(r.servings)}" placeholder="4">`, 'f-rserv')}</div>` +
+    field('Ingredientes (um por linha)', `<textarea id="f-ring" name="ingredients" rows="7" placeholder="2 tomates&#10;200 g de queijo&#10;1 xícara de arroz&#10;sal a gosto">${esc(r.ingredients)}</textarea>`, 'f-ring') +
+    field('Modo de preparo (opcional)', `<textarea id="f-rsteps" name="steps" rows="5">${esc(r.steps)}</textarea>`, 'f-rsteps') +
+    `<div class="field"><div class="opts"><label><input type="checkbox" name="fav" ${r.fav ? 'checked' : ''}> Favorita (a gente sempre faz)</label></div></div>`,
+    fd => {
+      const key = id || uid();
+      const photo = fd.has('nophoto') ? '' : pendingRecipePhoto ?? r.photo ?? '';
+      S.recipes[key] = { id: key, name: fd.get('name').trim(), link: fd.get('link').trim(), servings: fd.get('servings').trim(),
+        ingredients: fd.get('ingredients').trim(), steps: fd.get('steps').trim(), fav: fd.has('fav'), photo };
+      pendingRecipePhoto = undefined;
+      saveItem('recipes', key);
+      toast('Receita salva');
+    }, 'Salvar',
+    id ? `<button type="button" class="btn danger" data-action="del-recipe" data-id="${id}">Excluir</button>` : '');
+}
+
+// Lê "2 tomates", "200 g de queijo", "1/2 xícara de leite", "sal a gosto".
+const UNIT_ALIASES = [
+  ['colher de sopa', ['colheres de sopa', 'colher de sopa']], ['colher de chá', ['colheres de chá', 'colher de chá', 'colheres de cha', 'colher de cha']],
+  ['xícara', ['xícaras', 'xicaras', 'xícara', 'xicara']], ['kg', ['kg', 'quilos', 'quilo']], ['g', ['gramas', 'grama', 'gr', 'g']],
+  ['ml', ['ml']], ['l', ['litros', 'litro', 'l']], ['colher', ['colheres', 'colher']], ['dente', ['dentes', 'dente']], ['lata', ['latas', 'lata']],
+  ['pacote', ['pacotes', 'pacote']], ['caixa', ['caixas', 'caixa']], ['maço', ['maços', 'maço']], ['fatia', ['fatias', 'fatia']],
+  ['pote', ['potes', 'pote']], ['pitada', ['pitadas', 'pitada']], ['copo', ['copos', 'copo']], ['unidade', ['unidades', 'unidade', 'un']]];
+function parseQty(str) {
+  str = str.replace(',', '.').trim();
+  const frac = { '½': .5, '¼': .25, '¾': .75 };
+  if (frac[str]) return frac[str];
+  let m = str.match(/^(\d+)\s+(\d+)\/(\d+)$/);
+  if (m) return +m[1] + m[2] / m[3];
+  m = str.match(/^(\d+)\/(\d+)$/);
+  if (m) return m[1] / m[2];
+  return parseFloat(str);
+}
+function parseIngredient(line) {
+  let s = line.trim().replace(/^[-•*·]\s*/, '');
+  let qty = null, unit = '';
+  const m = s.match(/^(\d+\s+\d+\/\d+|\d+\/\d+|\d+(?:[.,]\d+)?|[½¼¾])\s*/);
+  if (m) { qty = parseQty(m[1]); s = s.slice(m[0].length); }
+  const low = s.toLowerCase();
+  outer: for (const [canon, aliases] of UNIT_ALIASES) for (const a of aliases) {
+    if (low === a || low.startsWith(a + ' ')) { unit = canon; s = s.slice(a.length).trim(); break outer; }
+  }
+  s = s.replace(/^de\s+/i, '').trim();
+  const loose = /\s*(a|à) gosto$/i.test(s);
+  s = s.replace(/\s*(a|à) gosto$/i, '').trim();
+  return { qty: Number.isFinite(qty) && !loose ? qty : null, unit, item: s || line.trim() };
+}
+// Mesma coisa escrita de jeitos parecidos ("tomate" e "tomates") soma junto.
+const ingKey = ing => ing.unit + '|' + ing.item.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .split(/\s+/).map(w => w.length > 3 ? w.replace(/s$/, '') : w).join(' ');
+const fmtQty = q => Number(q.toFixed(2)).toLocaleString('pt-BR');
+function shoppingFromMenu(w) {
+  const map = new Map();
+  for (const [k, d] of Object.entries(menuDoc(w).days || {})) for (const meal of ['almoco', 'jantar']) {
+    if (meal === 'almoco' && !hasLunch(w, k)) continue;
+    const r = d?.[meal]?.recipeId && S.recipes[d[meal].recipeId];
+    if (!r) continue;
+    for (const line of ingredientLines(r)) {
+      const ing = parseIngredient(line), key = ingKey(ing);
+      const e = map.get(key) || { key, item: ing.item, unit: ing.unit, qty: 0, hasQty: false, loose: false, from: new Set() };
+      if (ing.qty != null) { e.qty += ing.qty; e.hasQty = true; } else e.loose = true;
+      e.from.add(r.name);
+      map.set(key, e);
+    }
+  }
+  return [...map.values()];
+}
+function viewShopping() {
+  const w = menuWeek, doc = S.shopping[w] || { checked: {}, extras: [] };
+  const fromMenu = shoppingFromMenu(w).map(e => ({ ...e, checked: !!doc.checked?.[e.key],
+    label: `${e.hasQty ? fmtQty(e.qty) + ' ' + (e.unit ? e.unit + ' de ' : '') : ''}${e.item}${e.hasQty && e.loose ? ' (+ a gosto)' : ''}` }));
+  const extras = (doc.extras || []).map(x => ({ ...x, extra: true, label: x.text }));
+  const all = [...fromMenu, ...extras].sort((a, b) => (a.checked ? 1 : 0) - (b.checked ? 1 : 0) || a.label.localeCompare(b.label));
+  const left = all.filter(x => !x.checked).length;
+  return `${weekNav('menu-week', w)}
+    <div class="row-btns top"><button class="btn primary" data-action="add-shop">${ui('mais')} Item</button>
+      ${all.some(x => x.checked) ? '<button class="btn ghost" data-action="uncheck-shop">Desmarcar tudo</button>' : ''}</div>
+    <section class="card"><div class="section-head"><h2>Lista de compras</h2><span class="pill">${left} para comprar</span></div>
+      ${all.length ? all.map(x => `<div class="shop ${x.checked ? 'done' : ''}">
+        <button class="prio-check" data-action="toggle-shop" data-key="${esc(x.extra ? 'x:' + x.id : x.key)}" aria-label="Marcar">${x.checked ? ui('ok') : ''}</button>
+        <span class="shop-text"><b>${esc(x.label)}</b>${x.from ? `<small>${esc([...x.from].join(', '))}</small>` : '<small>item avulso</small>'}</span>
+        ${x.extra ? `<button class="btn ghost small" data-action="del-shop" data-id="${x.id}" aria-label="Apagar">${ui('lixeira')}</button>` : ''}</div>`).join('')
+      : '<p class="muted pad">A lista sai do cardápio da semana. Escolha as receitas ou adicione itens avulsos (papel, produtos de limpeza…).</p>'}
+    </section>`;
+}
+function editShop(w, fn) {
+  const doc = S.shopping[w] = clone(S.shopping[w] || { week: w, checked: {}, extras: [] });
+  doc.checked ||= {}; doc.extras ||= [];
+  fn(doc);
+  saveItem('shopping', w);
+}
+
 // ---------- Diálogos ----------
 const dlg = $('#dlg'), dlgForm = $('#dlgForm');
 let dlgHandler = null;
 function openDlg(title, body, onOk, okLabel = 'Salvar', extra = '') {
   dlgForm.innerHTML = `<h2>${title}</h2>${body}<div class="dlg-actions">${extra}<span class="spacer"></span>
-    <button type="button" class="btn ghost" data-action="dlg-cancel">Cancelar</button>
+    <button type="button" class="btn ghost" data-action="dlg-cancel">${onOk ? 'Cancelar' : 'Fechar'}</button>
     ${onOk ? `<button class="btn primary">${okLabel}</button>` : ''}</div>`;
   dlgHandler = onOk;
   if (!dlg.open) dlg.showModal();
@@ -596,6 +886,20 @@ function editMember(id) {
 // Foto: recorta quadrada e reduz para caber nos dados da página.
 let pendingPhoto = null;
 dlgForm.addEventListener('change', e => {
+  if (e.target.id === 'f-rphoto' && e.target.files[0]) {
+    const img = new Image();
+    img.onload = () => {
+      const max = 720, scale = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale); c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      pendingRecipePhoto = c.toDataURL('image/jpeg', .75);
+      const prev = dlgForm.querySelector('.recipe-thumb');
+      if (prev) prev.outerHTML = `<img class="recipe-thumb" src="${pendingRecipePhoto}" alt="">`;
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(e.target.files[0]);
+  }
   if (e.target.id === 'f-photo' && e.target.files[0]) {
     const img = new Image();
     img.onload = () => {
@@ -610,9 +914,10 @@ dlgForm.addEventListener('change', e => {
     img.src = URL.createObjectURL(e.target.files[0]);
   }
   if (e.target.name === 'when') {
-    const once = e.target.value === 'once';
-    dlgForm.querySelector('.when-weekly').hidden = once;
-    dlgForm.querySelector('.when-once').hidden = !once;
+    const v = e.target.value;
+    dlgForm.querySelector('.when-weekly').hidden = v !== 'weekly';
+    dlgForm.querySelector('.when-interval').hidden = v !== 'interval';
+    dlgForm.querySelector('.when-once').hidden = v !== 'once';
   }
   if (e.target.name === 'house') {
     dlgForm.querySelector('.who-members').hidden = e.target.checked;
@@ -622,35 +927,56 @@ dlgForm.addEventListener('change', e => {
 
 function editTask(id, onDay) {
   const t = C().tasks.find(x => x.id === id) || { title: '', icon: 'estrela', points: 5, note: '', time: '', period: 'livre', memberIds: [], house: false, days: ALL_DAYS, alert: false, date: onDay };
+  const rep0 = t.date ? 'once' : t.repeat === 'interval' ? 'interval' : 'weekly';
   openDlg(id ? 'Editar tarefa' : onDay ? `Nova tarefa · ${esc(dayLabel(onDay))}` : 'Nova tarefa fixa',
     field('Tarefa', `<input type="text" id="f-title" name="title" value="${esc(t.title)}" required>`, 'f-title') +
     iconPicker(t.icon) +
     `<div class="field"><span>Para quem</span><div class="opts"><label><input type="checkbox" name="house" ${t.house ? 'checked' : ''}> Rotina da casa (Gabriele ou Bruno marcam quem fez)</label></div>
       <div class="who-members" ${t.house ? 'hidden' : ''}>${memberChecks(t.house ? [] : t.memberIds)}</div>
       <label class="field house-group" for="f-group" ${t.house ? '' : 'hidden'}><span>Grupo da casa</span><select id="f-group" name="group">${opt(GROUPS, t.group || 'limpeza')}</select></label></div>` +
-    field('Quando', `<select id="f-when" name="when"><option value="weekly" ${t.date ? '' : 'selected'}>Toda semana, nos dias abaixo</option>
-      <option value="once" ${t.date ? 'selected' : ''}>Só uma vez, na data abaixo</option></select>`, 'f-when') +
-    `<div class="field when-weekly" ${t.date ? 'hidden' : ''}><span>Dias</span><div class="opts">${WEEK_ORDER.map(d => `<label>
-      <input type="checkbox" name="days" value="${d}" ${!t.date && t.days.includes(d) ? 'checked' : ''}>${DAYS[d]}</label>`).join('')}</div></div>` +
-    `<label class="field when-once" for="f-date" ${t.date ? '' : 'hidden'}><span>Data</span><input type="date" id="f-date" name="date" value="${esc(t.date || today())}"></label>` +
+    field('Repetição', `<select id="f-when" name="when">
+      <option value="weekly" ${rep0 === 'weekly' ? 'selected' : ''}>Toda semana, nos dias abaixo</option>
+      <option value="interval" ${rep0 === 'interval' ? 'selected' : ''}>A cada… (conta da última vez que foi feita)</option>
+      <option value="once" ${rep0 === 'once' ? 'selected' : ''}>Tarefa única (não se repete)</option></select>`, 'f-when') +
+    `<div class="field when-weekly" ${rep0 === 'weekly' ? '' : 'hidden'}><span>Dias</span><div class="opts">${WEEK_ORDER.map(d => `<label>
+      <input type="checkbox" name="days" value="${d}" ${rep0 === 'weekly' && t.days.includes(d) ? 'checked' : ''}>${DAYS[d]}</label>`).join('')}</div></div>` +
+    `<div class="when-interval" ${rep0 === 'interval' ? '' : 'hidden'}><div class="field-row">
+      ${field('A cada', `<input type="number" id="f-every" name="every" min="1" max="365" value="${t.every || 2}">`, 'f-every')}
+      ${field('&nbsp;', `<select id="f-unit" name="unit">${opt(UNITS, t.unit || 'semanas')}</select>`, 'f-unit')}
+      ${field('No dia da semana', `<select id="f-wd" name="weekday"><option value="">Qualquer dia</option>${WEEK_ORDER.map(d => `<option value="${d}" ${String(t.weekday) === String(d) ? 'selected' : ''}>${DAYS[d]}</option>`).join('')}</select>`, 'f-wd')}</div>
+      ${field('Próxima vez', `<input type="date" id="f-start" name="start" value="${esc(rep0 === 'interval' ? nextDue(t) : today())}">`, 'f-start')}
+      ${t.last ? `<p class="legend">Última vez: ${esc(fmtDay(t.last, { weekday: 'short', day: '2-digit', month: '2-digit' }))}</p>` : ''}</div>` +
+    `<label class="field when-once" for="f-date" ${rep0 === 'once' ? '' : 'hidden'}><span>Data</span><input type="date" id="f-date" name="date" value="${esc(t.date || today())}"></label>` +
     `<div class="field-row">${field('Horário (opcional)', `<input type="time" id="f-time" name="time" value="${esc(t.time)}">`, 'f-time')}
       ${field('Período (sem horário)', `<select id="f-period" name="period">${opt(PERIODS, t.period)}</select>`, 'f-period')}
       ${field('Pontos', `<input type="number" id="f-points" name="points" min="0" max="1000" value="${t.points}" required>`, 'f-points')}</div>` +
     field('Observação (opcional)', `<input type="text" id="f-note" name="note" value="${esc(t.note)}" placeholder="Ex.: o que levar, quantidade">`, 'f-note') +
     `<div class="field"><div class="opts"><label><input type="checkbox" name="alert" ${t.alert ? 'checked' : ''}> Mostrar no aviso do tucano (compromisso importante)</label></div></div>`,
     fd => {
-      const time = fd.get('time') || '', once = fd.get('when') === 'once', house = fd.has('house');
+      const time = fd.get('time') || '', when = fd.get('when'), once = when === 'once', interval = when === 'interval', house = fd.has('house');
       const data = {
         title: fd.get('title').trim(), icon: fd.get('icon') || 'estrela', note: fd.get('note').trim(),
         points: Math.max(0, parseInt(fd.get('points'), 10) || 0), time, period: time ? periodOf(time) : fd.get('period'),
         house, memberIds: house ? adults().map(m => m.id) : fd.getAll('members'), alert: fd.has('alert'),
         ...(house ? { group: fd.get('group') || 'outras' } : {}),
-        days: once ? [] : fd.getAll('days').map(Number),
+        days: when === 'weekly' ? fd.getAll('days').map(Number) : [],
       };
       if (!data.memberIds.length) { toast('Escolha para quem é a tarefa'); return false; }
-      if (once ? !fd.get('date') : !data.days.length) { toast(once ? 'Escolha a data' : 'Escolha pelo menos um dia'); return false; }
-      if (id) { Object.assign(t, data); if (once) t.date = fd.get('date'); else delete t.date; }
-      else C().tasks.push({ id: uid(), ...data, ...(once ? { date: fd.get('date') } : {}) });
+      if (once && !fd.get('date')) { toast('Escolha a data'); return false; }
+      if (interval && !fd.get('start')) { toast('Escolha quando é a próxima vez'); return false; }
+      if (when === 'weekly' && !data.days.length) { toast('Escolha pelo menos um dia'); return false; }
+      const target = id ? t : { id: uid() };
+      const prevStart = rep0 === 'interval' ? nextDue(t) : '', prevDate = t.date;
+      Object.assign(target, data);
+      for (const key of ['date', 'repeat', 'every', 'unit', 'weekday', 'start']) delete target[key];
+      if (once) { target.date = fd.get('date'); if (fd.get('date') !== prevDate) { delete target.last; delete target.prevLast; } }
+      if (interval) {
+        Object.assign(target, { repeat: 'interval', every: Math.max(1, parseInt(fd.get('every'), 10) || 1), unit: fd.get('unit'), weekday: fd.get('weekday'), start: fd.get('start') });
+        // Se a próxima data foi mudada à mão, ela passa a valer.
+        if (fd.get('start') !== prevStart) { delete target.last; delete target.prevLast; }
+      }
+      if (when === 'weekly') { delete target.last; delete target.prevLast; }
+      if (!id) C().tasks.push(target);
       saveConfig();
       toast('Tarefa salva');
     }, 'Salvar',
@@ -674,8 +1000,8 @@ function dayMenu(k, taskId) {
       if (!ms.length) { toast('Escolha pelo menos uma pessoa'); return false; }
       const passed = base.house || ms.slice().sort().join() === base.memberIds.slice().sort().join() ? undefined : ms;
       if (move && move !== k) {
-        if (base.date) {
-          base.date = move;
+        if (isFlexible(base)) {
+          if (base.date) base.date = move; else { base.start = move; delete base.last; delete base.prevLast; }
           setNote(move, taskId, { note, memberIds: passed });
           setNote(k, taskId, {});
         } else {
@@ -785,6 +1111,12 @@ function toggle(k, taskId, mid) {
     return askConfirm(`Desmarcar "${t.title}"${by ? ` de ${by.name}` : ''}?`, () => {
       delete S.days[k].done[keyOf(t, mid)];
       saveDay(k);
+      const base = C().tasks.find(x => x.id === t.id);
+      if (base && isFlexible(base) && base.last === k && !doneOnDay(base, k)) {
+        if (base.prevLast) base.last = base.prevLast; else delete base.last;
+        delete base.prevLast;
+        saveConfig();
+      }
       render();
     }, 'Desmarcar');
   }
@@ -803,6 +1135,13 @@ function complete(k, t, mid) {
   d.done ||= {};
   d.done[keyOf(t, mid)] = { by: mid, t: k === today() ? Date.now() : parseDay(k).getTime() + 12 * 3600e3, pts: t.points, title: t.title };
   saveDay(k);
+  // Repetição "a cada…" e tarefa única: guarda quando foi feita (a próxima vez conta daqui).
+  const base = C().tasks.find(x => x.id === t.id);
+  if (base && isFlexible(base) && (!base.last || k >= base.last)) {
+    base.prevLast = base.last || '';
+    base.last = k;
+    saveConfig();
+  }
   const left = t.house ? 1 : ownOn(k, mid).filter(x => !doneOf(k, x, mid)).length;
   celebrate(left ? `+${t.points} ${m.name}` : `${m.name} terminou tudo!`, !left);
   render();
@@ -842,6 +1181,46 @@ const actions = {
   'week': el => { const n = Number(el.dataset.n); weekFrom = n ? addDays(weekFrom, n) : mondayOf(today()); render(); },
   'house-day': el => { houseDay = el.dataset.day; render(); },
   'house-week': el => { const n = Number(el.dataset.n); houseDay = n ? addDays(houseDay, n) : today(); render(); },
+  'new-priority': () => editPriority(),
+  'edit-priority': el => editPriority(el.dataset.id),
+  'toggle-priority': el => {
+    const p = S.priorities[el.dataset.id];
+    if (!p) return;
+    S.priorities[p.id] = { ...p, done: !p.done, doneOn: !p.done ? today() : '' };
+    saveItem('priorities', p.id);
+    if (!p.done) celebrate('Prioridade resolvida!');
+    render();
+  },
+  'del-priority': el => askConfirm('Excluir esta prioridade?', () => { delete S.priorities[el.dataset.id]; saveItem('priorities', el.dataset.id); render(); }, 'Excluir'),
+  'menu-view': el => { menuView = el.dataset.v; render(); scrollTo(0, 0); },
+  'menu-week': el => { const n = Number(el.dataset.n); menuWeek = n ? addDays(menuWeek, n) : mondayOf(today()); render(); },
+  'pick-meal': el => pickMeal(el.dataset.day, el.dataset.meal),
+  'clear-meal': el => { dlg.close(); setMeal(mondayOf(el.dataset.day), el.dataset.day, el.dataset.meal, null); render(); },
+  'toggle-lunch': el => { const k = el.dataset.day, on = el.checked; editMenu(mondayOf(k), doc => { (doc.days[k] ||= {}).lunch = on; }); render(); },
+  'copy-last-week': copyLastWeek,
+  'save-template': saveTemplate,
+  'use-template': useTemplate,
+  'del-template': () => {
+    const id = dlgForm.querySelector('input[name=tpl]:checked')?.value;
+    if (!id) return toast('Marque qual cardápio apagar');
+    askConfirm(`Apagar o cardápio “${S.templates[id]?.name}”?`, () => { delete S.templates[id]; saveItem('templates', id); render(); }, 'Apagar');
+  },
+  'edit-recipe': el => editRecipe(el.dataset.id),
+  'show-recipe': el => showRecipe(el.dataset.id),
+  'del-recipe': el => askConfirm('Excluir esta receita?', () => { delete S.recipes[el.dataset.id]; saveItem('recipes', el.dataset.id); render(); }, 'Excluir'),
+  'toggle-shop': el => {
+    const key = el.dataset.key;
+    editShop(menuWeek, doc => {
+      if (key.startsWith('x:')) { const x = doc.extras.find(e => e.id === key.slice(2)); if (x) x.checked = !x.checked; }
+      else if (doc.checked[key]) delete doc.checked[key]; else doc.checked[key] = true;
+    });
+    render();
+  },
+  'add-shop': () => openDlg('Adicionar à lista', field('Item', '<input type="text" id="f-shop" name="text" required placeholder="Ex.: 2 rolos de papel toalha">', 'f-shop'), fd => {
+    editShop(menuWeek, doc => doc.extras.push({ id: uid(), text: fd.get('text').trim(), checked: false }));
+  }, 'Adicionar'),
+  'del-shop': el => { editShop(menuWeek, doc => { doc.extras = doc.extras.filter(x => x.id !== el.dataset.id); }); render(); },
+  'uncheck-shop': () => { editShop(menuWeek, doc => { doc.checked = {}; doc.extras.forEach(x => { x.checked = false; }); }); render(); },
   'week-who': el => { weekWho = el.dataset.v; render(); },
   'week-cell': el => {
     if (!unlocked) return toast('Entre em Editar (PIN) para corrigir a semana');
