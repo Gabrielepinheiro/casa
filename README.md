@@ -1,6 +1,6 @@
-# 🏡 Casa Pinheiro
+# 🦜 Família Pinheiro Bernt Eymael
 
-App para o tablet da família (Gabriele, Bruno, Arthur e Sophie): cada pessoa tem suas tarefas (rotina das crianças, tarefas da casa e pessoais), marca quando termina e ganha pontos ⭐ que podem ser trocados por prêmios. Visual inspirado nas cores do Nipto, com o nosso mascote: o **boto-cor-de-rosa** 🐬.
+App para o tablet da família (Gabriele, Bruno, Arthur e Sophie): cada pessoa tem suas tarefas (rotina das crianças, tarefas da casa e pessoais), marca quando termina e ganha pontos ⭐ que podem ser trocados por prêmios. Visual inspirado nas cores do Nipto, com o nosso mascote: o **tucano** 🦜.
 
 Já vem com a **rotina semanal** da família cadastrada (seg a sex): rotina diária, blocos de alemão, academia, trabalho, a limpeza de cada dia (segunda: roupas/escritório, terça: cozinha/plantas, quarta: camas/armário, quinta: banheiros, sexta: compras/Keller/carro), o fechamento do dia e a rotina do Arthur (6) e da Sophie (2): manhã, chegada do Kindergarten às 16h e noite. Terça tem escola do Arthur às 08:00 em ponto e quinta tem futebol às 16:30.
 
@@ -8,7 +8,10 @@ Já vem com a **rotina semanal** da família cadastrada (seg a sex): rotina diá
 
 - **Hoje** – um cartão por pessoa com as tarefas do dia, em ordem de horário e separadas por manhã / tarde / noite. É só tocar para marcar (e tocar de novo para desmarcar). Dá para filtrar por *Rotina*, *Casa*, *Pessoal* e por pessoa.
 - **🤝 Quem fizer primeiro** – tarefas que tanto a Gabriele quanto o Bruno podem fazer. Ao tocar, o app pergunta quem fez e os pontos vão para essa pessoa.
-- **🐬 O boto avisa** – compromissos importantes do dia aparecem num aviso no topo (ex.: escola de terça, futebol de quinta). Marque "Mostrar no aviso do boto" em qualquer tarefa.
+- **🦜 O tucano avisa** – compromissos, lembretes e tarefas importantes do dia aparecem no topo, junto com o que tem amanhã.
+- **✏️ Editar (PIN)** – na tela do dia, toque numa tarefa para: colocar uma nota só daquele dia, repassar para outra pessoa, marcar que não precisa ou mudar para outro dia. Dá para navegar ◀ ▶ para planejar dias futuros e criar tarefas só para um dia.
+- **📅 Agenda** – compromissos (festa, consulta) e lembretes (ex.: “amanhã não precisa levar lancheira”) com data e horário.
+- **📊 Semana** – o que foi feito em cada dia da semana, por pessoa, com as notas da semana. Semanas anteriores ficam guardadas por 90 dias.
 - **🆘 Modo sobrevivência** – num dia que saiu do controle, mostra só o essencial (pia da cozinha, roupa essencial, 10 min de organização e os cuidados das crianças).
 - **Placar** – ranking da semana (começa na segunda) e histórico das últimas atividades.
 - **Prêmios** – troca de pontos por recompensas (pede o PIN dos pais).

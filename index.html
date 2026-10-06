@@ -6,14 +6,14 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Casa">
+<meta name="apple-mobile-web-app-title" content="Família">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@400..900&display=swap" rel="stylesheet">
-<title>Tarefas da Casa</title>
+<title>Família Pinheiro Bernt Eymael</title>
 <style>
   :root {
     /* Paleta inspirada no Nipto */
@@ -95,23 +95,77 @@
   .who-pick button { border: 3px solid var(--c); background: #fff; border-radius: 16px; padding: 14px 8px; font-weight: 700; font-size: 1.05rem; }
   .who-pick button span { display: block; font-size: 2.4rem; }
   header.top h1 { display: flex; align-items: center; gap: 6px; }
-  .boto-logo { width: 52px; height: auto; }
+  .mascot-logo { width: 46px; height: auto; flex: none; }
   .toast { display: flex; align-items: center; gap: 10px; }
   .toast svg { width: 56px; height: auto; flex: none; }
-  .boto-banner { display: flex; align-items: center; gap: 16px; background: #fff0f6; border-color: #f7c6d9; margin-bottom: 16px; }
-  .boto-banner svg { width: 96px; height: auto; flex: none; animation: swim 2.4s ease-in-out infinite; }
-  .boto-banner h3 { margin: 0 0 4px; font-weight: 900; color: #c94f7c; }
-  .boto-banner ul { margin: 0; padding: 0; list-style: none; }
-  .boto-banner li { font-weight: 700; padding: 2px 0; }
-  .boto-banner li .time { font-size: .85rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; margin-right: 6px; }
+  .tucano-banner { display: flex; align-items: center; gap: 16px; background: #fff7e6; border-color: #ffd98a; margin-bottom: 16px; }
+  .tucano-banner svg { width: 96px; height: auto; flex: none; animation: swim 2.4s ease-in-out infinite; }
+  .tucano-banner h3 { margin: 0 0 4px; font-weight: 900; color: #b4531c; }
+  .tucano-banner h4 { margin: 10px 0 4px; color: var(--muted); }
+  .tucano-banner ul { margin: 0; padding: 0; list-style: none; }
+  .tucano-banner li { font-weight: 700; padding: 2px 0; }
+  .tucano-banner li .time { font-size: .85rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; margin-right: 6px; }
   .alldone svg, .empty svg { display: block; width: 90px; height: auto; margin: 0 auto 6px; animation: swim 2.4s ease-in-out infinite; }
   @keyframes swim { 50% { transform: translateY(-6px) rotate(-5deg); } }
-  .boto-jump { position: fixed; left: 0; bottom: 0; width: 200px; z-index: 45; pointer-events: none; animation: jump 1.7s ease-in-out forwards; }
+  .mascot-fly { position: fixed; left: 0; bottom: 0; width: 200px; z-index: 45; pointer-events: none; animation: jump 1.7s ease-in-out forwards; }
   @keyframes jump {
-    0% { transform: translate(-220px, 60px) rotate(-40deg); }
-    50% { transform: translate(calc(50vw - 100px), -50vh) rotate(0deg); }
-    100% { transform: translate(calc(100vw + 20px), 60px) rotate(40deg); }
+    0% { transform: translate(-220px, 0) rotate(-10deg); }
+    50% { transform: translate(calc(50vw - 100px), -55vh) rotate(4deg); }
+    100% { transform: translate(calc(100vw + 20px), -20vh) rotate(-8deg); }
   }
+  .daynav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .daynav-label { min-width: 170px; text-align: center; }
+  .daynav-label b { display: block; font-size: 1.25rem; font-weight: 900; }
+  .daynav-label small { color: var(--muted); }
+  .spacer { flex: 1; }
+  .task .daynote { display: block; margin-top: 4px; font-size: .8rem; font-weight: 600; color: #7a5300; background: var(--star-soft); border-radius: 8px; padding: 3px 8px; }
+  .task.skipped { opacity: .55; background: #f5f6fa; border-style: dashed; }
+  .task.skipped .title { text-decoration: line-through; }
+  .task .pencil { margin-left: auto; font-size: 1.1rem; flex: none; }
+  .task.editing { border-color: var(--primary); border-style: dashed; }
+  .skipped-list { font-size: .85rem; color: var(--muted); background: var(--bg); border-radius: 12px; padding: 8px 12px; margin-top: 4px; }
+  .skipped-list div { padding: 2px 0; }
+  .edit-banner { border-left: 6px solid var(--primary); margin-bottom: 16px; }
+  .info-banner { border-left: 6px solid var(--star); margin-bottom: 16px; }
+  .tucano-banner ul, .agenda-day ul { list-style: none; margin: 0; padding: 0; }
+  .agenda-item { display: flex; align-items: baseline; gap: 8px; width: 100%; text-align: left; border: 0; background: transparent; padding: 4px 0; font-weight: 700; }
+  .agenda-item small { color: var(--muted); font-weight: 500; }
+  .agenda-item .time { font-size: .85rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; }
+  .agenda-item.lembrete { color: #7a5300; }
+  .agenda-item.change { color: var(--muted); font-weight: 600; }
+  .agenda-day { padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .agenda-day:last-child { border: 0; }
+  .agenda-day h3 { margin: 0 0 6px; font-weight: 900; }
+  .agenda-day h3 small { color: var(--muted); font-weight: 500; font-size: .85rem; }
+  .table-wrap { overflow-x: auto; }
+  table.week { border-collapse: separate; border-spacing: 4px; width: 100%; font-size: .95rem; }
+  table.week th { text-align: left; font-weight: 700; padding: 4px 6px; white-space: nowrap; }
+  table.week thead th { text-align: center; font-size: .85rem; color: var(--muted); }
+  table.week thead th small { display: block; font-weight: 500; }
+  table.week thead th.is-today { color: var(--primary); }
+  table.week td { text-align: center; border-radius: 8px; padding: 8px 4px; font-weight: 800; min-width: 44px; }
+  table.week.detail th { font-size: .88rem; max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  table.week.detail td { cursor: pointer; }
+  table.week .time { font-size: .75rem; color: var(--primary); margin-right: 4px; }
+  td.ok { background: var(--ok-soft); color: var(--ok); }
+  td.half { background: var(--star-soft); color: #7a5300; }
+  td.miss { background: #fdebee; color: var(--danger); }
+  td.todo { background: var(--primary-soft); color: var(--primary); }
+  td.later { background: var(--bg); color: var(--muted); }
+  td.skip { background: var(--bg); color: var(--muted); font-weight: 600; }
+  td.none { background: transparent; color: var(--line); }
+  td.pts-cell { color: var(--ok); }
+  .legend { color: var(--muted); font-size: .85rem; margin: 10px 0 0; }
+  .notes li { display: block; }
+  .dlg-sub { display: block; font-size: .9rem; color: var(--muted); font-weight: 500; margin-top: 2px; }
+  .dlg-actions { flex-wrap: wrap; }
+  .big-mascot { width: 140px; height: auto; }
+  @media (max-width: 600px) {
+    .tucano-banner { align-items: flex-start; gap: 10px; }
+    .tucano-banner svg { width: 56px; }
+    .daynav .spacer { display: none; }
+  }
+  .alldone svg, .empty svg { width: 70px; }
   .task .pts { margin-left: auto; font-weight: 800; font-size: .9rem; color: var(--ok); background: var(--ok-soft); border-radius: 999px; padding: 3px 8px; white-space: nowrap; flex: none; }
   .task.done .pts { background: var(--ok); color: #fff; }
   .check {
@@ -196,7 +250,7 @@
 <body>
 <header class="top">
   <div>
-    <h1><svg class="boto-logo" viewBox="0 0 160 110" aria-hidden="true"><path d="M24 62 C16 54 10 44 2 40 C4 50 8 57 14 62 C8 67 4 74 2 84 C10 79 16 71 24 64 Z" fill="#e57fa3"/> <path d="M64 34 C68 24 78 22 84 31 Z" fill="#e57fa3"/> <path d="M20 62 C38 40 68 28 96 30 C114 30 124 38 127 49 C138 50 151 52 157 56 C160 58 158 62 153 62 C142 63 132 63 125 64 C117 78 96 87 74 86 C50 85 32 74 20 64 Z" fill="#f7a8c4"/> <path d="M42 76 C62 86 98 86 118 70 C98 79 68 82 42 76 Z" fill="#fde4ee"/> <path d="M80 80 C78 92 70 100 60 103 C64 95 67 87 69 80 Z" fill="#e57fa3"/> <ellipse cx="100" cy="37" rx="13" ry="6" fill="#fff" opacity=".4"/> <circle cx="111" cy="47" r="5" fill="#1b1d2e"/> <circle cx="112.8" cy="45.2" r="1.7" fill="#fff"/> <ellipse cx="114" cy="58" rx="6" ry="3.5" fill="#ff6f9c" opacity=".55"/> <path d="M127 60 C135 63 145 63 153 60" fill="none" stroke="#c94f7c" stroke-width="2.5" stroke-linecap="round"/></svg> Casa <span style="color:var(--primary)">Pinheiro</span></h1>
+    <h1><svg class="mascot-logo" viewBox="0 0 130 120" aria-hidden="true"><path d="M14 108 C40 104 80 104 104 108" fill="none" stroke="#8b5a2b" stroke-width="7" stroke-linecap="round"/> <path d="M38 92 L30 116 L46 116 L50 94 Z" fill="#1b1d2e"/> <path d="M28 44 C26 24 40 12 56 14 C70 16 76 30 74 46 C72 66 64 86 52 98 C44 104 36 102 33 94 C28 80 28 60 28 44 Z" fill="#1b1d2e"/> <path d="M33 50 C44 54 50 70 44 90 C37 82 32 66 33 50 Z" fill="#33374f"/> <path d="M58 30 C70 28 77 40 74 54 C70 62 60 62 56 54 C52 46 52 34 58 30 Z" fill="#fff6dc"/> <path d="M56 58 C62 60 68 58 72 54 C70 62 64 66 58 64 Z" fill="#ffd166"/> <path d="M42 94 C50 90 56 94 54 100 C50 103 44 101 42 94 Z" fill="#e8466a"/> <path d="M48 104 l-3 6 M54 104 l0 6 M60 104 l3 6" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/> <path d="M64 22 C80 10 108 12 124 32 C126 36 122 40 116 38 C102 34 86 34 70 40 C64 34 62 28 64 22 Z" fill="#ff9f1c"/> <path d="M70 40 C86 35 102 35 116 38 C108 46 90 50 72 46 Z" fill="#f4511e"/> <path d="M112 22 C118 26 124 30 124 32 C126 36 122 40 116 38 C116 32 115 27 112 22 Z" fill="#1b1d2e"/> <path d="M70 26 C84 20 100 20 112 26" fill="none" stroke="#ffd166" stroke-width="3" stroke-linecap="round" opacity=".8"/> <circle cx="56" cy="27" r="8" fill="#3b82f6"/> <circle cx="56" cy="27" r="4.6" fill="#fff"/> <circle cx="57" cy="27" r="3" fill="#1b1d2e"/> <circle cx="58" cy="25.8" r="1.1" fill="#fff"/></svg><span>Família <span style="color:var(--primary)">Pinheiro Bernt Eymael</span></span></h1>
     <div class="date" id="date"></div>
   </div>
   <nav class="tabs" id="tabs"></nav>
@@ -211,29 +265,43 @@ const KEY = 'casa-tarefas-v3';
 const PERIODS = [['manha', '🌅 Manhã'], ['tarde', '☀️ Tarde'], ['noite', '🌙 Noite'], ['livre', '⏰ Qualquer hora']];
 const CATS = { rotina: '🧸 Rotina', casa: '🧹 Casa', pessoal: '🙋 Pessoal' };
 const MODES = [['normal', 'Esconder no modo sobrevivência'], ['sempre', 'Mostrar sempre'], ['sobrevivencia', 'Só no modo sobrevivência']];
+const KINDS = [['compromisso', '📌 Compromisso'], ['lembrete', '💬 Lembrete']];
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
 const COLORS = ['#7c5cf0', '#3b6fd6', '#52cfa0', '#e9a410', '#e0692b', '#e8466a', '#178a63', '#5b3cc4'];
-const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '👟', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🧽', '🚽', '🪴', '🛒', '🚗', '🏋️', '🇩🇪', '💼', '🥗', '😴', '⭐', '🎮', '📺', '🍦', '🎁', '🏞️', '🍕', '🎬'];
+const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '👟', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🧽', '🚽', '🪴', '🛒', '🚗', '🏋️', '🇩🇪', '💼', '🥪', '😴', '⭐', '🎉', '🎂', '🩺', '🦷', '✂️', '📌', '💬', '⚽', '🏫', '🎮', '🍦', '🎁', '🍕'];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 const WEEKDAYS = [1, 2, 3, 4, 5];
+const LOCK_AFTER = 15 * 60 * 1000; // modo edição/ajustes trava sozinho depois de 15 min parado
 
-// Nosso mascote: o boto-cor-de-rosa 🐬
-const BOTO = '<path d="M24 62 C16 54 10 44 2 40 C4 50 8 57 14 62 C8 67 4 74 2 84 C10 79 16 71 24 64 Z" fill="#e57fa3"/> <path d="M64 34 C68 24 78 22 84 31 Z" fill="#e57fa3"/> <path d="M20 62 C38 40 68 28 96 30 C114 30 124 38 127 49 C138 50 151 52 157 56 C160 58 158 62 153 62 C142 63 132 63 125 64 C117 78 96 87 74 86 C50 85 32 74 20 64 Z" fill="#f7a8c4"/> <path d="M42 76 C62 86 98 86 118 70 C98 79 68 82 42 76 Z" fill="#fde4ee"/> <path d="M80 80 C78 92 70 100 60 103 C64 95 67 87 69 80 Z" fill="#e57fa3"/> <ellipse cx="100" cy="37" rx="13" ry="6" fill="#fff" opacity=".4"/> <circle cx="111" cy="47" r="5" fill="#1b1d2e"/> <circle cx="112.8" cy="45.2" r="1.7" fill="#fff"/> <ellipse cx="114" cy="58" rx="6" ry="3.5" fill="#ff6f9c" opacity=".55"/> <path d="M127 60 C135 63 145 63 153 60" fill="none" stroke="#c94f7c" stroke-width="2.5" stroke-linecap="round"/>';
-const boto = (cls = '') => `<svg class="${cls}" viewBox="0 0 160 110" aria-hidden="true">${BOTO}</svg>`;
+// Nosso mascote: o tucano 🦜
+const TUCANO = '<path d="M14 108 C40 104 80 104 104 108" fill="none" stroke="#8b5a2b" stroke-width="7" stroke-linecap="round"/> <path d="M38 92 L30 116 L46 116 L50 94 Z" fill="#1b1d2e"/> <path d="M28 44 C26 24 40 12 56 14 C70 16 76 30 74 46 C72 66 64 86 52 98 C44 104 36 102 33 94 C28 80 28 60 28 44 Z" fill="#1b1d2e"/> <path d="M33 50 C44 54 50 70 44 90 C37 82 32 66 33 50 Z" fill="#33374f"/> <path d="M58 30 C70 28 77 40 74 54 C70 62 60 62 56 54 C52 46 52 34 58 30 Z" fill="#fff6dc"/> <path d="M56 58 C62 60 68 58 72 54 C70 62 64 66 58 64 Z" fill="#ffd166"/> <path d="M42 94 C50 90 56 94 54 100 C50 103 44 101 42 94 Z" fill="#e8466a"/> <path d="M48 104 l-3 6 M54 104 l0 6 M60 104 l3 6" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/> <path d="M64 22 C80 10 108 12 124 32 C126 36 122 40 116 38 C102 34 86 34 70 40 C64 34 62 28 64 22 Z" fill="#ff9f1c"/> <path d="M70 40 C86 35 102 35 116 38 C108 46 90 50 72 46 Z" fill="#f4511e"/> <path d="M112 22 C118 26 124 30 124 32 C126 36 122 40 116 38 C116 32 115 27 112 22 Z" fill="#1b1d2e"/> <path d="M70 26 C84 20 100 20 112 26" fill="none" stroke="#ffd166" stroke-width="3" stroke-linecap="round" opacity=".8"/> <circle cx="56" cy="27" r="8" fill="#3b82f6"/> <circle cx="56" cy="27" r="4.6" fill="#fff"/> <circle cx="57" cy="27" r="3" fill="#1b1d2e"/> <circle cx="58" cy="25.8" r="1.1" fill="#fff"/>';
+const tucano = (cls = '') => `<svg class="${cls}" viewBox="0 0 130 120" aria-hidden="true">${TUCANO}</svg>`;
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const $ = s => document.querySelector(s);
+const cap = s => s ? s[0].toUpperCase() + s.slice(1) : s;
 
 function dayKey(d = new Date()) {
   const z = n => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
 }
+const today = () => dayKey();
+const parseDay = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (k, n) => { const d = parseDay(k); d.setDate(d.getDate() + n); return dayKey(d); };
+const mondayOf = k => addDays(k, -((parseDay(k).getDay() + 6) % 7));
+const fmtDay = (k, o = { weekday: 'long', day: 'numeric', month: 'long' }) => cap(parseDay(k).toLocaleDateString('pt-BR', o));
+const shortDay = k => parseDay(k).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+function dayLabel(k) {
+  const t = today();
+  if (k === t) return 'Hoje';
+  if (k === addDays(t, 1)) return 'Amanhã';
+  if (k === addDays(t, -1)) return 'Ontem';
+  return fmtDay(k, { weekday: 'long', day: 'numeric', month: 'short' });
+}
 function weekStart(d = new Date()) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  x.setDate(x.getDate() - (x.getDay() + 6) % 7); // semana começa na segunda
-  return x.getTime();
+  return parseDay(mondayOf(dayKey(d))).getTime();
 }
 function periodOf(time) {
   if (!time) return 'livre';
@@ -375,15 +443,19 @@ function defaults() {
     ],
     completions: {},
     survival: {},
+    overrides: {},
+    agenda: [],
     log: [],
   };
 }
 
-// Completa campos que faltam (backups antigos).
+// Completa campos que faltam (backups e versões antigas).
 function normalize(d) {
   d = { ...defaults(), ...d };
   d.completions ||= {};
   d.survival ||= {};
+  d.overrides ||= {};
+  d.agenda ||= [];
   d.log ||= [];
   d.tasks = d.tasks.map(t => ({ note: '', time: '', shared: false, mode: 'normal', alert: false, days: ALL_DAYS, memberIds: [], ...t }));
   return d;
@@ -400,25 +472,27 @@ function save() {
   catch (e) { toast('⚠️ Não foi possível salvar'); }
 }
 function prune() {
-  const limit = dayKey(new Date(Date.now() - 90 * 864e5));
-  for (const k of Object.keys(S.completions)) if (k < limit) delete S.completions[k];
-  for (const k of Object.keys(S.survival)) if (k < limit) delete S.survival[k];
+  const limit = addDays(today(), -90);
+  for (const box of [S.completions, S.survival, S.overrides]) for (const k of Object.keys(box)) if (k < limit) delete box[k];
+  S.tasks = S.tasks.filter(t => !t.date || t.date >= limit);
+  S.agenda = S.agenda.filter(a => a.date >= addDays(today(), -180));
 }
 
 let S = load();
-let tab = 'hoje', catFilter = 'todos', memberFilter = 'todos', unlocked = false, lastDay = dayKey();
+let tab = 'hoje', catFilter = 'todos', memberFilter = 'todos', viewDay = today(), lastDay = today();
+let unlocked = false, editMode = false, lastActivity = Date.now();
+let weekFrom = mondayOf(today()), weekWho = 'resumo', showPastAgenda = false;
 
 const member = id => S.members.find(m => m.id === id);
+const names = ids => ids.map(id => member(id)).filter(Boolean).map(m => esc(m.name)).join(', ');
 const balance = id => S.log.reduce((s, l) => s + (l.memberId === id ? l.points : 0), 0);
-const weekPoints = id => {
-  const ws = weekStart();
-  return S.log.reduce((s, l) => s + (l.memberId === id && l.t >= ws && l.type !== 'reward' ? l.points : 0), 0);
-};
-const survival = () => !!S.survival[dayKey()];
+const pointsBetween = (id, from, to) => S.log.reduce((s, l) => s + (l.memberId === id && l.t >= from && l.t < to && l.type !== 'reward' ? l.points : 0), 0);
+const weekPoints = id => pointsBetween(id, weekStart(), Infinity);
 const keyOf = (t, mid) => t.id + '|' + (t.shared ? '*' : mid);
-const doneValue = (t, mid) => (S.completions[dayKey()] || {})[keyOf(t, mid)];
-const isDone = (t, mid) => !!doneValue(t, mid);
+const doneValue = (k, t, mid) => (S.completions[k] || {})[keyOf(t, mid)];
 const periodIdx = p => PERIODS.findIndex(x => x[0] === p);
+const override = (k, id) => (S.overrides[k] || {})[id] || {};
+
 // Tarefas sem horário ficam logo depois da última com horário do mesmo período (mantém a sequência da rotina).
 function sortTasks(list) {
   const last = {};
@@ -429,84 +503,227 @@ function sortTasks(list) {
   }).sort((x, y) => periodIdx(x.t.period) - periodIdx(y.t.period) || x.key.localeCompare(y.key) || x.i - y.i).map(x => x.t);
 }
 
-function visibleToday(t) {
-  if (!t.days.includes(new Date().getDay())) return false;
-  return survival() ? t.mode !== 'normal' : t.mode !== 'sobrevivencia';
+// Tarefas de um dia, já com as mudanças daquele dia (nota, quem faz, "não precisa").
+const scheduled = (t, k) => t.date ? t.date === k : t.days.includes(parseDay(k).getDay());
+function tasksOn(k, withSkipped = false) {
+  const sos = !!S.survival[k];
+  return S.tasks
+    .filter(t => scheduled(t, k) && (sos ? t.mode !== 'normal' : t.mode !== 'sobrevivencia'))
+    .map(t => {
+      const o = override(k, t.id);
+      return { ...t, memberIds: o.memberIds || t.memberIds, dayNote: o.note || '', skip: !!o.skip, passed: !!o.memberIds };
+    })
+    .filter(t => withSkipped || !t.skip);
 }
-const ownTasks = mid => S.tasks.filter(t => !t.shared && t.memberIds.includes(mid) && visibleToday(t));
-const sharedTasks = () => S.tasks.filter(t => t.shared && visibleToday(t));
+const ownOn = (k, mid, withSkipped) => tasksOn(k, withSkipped).filter(t => !t.shared && t.memberIds.includes(mid));
+const sharedOn = (k, withSkipped) => tasksOn(k, withSkipped).filter(t => t.shared);
 const byCat = list => list.filter(t => catFilter === 'todos' || t.category === catFilter);
+const agendaOn = k => S.agenda.filter(a => a.date === k).sort((x, y) => (x.time || '').localeCompare(y.time || ''));
 
 // ---------- Telas ----------
 function render() {
-  const date = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
-  $('#date').textContent = date[0].toUpperCase() + date.slice(1);
-  const tabs = [['hoje', '✅ Hoje'], ['placar', '🏆 Placar'], ['premios', '🎁 Prêmios'], ['config', unlocked ? '⚙️ Ajustes' : '🔒 Ajustes']];
+  $('#date').textContent = fmtDay(today());
+  const tabs = [['hoje', '✅ Dia'], ['semana', '📊 Semana'], ['agenda', '📅 Agenda'], ['placar', '🏆 Placar'], ['premios', '🎁 Prêmios'], ['config', unlocked ? '⚙️ Ajustes' : '🔒 Ajustes']];
   $('#tabs').innerHTML = tabs.map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" data-action="tab" data-tab="${k}">${l}</button>`).join('');
-  $('#app').innerHTML = { hoje: viewToday, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
+  $('#app').innerHTML = { hoje: viewDayScreen, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
 }
 
-function taskList(tasks, mid) {
+function taskList(k, tasks, mid) {
   return '<div class="periods">' + PERIODS.map(([p, label]) => {
     const list = tasks.filter(t => t.period === p);
     if (!list.length) return '';
     return `<div><div class="period">${label}</div>` + list.map(t => {
-      const v = doneValue(t, mid);
+      const v = !t.skip && doneValue(k, t, mid);
       const by = t.shared && v ? member(v) : null;
       const tags = [t.shared && catFilter === 'todos' ? CATS[t.category] : '',
-        t.shared ? (by ? `feito por ${esc(by.emoji)} ${esc(by.name)}` : t.memberIds.map(id => esc(member(id)?.emoji)).join(' ')) : ''].filter(Boolean).join(' · ');
-      return `<button class="task ${v ? 'done' : ''}" data-action="toggle" data-task="${t.id}" data-member="${mid || ''}">
-        <span class="check">${v ? '✓' : ''}</span>
+        t.shared ? (by ? `feito por ${esc(by.emoji)} ${esc(by.name)}` : t.memberIds.map(id => esc(member(id)?.emoji)).join(' ')) : '',
+        t.passed ? '👉 repassada' : '', t.date ? '📅 só neste dia' : ''].filter(Boolean).join(' · ');
+      return `<button class="task ${v ? 'done' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
+        <span class="check">${v ? '✓' : t.skip ? '–' : ''}</span>
         <span class="emo">${esc(t.emoji)}</span>
         <span class="text"><span class="title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
-          ${t.note ? `<span class="note">${esc(t.note)}</span>` : ''}${tags ? `<span class="tag">${tags}</span>` : ''}</span>
-        <span class="pts">+${t.points} ⭐</span>
+          ${t.note ? `<span class="note">${esc(t.note)}</span>` : ''}
+          ${t.skip ? `<span class="daynote">⏭ Não precisa neste dia${t.dayNote ? ': ' + esc(t.dayNote) : ''}</span>` : t.dayNote ? `<span class="daynote">📝 ${esc(t.dayNote)}</span>` : ''}
+          ${tags ? `<span class="tag">${tags}</span>` : ''}</span>
+        ${editMode ? '<span class="pencil">✏️</span>' : `<span class="pts">+${t.points} ⭐</span>`}
       </button>`;
     }).join('') + '</div>';
   }).join('') + '</div>';
 }
 
-function viewToday() {
+function skippedNote(k, list) {
+  const sk = list.filter(t => t.skip);
+  if (!sk.length || editMode) return '';
+  return `<div class="skipped-list">${sk.map(t => `<div>⏭ <b>${esc(t.title)}</b> não precisa${t.dayNote ? ` — ${esc(t.dayNote)}` : ''}</div>`).join('')}</div>`;
+}
+
+function agendaItem(a, withDate = false) {
+  return `<li><button class="agenda-item ${a.kind}" data-action="edit-agenda" data-id="${a.id}">
+    ${a.time ? `<span class="time">${esc(a.time)}</span>` : ''}<span>${esc(a.emoji)}</span>
+    <span>${withDate ? `<b>${esc(dayLabel(a.date))}:</b> ` : ''}${a.memberIds.length ? `<b>${names(a.memberIds)}:</b> ` : ''}${esc(a.title)}
+    ${a.note ? `<small>(${esc(a.note)})</small>` : ''}</span></button></li>`;
+}
+
+function viewDayScreen() {
   if (!S.members.length) return `<div class="center card">Nenhuma pessoa cadastrada ainda. Vá em <b>Ajustes</b> para começar.</div>`;
-  const sos = survival();
+  const k = viewDay, isToday = k === today(), future = k > today();
+  const sos = !!S.survival[k];
+  const nav = `<div class="daynav">
+    <button class="btn" data-action="day" data-n="-1" aria-label="Dia anterior">◀</button>
+    <div class="daynav-label"><b>${esc(['Hoje', 'Amanhã', 'Ontem'].includes(dayLabel(k)) ? dayLabel(k) : fmtDay(k, { weekday: 'long' }))}</b><small>${esc(fmtDay(k, { day: 'numeric', month: 'long' }))}</small></div>
+    <button class="btn" data-action="day" data-n="1" aria-label="Próximo dia">▶</button>
+    ${isToday ? '' : '<button class="btn primary" data-action="day" data-n="0">Hoje</button>'}
+    <span class="spacer"></span>
+    <button class="btn" data-action="new-agenda" data-day="${k}">➕ Compromisso / lembrete</button>
+    <button class="btn ${editMode ? 'primary' : ''}" data-action="edit-mode">${editMode ? '✅ Concluir edição' : '✏️ Editar'}</button>
+  </div>`;
   const chips = [['todos', 'Tudo'], ...Object.entries(CATS)]
-    .map(([k, l]) => `<button class="chip ${catFilter === k ? 'on' : ''}" data-action="cat" data-v="${k}">${l}</button>`).join('')
+    .map(([c, l]) => `<button class="chip ${catFilter === c ? 'on' : ''}" data-action="cat" data-v="${c}">${l}</button>`).join('')
     + `<button class="chip sos ${sos ? 'on' : ''}" data-action="survival">🆘 Modo sobrevivência</button>`;
   const people = [`<button class="chip ${memberFilter === 'todos' ? 'on' : ''}" data-action="who" data-v="todos">👨‍👩‍👧‍👦 Todos</button>`]
     .concat(S.members.map(m => `<button class="chip ${memberFilter === m.id ? 'on' : ''}" data-action="who" data-v="${m.id}">${esc(m.emoji)} ${esc(m.name)}</button>`)).join('');
-  const alerts = sortTasks(S.tasks.filter(t => t.alert && visibleToday(t)));
-  const botoBanner = alerts.length ? `<section class="card boto-banner">${boto()}<div><h3>O boto avisa: hoje tem!</h3><ul>${alerts.map(t =>
-    `<li>${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.emoji)} ${t.memberIds.map(id => esc(member(id)?.name)).join(', ')}: ${esc(t.title)}${t.note ? ` <small style="color:var(--muted);font-weight:500">(${esc(t.note)})</small>` : ''}</li>`).join('')}</ul></div></section>` : '';
-  const banner = sos ? `<section class="card sos-banner"><b>🆘 Modo sobrevivência ligado.</b> Hoje só o essencial:
-    limpar a pia da cozinha, garantir roupa essencial e 10 min de organização. <b>Ignorar o restante</b> 💛</section>` : '';
 
-  const shared = byCat(sharedTasks()).filter(t => memberFilter === 'todos' || t.memberIds.includes(memberFilter));
-  const sharedDone = shared.filter(t => isDone(t)).length;
-  const sharedCard = shared.length ? `<section class="card member shared-card">
+  // Aviso do tucano: compromissos, lembretes e tarefas importantes do dia + o que tem amanhã.
+  const alerts = sortTasks(tasksOn(k).filter(t => t.alert));
+  const items = agendaOn(k), tomorrow = agendaOn(addDays(k, 1));
+  const banner = alerts.length || items.length || tomorrow.length ? `<section class="card tucano-banner">${tucano()}<div>
+      ${alerts.length || items.length ? `<h3>O tucano avisa: ${isToday ? 'hoje' : 'neste dia'} tem!</h3><ul>
+        ${items.map(a => agendaItem(a)).join('')}
+        ${alerts.map(t => `<li><div class="agenda-item">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}<span>${esc(t.emoji)}</span><span><b>${names(t.memberIds)}:</b> ${esc(t.title)}${t.note ? ` <small>(${esc(t.note)})</small>` : ''}</span></div></li>`).join('')}
+      </ul>` : ''}
+      ${tomorrow.length ? `<h4>${isToday ? 'Amanhã' : 'No dia seguinte'}:</h4><ul>${tomorrow.map(a => agendaItem(a)).join('')}</ul>` : ''}
+    </div></section>` : '';
+  const sosBanner = sos ? `<section class="card sos-banner"><b>🆘 Modo sobrevivência ligado.</b> Só o essencial:
+    limpar a pia da cozinha, garantir roupa essencial e 10 min de organização. <b>Ignorar o restante</b> 💛</section>` : '';
+  const editBanner = editMode ? `<section class="card edit-banner">✏️ <b>Modo edição.</b> Toque numa tarefa para colocar uma nota, repassar para outra pessoa,
+    marcar que não precisa ou mudar de dia — só para ${isToday ? 'hoje' : 'este dia'}.
+    <span class="bar" style="margin:10px 0 0"><button class="btn primary" data-action="new-task" data-day="${k}">➕ Tarefa só neste dia</button>
+    <button class="btn" data-action="new-task">➕ Tarefa fixa</button></span></section>` : '';
+  const futureNote = future && !editMode ? `<section class="card info-banner">👀 Você está vendo um dia que ainda não chegou. Toque em <b>✏️ Editar</b> para anotar, repassar ou tirar tarefas deste dia.</section>` : '';
+
+  const shared = byCat(sharedOn(k, editMode)).filter(t => memberFilter === 'todos' || t.memberIds.includes(memberFilter));
+  const sharedReal = shared.filter(t => !t.skip);
+  const sharedDone = sharedReal.filter(t => doneValue(k, t)).length;
+  const sharedSkip = byCat(sharedOn(k, true)).filter(t => t.skip);
+  const sharedCard = shared.length || sharedSkip.length ? `<section class="card member shared-card">
       <div class="member-head">
         <div class="avatar">🤝</div>
-        <div><h2>Quem fizer primeiro</h2><div class="sub">${sharedDone} de ${shared.length} feitas hoje · ganha quem fizer</div></div>
+        <div><h2>Quem fizer primeiro</h2><div class="sub">${sharedDone} de ${sharedReal.length} feitas · ganha quem fizer</div></div>
       </div>
-      <div class="progress"><div style="width:${Math.round(sharedDone / shared.length * 100)}%"></div></div>
-      ${taskList(sortTasks(shared), memberFilter === 'todos' ? '' : memberFilter)}
+      <div class="progress"><div style="width:${sharedReal.length ? Math.round(sharedDone / sharedReal.length * 100) : 0}%"></div></div>
+      ${taskList(k, sortTasks(shared), memberFilter === 'todos' ? '' : memberFilter)}
+      ${skippedNote(k, sharedSkip)}
     </section>` : '';
 
   const cards = S.members.filter(m => memberFilter === 'todos' || m.id === memberFilter).map(m => {
-    const tasks = sortTasks(byCat(ownTasks(m.id)));
-    const done = tasks.filter(t => isDone(t, m.id)).length;
-    const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    const tasks = sortTasks(byCat(ownOn(k, m.id, editMode)));
+    const real = tasks.filter(t => !t.skip);
+    const done = real.filter(t => doneValue(k, t, m.id)).length;
+    const pct = real.length ? Math.round(done / real.length * 100) : 0;
     return `<section class="card member" style="--c:${esc(m.color)}">
       <div class="member-head">
         <div class="avatar">${esc(m.emoji)}</div>
-        <div><h2>${esc(m.name)}</h2><div class="sub">${done} de ${tasks.length} feitas hoje</div></div>
+        <div><h2>${esc(m.name)}</h2><div class="sub">${done} de ${real.length} feitas</div></div>
         <div class="balance">${balance(m.id)} ⭐<small>pontos</small></div>
       </div>
       <div class="progress"><div style="width:${pct}%"></div></div>
-      ${tasks.length ? taskList(tasks, m.id) : `<div class="empty">${boto()}${shared.some(t => t.memberIds.includes(m.id)) ? 'Pegue tarefas no cartão 🤝' : 'Nada para hoje 😎'}</div>`}
-      ${tasks.length && done === tasks.length ? `<div class="alldone">${boto()}🎉 Tudo feito! Parabéns!</div>` : ''}
+      ${tasks.length ? taskList(k, tasks, m.id) : `<div class="empty">${tucano()}${sharedOn(k).some(t => t.memberIds.includes(m.id)) ? 'Pegue tarefas no cartão 🤝' : 'Nada para este dia 😎'}</div>`}
+      ${skippedNote(k, byCat(ownOn(k, m.id, true)))}
+      ${real.length && done === real.length ? `<div class="alldone">${tucano()}🎉 Tudo feito! Parabéns!</div>` : ''}
     </section>`;
   }).join('');
-  return `<div class="bar">${chips}</div><div class="bar">${people}</div>${botoBanner}${banner}<div class="grid">${cards}${sharedCard}</div>`;
+  return `${nav}<div class="bar">${chips}</div><div class="bar">${people}</div>${editBanner}${futureNote}${banner}${sosBanner}<div class="grid">${cards}${sharedCard}</div>`;
+}
+
+// ---------- Semana ----------
+function weekDays() { return WEEK_ORDER.map((_, i) => addDays(weekFrom, i)); }
+function cellState(k, t, mid) {
+  if (t.skip) return { cls: 'skip', txt: '⏭', title: t.dayNote || 'Não precisa' };
+  const v = doneValue(k, t, mid);
+  if (v) return { cls: 'ok', txt: t.shared ? esc(member(v)?.emoji || '✓') : '✓', title: t.shared ? `Feito por ${member(v)?.name || ''}` : 'Feito' };
+  if (k < today()) return { cls: 'miss', txt: '✗', title: 'Não feito' };
+  if (k === today()) return { cls: 'todo', txt: '○', title: 'Para hoje' };
+  return { cls: 'later', txt: '·', title: 'Programado' };
+}
+function summary(k, list, mid) {
+  const real = list.filter(t => !t.skip);
+  return { done: real.filter(t => doneValue(k, t, mid)).length, total: real.length };
+}
+
+function viewWeek() {
+  const days = weekDays();
+  const end = addDays(weekFrom, 6);
+  const nav = `<div class="daynav">
+    <button class="btn" data-action="week" data-n="-7" aria-label="Semana anterior">◀</button>
+    <div class="daynav-label"><b>Semana de ${shortDay(weekFrom)} a ${shortDay(end)}</b><small>${weekFrom === mondayOf(today()) ? 'Esta semana' : ''}</small></div>
+    <button class="btn" data-action="week" data-n="7" aria-label="Próxima semana">▶</button>
+    ${weekFrom === mondayOf(today()) ? '' : '<button class="btn primary" data-action="week" data-n="0">Esta semana</button>'}
+  </div>`;
+  const chips = [['resumo', '📊 Resumo'], ...S.members.map(m => [m.id, `${esc(m.emoji)} ${esc(m.name)}`]), ['shared', '🤝 Quem fizer primeiro']]
+    .map(([v, l]) => `<button class="chip ${weekWho === v ? 'on' : ''}" data-action="week-who" data-v="${v}">${l}</button>`).join('');
+  const head = `<tr><th></th>${days.map(k => `<th class="${k === today() ? 'is-today' : ''}">${DAYS[parseDay(k).getDay()]}<small>${shortDay(k)}</small></th>`).join('')}</tr>`;
+
+  let table;
+  if (weekWho === 'resumo') {
+    const rows = [...S.members.map(m => ({ label: `${esc(m.emoji)} ${esc(m.name)}`, get: k => summary(k, ownOn(k, m.id, true), m.id), pts: pointsBetween(m.id, parseDay(weekFrom).getTime(), parseDay(addDays(weekFrom, 7)).getTime()) })),
+      { label: '🤝 Quem fizer primeiro', get: k => summary(k, sharedOn(k, true)) }];
+    table = `<table class="week"><thead>${head.replace('</tr>', '<th>⭐</th></tr>')}</thead><tbody>${rows.map(r => `<tr><th>${r.label}</th>${days.map(k => {
+      const { done, total } = r.get(k);
+      const ratio = total ? done / total : 1;
+      const cls = !total ? 'none' : k > today() ? 'later' : ratio === 1 ? 'ok' : ratio >= .5 ? 'half' : 'miss';
+      return `<td class="${cls}">${total ? `${done}/${total}` : '–'}</td>`;
+    }).join('')}<td class="pts-cell">${r.pts ?? ''}</td></tr>`).join('')}</tbody></table>`;
+  } else {
+    const mid = weekWho === 'shared' ? '' : weekWho;
+    const getList = k => mid ? ownOn(k, mid, true) : sharedOn(k, true);
+    const perDay = Object.fromEntries(days.map(k => [k, getList(k)]));
+    const seen = new Map();
+    days.forEach(k => sortTasks(perDay[k]).forEach(t => { if (!seen.has(t.id)) seen.set(t.id, t); }));
+    const rows = sortTasks([...seen.values()]);
+    table = rows.length ? `<table class="week detail"><thead>${head}</thead><tbody>${rows.map(r => `<tr><th>${esc(r.emoji)} ${r.time ? `<span class="time">${esc(r.time)}</span>` : ''}${esc(r.title)}</th>${days.map(k => {
+      const t = perDay[k].find(x => x.id === r.id);
+      if (!t) return '<td class="none"></td>';
+      const c = cellState(k, t, mid);
+      return `<td class="${c.cls}" title="${esc(c.title)}" data-action="week-cell" data-day="${k}" data-task="${t.id}" data-member="${mid}">${c.txt}</td>`;
+    }).join('')}</tr>`).join('')}</tbody></table>` : '<div class="empty">Nenhuma tarefa nesta semana.</div>';
+  }
+
+  // Notas da semana: compromissos, lembretes e mudanças de tarefas.
+  const notes = days.flatMap(k => [
+    ...agendaOn(k).map(a => `<li><b>${esc(fmtDay(k, { weekday: 'short', day: '2-digit' }))}</b> ${esc(a.emoji)} ${a.time ? esc(a.time) + ' · ' : ''}${esc(a.title)}${a.note ? ` <small>(${esc(a.note)})</small>` : ''}</li>`),
+    ...Object.entries(S.overrides[k] || {}).map(([id, o]) => {
+      const t = S.tasks.find(x => x.id === id);
+      if (!t) return '';
+      const what = [o.skip ? '⏭ não precisa' : '', o.memberIds ? `👉 repassada para ${names(o.memberIds)}` : '', o.note ? `📝 ${esc(o.note)}` : ''].filter(Boolean).join(' · ');
+      return `<li><b>${esc(fmtDay(k, { weekday: 'short', day: '2-digit' }))}</b> ${esc(t.emoji)} ${esc(t.title)} — ${what}</li>`;
+    }),
+  ]).filter(Boolean);
+  const legend = weekWho === 'resumo' ? '' : `<p class="legend">✓ feito · ✗ não feito · ○ para hoje · · programado · ⏭ não precisava${unlocked ? ' · <b>toque numa célula para marcar/desmarcar</b>' : ' · entre no ✏️ Editar para corrigir'}</p>`;
+  return `${nav}<div class="bar">${chips}</div>
+    <section class="card"><div class="table-wrap">${table}</div>${legend}</section>
+    <section class="card" style="margin-top:16px"><h2>📝 Notas da semana</h2>${notes.length ? `<ul class="log notes">${notes.join('')}</ul>` : '<div class="empty">Nenhuma nota ou compromisso nesta semana.</div>'}</section>`;
+}
+
+// ---------- Agenda ----------
+function viewAgenda() {
+  const t = today();
+  const upcoming = S.agenda.filter(a => a.date >= t);
+  const past = S.agenda.filter(a => a.date < t);
+  // Mudanças em tarefas dos próximos dias também aparecem aqui.
+  const changes = Object.entries(S.overrides).filter(([k]) => k >= t).flatMap(([k, o]) => Object.entries(o).map(([id, v]) => ({ k, t: S.tasks.find(x => x.id === id), v }))).filter(x => x.t);
+  const dates = [...new Set([...upcoming.map(a => a.date), ...changes.map(c => c.k)])].sort();
+  const groups = dates.map(k => `<div class="agenda-day"><h3>${['Hoje', 'Amanhã'].includes(dayLabel(k)) ? `${dayLabel(k)} <small>${esc(fmtDay(k))}</small>` : esc(fmtDay(k))}</h3><ul>
+      ${agendaOn(k).map(a => agendaItem(a)).join('')}
+      ${changes.filter(c => c.k === k).map(c => `<li><button class="agenda-item change" data-action="goto-day" data-day="${k}">
+        <span>${esc(c.t.emoji)}</span><span>${esc(c.t.title)} — ${[c.v.skip ? '⏭ não precisa' : '', c.v.memberIds ? `👉 ${names(c.v.memberIds)}` : '', c.v.note ? `📝 ${esc(c.v.note)}` : ''].filter(Boolean).join(' · ')}</span></button></li>`).join('')}
+    </ul></div>`).join('');
+  const pastList = showPastAgenda ? `<ul>${past.sort((a, b) => b.date.localeCompare(a.date)).map(a => agendaItem(a, true)).join('')}</ul>` : '';
+  return `<div class="bar">
+      <button class="btn primary big" data-action="new-agenda" data-kind="compromisso">📌 Novo compromisso</button>
+      <button class="btn big" data-action="new-agenda" data-kind="lembrete">💬 Novo lembrete</button>
+    </div>
+    <section class="card">${groups || `<div class="empty">${tucano()}Nada marcado nos próximos dias.<br>Use os botões acima para anotar festas, consultas ou lembretes como “amanhã não precisa levar lancheira”.</div>`}</section>
+    ${past.length ? `<p><button class="btn ghost" data-action="past-agenda">${showPastAgenda ? 'Esconder' : 'Ver'} anteriores (${past.length})</button></p>${pastList}` : ''}`;
 }
 
 function viewScore() {
@@ -541,19 +758,26 @@ function viewRewards() {
     </section>`).join('')}</div>`;
 }
 
+let cfgWho = 'todos', cfgDay = 'todos';
 function viewConfig() {
-  if (!unlocked) return `<div class="center card"><p style="font-size:3rem;margin:0">🔒</p><p>Área dos pais: cadastre pessoas, tarefas e prêmios.</p>
+  if (!unlocked) return `<div class="center card">${tucano('big-mascot')}<p>Área dos pais: cadastre pessoas, tarefas e prêmios.</p>
     <button class="btn primary big" data-action="unlock">Entrar com PIN</button></div>`;
   const people = S.members.map(m => `<div class="row"><span class="emo">${esc(m.emoji)}</span>
       <div class="info"><b style="color:${esc(m.color)}">●</b> ${esc(m.name)}<small>${balance(m.id)} pontos</small></div>
       <div class="acts"><button class="btn" data-action="edit-member" data-id="${m.id}">Editar</button>
       <button class="btn danger" data-action="del-member" data-id="${m.id}">Excluir</button></div></div>`).join('');
-  const sorted = Object.keys(CATS).flatMap(c => sortTasks(S.tasks.filter(t => t.category === c)));
+  const whoChips = [['todos', 'Todos'], ...S.members.map(m => [m.id, `${esc(m.emoji)} ${esc(m.name)}`])]
+    .map(([v, l]) => `<button class="chip ${cfgWho === v ? 'on' : ''}" data-action="cfg-who" data-v="${v}">${l}</button>`).join('');
+  const dayChips = [['todos', 'Todos os dias'], ...WEEK_ORDER.map(d => [String(d), DAYS[d]]), ['once', '📅 Só um dia']]
+    .map(([v, l]) => `<button class="chip ${cfgDay === v ? 'on' : ''}" data-action="cfg-day" data-v="${v}">${l}</button>`).join('');
+  const filtered = S.tasks.filter(t => (cfgWho === 'todos' || t.memberIds.includes(cfgWho)) &&
+    (cfgDay === 'todos' || (cfgDay === 'once' ? !!t.date : !t.date && t.days.includes(Number(cfgDay)))));
+  const sorted = Object.keys(CATS).flatMap(c => sortTasks(filtered.filter(t => t.category === c)));
   const tasks = sorted.map(t => `<div class="row"><span class="emo">${esc(t.emoji)}</span>
-      <div class="info">${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)} <b style="color:var(--primary)">+${t.points}</b>
-        <small>${CATS[t.category]} · ${PERIODS[periodIdx(t.period)][1]} · ${daysLabel(t.days)} ·
-        ${t.memberIds.map(id => member(id)?.name).filter(Boolean).map(esc).join(t.shared ? ' ou ' : ', ')}
-        ${t.mode === 'sobrevivencia' ? ' · 🆘 só sobrevivência' : t.mode === 'sempre' ? ' · 🆘 sempre' : ''}${t.alert ? ' · 🐬 aviso' : ''}</small></div>
+      <div class="info">${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)} <b style="color:var(--ok)">+${t.points}</b>
+        <small>${CATS[t.category]} · ${t.date ? '📅 ' + esc(fmtDay(t.date, { day: '2-digit', month: '2-digit', weekday: 'short' })) : daysLabel(t.days)} ·
+        ${names(t.memberIds).split(', ').join(t.shared ? ' ou ' : ', ')}
+        ${t.mode === 'sobrevivencia' ? ' · 🆘 só sobrevivência' : t.mode === 'sempre' ? ' · 🆘 sempre' : ''}${t.alert ? ' · 🦜 aviso' : ''}</small></div>
       <div class="acts"><button class="btn" data-action="edit-task" data-id="${t.id}">Editar</button>
       <button class="btn danger" data-action="del-task" data-id="${t.id}">Excluir</button></div></div>`).join('');
   const rewards = S.rewards.map(r => `<div class="row"><span class="emo">${esc(r.emoji)}</span>
@@ -562,7 +786,10 @@ function viewConfig() {
       <button class="btn danger" data-action="del-reward" data-id="${r.id}">Excluir</button></div></div>`).join('');
   return `<section class="card">
     <h3 class="section">👨‍👩‍👧‍👦 Pessoas <button class="btn primary" data-action="edit-member">+ Adicionar</button></h3>${people || '<div class="empty">Ninguém ainda.</div>'}
-    <h3 class="section">✅ Tarefas (${S.tasks.length}) <button class="btn primary" data-action="edit-task">+ Adicionar</button></h3>${tasks || '<div class="empty">Nenhuma tarefa.</div>'}
+    <h3 class="section">✅ Tarefas fixas (${filtered.length}) <button class="btn primary" data-action="new-task">+ Adicionar</button></h3>
+    <p class="legend">Dica: para mudar só um dia (nota, repassar, não precisa), use <b>✏️ Editar</b> na tela do dia.</p>
+    <div class="bar">${whoChips}</div><div class="bar">${dayChips}</div>
+    ${tasks || '<div class="empty">Nenhuma tarefa com esse filtro.</div>'}
     <h3 class="section">🎁 Prêmios <button class="btn primary" data-action="edit-reward">+ Adicionar</button></h3>${rewards || '<div class="empty">Nenhum prêmio.</div>'}
     <h3 class="section">⭐ Pontos</h3>
     <div class="bar"><button class="btn" data-action="bonus">Dar ou tirar pontos</button>
@@ -572,25 +799,26 @@ function viewConfig() {
       <button class="btn" data-action="export">Baixar backup</button>
       <button class="btn" data-action="import">Restaurar backup</button>
       <button class="btn danger" data-action="reset-all">Voltar à rotina original</button>
-      <button class="btn ghost" data-action="lock">Sair dos ajustes</button></div>
+      <button class="btn ghost" data-action="lock">🔒 Travar</button></div>
   </section>`;
 }
 
 function daysLabel(days) {
   if (days.length === 7) return 'todo dia';
   if (days.length === 5 && WEEKDAYS.every(d => days.includes(d))) return 'seg a sex';
-  return [...days].sort().map(d => DAYS[d]).join(', ');
+  return WEEK_ORDER.filter(d => days.includes(d)).map(d => DAYS[d]).join(', ');
 }
 
 // ---------- Diálogos ----------
 const dlg = $('#dlg'), dlgForm = $('#dlgForm');
 let dlgHandler = null;
-function openDlg(title, body, onOk, okLabel = 'Salvar') {
-  dlgForm.innerHTML = `<h2>${title}</h2>${body}<div class="dlg-actions">
+function openDlg(title, body, onOk, okLabel = 'Salvar', extra = '') {
+  dlgForm.innerHTML = `<h2>${title}</h2>${body}<div class="dlg-actions">${extra}<span class="spacer"></span>
     <button type="button" class="btn ghost" data-action="dlg-cancel">Cancelar</button>
     ${onOk ? `<button class="btn primary">${okLabel}</button>` : ''}</div>`;
   dlgHandler = onOk;
-  dlg.showModal();
+  if (!dlg.open) dlg.showModal();
+  dlgForm.scrollTop = 0;
 }
 dlgForm.addEventListener('submit', e => {
   e.preventDefault();
@@ -604,6 +832,24 @@ const field = (label, html) => `<label class="field"><span>${label}</span>${html
 const emojiField = v => `<div class="field"><span>Emoji</span><input type="text" name="emoji" value="${esc(v)}" required>
   <div class="emoji-picks">${EMOJIS.map(e => `<button type="button" data-action="pick-emoji" data-v="${e}">${e}</button>`).join('')}</div></div>`;
 const pinField = () => field('PIN dos pais', `<input type="password" name="pin" inputmode="numeric" autocomplete="off" required>`);
+const memberChecks = (selected, name = 'members') => `<div class="opts">${S.members.map(m => `<label>
+  <input type="checkbox" name="${name}" value="${m.id}" ${selected.includes(m.id) ? 'checked' : ''}>${esc(m.emoji)} ${esc(m.name)}</label>`).join('')}</div>`;
+const opt = (list, cur) => list.map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
+
+// Confirmação dentro do app (funciona até onde o navegador bloqueia janelas de confirmação).
+function askConfirm(msg, onYes, yesLabel = 'Sim') {
+  openDlg('Tem certeza?', `<p>${esc(msg)}</p>`, () => { setTimeout(onYes); }, yesLabel);
+}
+
+// Pede o PIN só se ainda não estiver liberado.
+function withPin(then) {
+  if (unlocked) return then();
+  openDlg('🔒 PIN dos pais', pinField(), fd => {
+    if (fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
+    unlocked = true;
+    setTimeout(then);
+  }, 'Entrar');
+}
 
 function editMember(id) {
   const m = member(id) || { name: '', emoji: '🙂', color: COLORS[S.members.length % COLORS.length] };
@@ -617,38 +863,112 @@ function editMember(id) {
     });
 }
 
-function editTask(id) {
-  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, note: '', time: '', category: 'casa', period: 'livre', memberIds: [], days: ALL_DAYS, shared: false, mode: 'normal', alert: false };
-  const opt = (list, cur) => list.map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
-  openDlg(id ? 'Editar tarefa' : 'Nova tarefa',
-    field('Tarefa', `<input type="text" name="title" value="${esc(t.title)}" required>`) + emojiField(t.emoji) +
-    field('Observação (opcional)', `<input type="text" name="note" value="${esc(t.note)}" placeholder="Ex.: passos, quantidade, horário de saída">`) +
-    field('Pontos', `<input type="number" name="points" min="0" max="1000" value="${t.points}" required>`) +
-    field('Tipo', `<select name="category">${opt(Object.entries(CATS), t.category)}</select>`) +
-    field('Horário (opcional — define o período sozinho)', `<input type="time" name="time" value="${esc(t.time)}">`) +
-    field('Período', `<select name="period">${opt(PERIODS, t.period)}</select>`) +
-    `<div class="field"><span>Quem faz</span><div class="opts">${S.members.map(m => `<label>
-      <input type="checkbox" name="members" value="${m.id}" ${t.memberIds.includes(m.id) ? 'checked' : ''}>${esc(m.emoji)} ${esc(m.name)}</label>`).join('')}</div></div>` +
+function editTask(id, onDay) {
+  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, note: '', time: '', category: 'casa', period: 'livre',
+    memberIds: memberFilter !== 'todos' ? [memberFilter] : [], days: ALL_DAYS, shared: false, mode: 'normal', alert: false, date: onDay };
+  openDlg(id ? 'Editar tarefa' : onDay ? `Nova tarefa — ${esc(dayLabel(onDay))}` : 'Nova tarefa fixa',
+    field('Tarefa', `<input type="text" name="title" value="${esc(t.title)}" required>`) +
+    field('Observação (opcional)', `<input type="text" name="note" value="${esc(t.note)}" placeholder="Ex.: passos, quantidade, o que levar">`) +
+    `<div class="field"><span>Quem faz</span>${memberChecks(t.memberIds)}</div>` +
     `<div class="field"><div class="opts"><label><input type="checkbox" name="shared" ${t.shared ? 'checked' : ''}>
       🤝 Basta um fazer (ganha quem fizer primeiro)</label></div></div>` +
-    `<div class="field"><span>Dias</span><div class="opts">${DAYS.map((d, i) => `<label>
-      <input type="checkbox" name="days" value="${i}" ${t.days.includes(i) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>` +
+    field('Quando', `<select name="when" data-action-change="when"><option value="weekly" ${t.date ? '' : 'selected'}>Toda semana, nos dias abaixo</option>
+      <option value="once" ${t.date ? 'selected' : ''}>Só uma vez, na data abaixo</option></select>`) +
+    `<div class="field when-weekly" ${t.date ? 'hidden' : ''}><span>Dias</span><div class="opts">${WEEK_ORDER.map(d => `<label>
+      <input type="checkbox" name="days" value="${d}" ${!t.date && t.days.includes(d) ? 'checked' : ''}>${DAYS[d]}</label>`).join('')}</div></div>` +
+    `<label class="field when-once" ${t.date ? '' : 'hidden'}><span>Data</span><input type="date" name="date" value="${esc(t.date || today())}"></label>` +
+    field('Horário (opcional — define o período sozinho)', `<input type="time" name="time" value="${esc(t.time)}">`) +
+    field('Período (se não tiver horário)', `<select name="period">${opt(PERIODS, t.period)}</select>`) +
+    field('Pontos', `<input type="number" name="points" min="0" max="1000" value="${t.points}" required>`) +
+    field('Tipo', `<select name="category">${opt(Object.entries(CATS), t.category)}</select>`) +
+    emojiField(t.emoji) +
     field('Modo sobrevivência', `<select name="mode">${opt(MODES, t.mode)}</select>`) +
     `<div class="field"><div class="opts"><label><input type="checkbox" name="alert" ${t.alert ? 'checked' : ''}>
-      🐬 Mostrar no aviso do boto (compromisso importante)</label></div></div>`,
+      🦜 Mostrar no aviso do tucano (compromisso importante)</label></div></div>`,
     fd => {
       const time = fd.get('time') || '';
+      const once = fd.get('when') === 'once';
       const data = {
         title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '⭐', note: fd.get('note').trim(),
         points: Math.max(0, parseInt(fd.get('points'), 10) || 0), category: fd.get('category'),
         time, period: time ? periodOf(time) : fd.get('period'),
-        memberIds: fd.getAll('members'), shared: fd.has('shared'), alert: fd.has('alert'), days: fd.getAll('days').map(Number), mode: fd.get('mode'),
+        memberIds: fd.getAll('members'), shared: fd.has('shared'), alert: fd.has('alert'),
+        days: once ? [] : fd.getAll('days').map(Number), date: once ? fd.get('date') : undefined, mode: fd.get('mode'),
       };
       if (!data.memberIds.length) { toast('Escolha pelo menos uma pessoa'); return false; }
-      if (!data.days.length) { toast('Escolha pelo menos um dia'); return false; }
+      if (once ? !data.date : !data.days.length) { toast(once ? 'Escolha a data' : 'Escolha pelo menos um dia'); return false; }
       if (data.memberIds.length < 2) data.shared = false;
       if (id) Object.assign(t, data); else S.tasks.push({ id: uid(), ...data });
-    });
+      if (!data.date) delete t.date;
+      toast('Tarefa salva ✅');
+    }, 'Salvar',
+    id ? `<button type="button" class="btn danger" data-action="del-task" data-id="${id}">Excluir</button>` : '');
+}
+
+// Mudanças só para um dia: nota, repassar, não precisa, mudar de dia.
+function dayMenu(k, taskId) {
+  const base = S.tasks.find(x => x.id === taskId);
+  if (!base) return;
+  const o = override(k, taskId);
+  const current = o.memberIds || base.memberIds;
+  openDlg(`${esc(base.emoji)} ${esc(base.title)}<small class="dlg-sub">${esc(dayLabel(k))} · ${esc(fmtDay(k))}</small>`,
+    field('📝 Nota para este dia', `<input type="text" name="note" value="${esc(o.note || '')}" placeholder="Ex.: lavei na quarta porque a Sophie fez xixi">`) +
+    `<div class="field"><span>👉 Quem faz neste dia</span>${memberChecks(current)}</div>` +
+    `<div class="field"><div class="opts"><label><input type="checkbox" name="skip" ${o.skip ? 'checked' : ''}>⏭ Não precisa fazer neste dia</label></div></div>` +
+    field('📅 Mudar para outro dia (opcional)', `<input type="date" name="move" min="${today()}">`),
+    fd => {
+      const note = fd.get('note').trim();
+      const members = fd.getAll('members');
+      const move = fd.get('move');
+      if (!members.length) { toast('Escolha pelo menos uma pessoa'); return false; }
+      if (move && move !== k) {
+        if (base.date) {
+          // Tarefa de um dia só: muda a data e leva as mudanças junto.
+          base.date = move;
+          setOverride(move, taskId, { note, memberIds: members });
+          setOverride(k, taskId, {});
+        } else {
+          S.tasks.push({ ...base, id: uid(), days: [], date: move, memberIds: members, note: base.note });
+          setOverride(move, S.tasks.at(-1).id, { note: note || `Mudou de ${shortDay(k)}` });
+          setOverride(k, taskId, { skip: true, note: note || `Mudou para ${shortDay(move)}` });
+        }
+        toast(`Mudou para ${dayLabel(move).toLowerCase()} 📅`);
+        return;
+      }
+      const same = members.slice().sort().join() === base.memberIds.slice().sort().join();
+      setOverride(k, taskId, { note, skip: fd.has('skip'), memberIds: same ? undefined : members });
+      toast('Anotado para este dia ✅');
+    }, 'Salvar',
+    `<button type="button" class="btn" data-action="edit-task" data-id="${taskId}">✏️ Mudar a tarefa fixa</button>`);
+}
+function setOverride(k, id, o) {
+  const clean = {};
+  if (o.note) clean.note = o.note;
+  if (o.skip) clean.skip = true;
+  if (o.memberIds) clean.memberIds = o.memberIds;
+  S.overrides[k] ||= {};
+  if (Object.keys(clean).length) S.overrides[k][id] = clean; else delete S.overrides[k][id];
+  if (!Object.keys(S.overrides[k]).length) delete S.overrides[k];
+}
+
+function editAgenda(id, preset = {}) {
+  const a = S.agenda.find(x => x.id === id) || { kind: 'compromisso', date: addDays(today(), 1), time: '', title: '', emoji: '📌', memberIds: [], note: '', ...preset };
+  if (!id && a.kind === 'lembrete' && a.emoji === '📌') a.emoji = '💬';
+  openDlg(id ? 'Editar' : a.kind === 'lembrete' ? 'Novo lembrete' : 'Novo compromisso',
+    field('Tipo', `<select name="kind">${opt(KINDS, a.kind)}</select>`) +
+    field('O quê', `<input type="text" name="title" value="${esc(a.title)}" required placeholder="Ex.: Não precisa levar lancheira — festa no Kindergarten">`) +
+    field('Dia', `<input type="date" name="date" value="${esc(a.date)}" required>`) +
+    field('Horário (opcional)', `<input type="time" name="time" value="${esc(a.time)}">`) +
+    `<div class="field"><span>Para quem (opcional)</span>${memberChecks(a.memberIds)}</div>` +
+    field('Observação (opcional)', `<input type="text" name="note" value="${esc(a.note)}" placeholder="Ex.: levar presente, roupa de festa">`) +
+    emojiField(a.emoji),
+    fd => {
+      const data = { kind: fd.get('kind'), title: fd.get('title').trim(), date: fd.get('date'), time: fd.get('time') || '',
+        memberIds: fd.getAll('members'), note: fd.get('note').trim(), emoji: fd.get('emoji').trim() || '📌' };
+      if (id) Object.assign(a, data); else S.agenda.push({ id: uid(), ...data });
+      toast(`Anotado para ${dayLabel(data.date).toLowerCase()} ✅`);
+    }, 'Salvar',
+    id ? `<button type="button" class="btn danger" data-action="del-agenda" data-id="${id}">Excluir</button>` : '');
 }
 
 function editReward(id) {
@@ -691,41 +1011,41 @@ function bonus() {
     }, 'Confirmar');
 }
 
-// ---------- Ações ----------
-function toggle(taskId, mid) {
-  const t = S.tasks.find(x => x.id === taskId);
-  if (!t) return;
-  const day = dayKey();
-  const today = S.completions[day] || (S.completions[day] = {});
-  const k = keyOf(t, mid);
-  if (today[k]) {
-    const by = member(t.shared ? today[k] : mid);
-    if (!confirm(`Desmarcar "${t.title}"${by ? ` de ${by.name}` : ''}?`)) return;
-    delete today[k];
-    const i = S.log.findLastIndex(l => l.type === 'task' && l.taskId === taskId && l.day === day && (t.shared || l.memberId === mid));
-    if (i >= 0) S.log.splice(i, 1);
-    save();
-    render();
+// ---------- Marcar tarefas ----------
+function toggle(k, taskId, mid) {
+  const t = tasksOn(k, true).find(x => x.id === taskId);
+  if (!t || t.skip) return;
+  const day = S.completions[k] || (S.completions[k] = {});
+  const key = keyOf(t, mid);
+  if (day[key]) {
+    const by = member(t.shared ? day[key] : mid);
+    askConfirm(`Desmarcar "${t.title}"${by ? ` de ${by.name}` : ''}?`, () => {
+      delete day[key];
+      const i = S.log.findLastIndex(l => l.type === 'task' && l.taskId === taskId && l.day === k && (t.shared || l.memberId === mid));
+      if (i >= 0) S.log.splice(i, 1);
+      save();
+      render();
+    }, 'Desmarcar');
   } else if (t.shared && !mid) {
     // Tarefa compartilhada: pergunta quem fez.
     const opts = t.memberIds.map(member).filter(Boolean);
-    if (opts.length === 1) return complete(t, opts[0].id);
+    if (opts.length === 1) return complete(k, t, opts[0].id);
     openDlg(`${esc(t.emoji)} Quem fez?`, `<div class="who-pick">${opts.map(m =>
-      `<button type="button" style="--c:${esc(m.color)}" data-action="did-it" data-task="${t.id}" data-member="${m.id}"><span>${esc(m.emoji)}</span>${esc(m.name)}</button>`).join('')}</div>`);
+      `<button type="button" style="--c:${esc(m.color)}" data-action="did-it" data-day="${k}" data-task="${t.id}" data-member="${m.id}"><span>${esc(m.emoji)}</span>${esc(m.name)}</button>`).join('')}</div>`);
   } else {
-    complete(t, mid);
+    complete(k, t, mid);
   }
 }
 
-function complete(t, mid) {
+function complete(k, t, mid) {
   const m = member(mid);
   if (!m) return;
-  const day = dayKey();
-  const today = S.completions[day] || (S.completions[day] = {});
-  today[keyOf(t, mid)] = t.shared ? mid : Date.now();
-  S.log.push({ t: Date.now(), day, taskId: t.id, memberId: mid, type: 'task', label: t.title, points: t.points });
-  const left = t.shared ? 1 : ownTasks(mid).filter(x => !isDone(x, mid)).length;
-  celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo de hoje!`, !left);
+  const day = S.completions[k] || (S.completions[k] = {});
+  day[keyOf(t, mid)] = t.shared ? mid : Date.now();
+  const when = k === today() ? Date.now() : parseDay(k).getTime() + 12 * 3600e3;
+  S.log.push({ t: when, day: k, taskId: t.id, memberId: mid, type: 'task', label: t.title, points: t.points });
+  const left = t.shared ? 1 : ownOn(k, mid).filter(x => !doneValue(k, x, mid)).length;
+  celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo!`, !left);
   save();
   render();
 }
@@ -734,7 +1054,7 @@ function exportData() {
   const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `casa-backup-${dayKey()}.json`;
+  a.download = `casa-backup-${today()}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
@@ -745,57 +1065,79 @@ $('#importFile').addEventListener('change', async e => {
   try {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.members) || !Array.isArray(data.tasks)) throw new Error();
-    if (!confirm('Substituir todos os dados atuais por este backup?')) return;
-    S = normalize(data);
-    save();
-    render();
-    toast('Backup restaurado ✅');
+    askConfirm('Substituir todos os dados atuais por este backup?', () => {
+      S = normalize(data);
+      save();
+      render();
+      toast('Backup restaurado ✅');
+    }, 'Substituir');
   } catch { toast('Arquivo de backup inválido'); }
 });
 
 function remove(list, id, msg) {
-  if (!confirm(msg)) return;
-  S[list] = S[list].filter(x => x.id !== id);
-  if (list === 'members') {
-    S.tasks.forEach(t => t.memberIds = t.memberIds.filter(x => x !== id));
-    S.tasks = S.tasks.filter(t => t.memberIds.length);
-  }
-  save();
-  render();
+  askConfirm(msg, () => {
+    S[list] = S[list].filter(x => x.id !== id);
+    if (list === 'members') {
+      S.tasks.forEach(t => t.memberIds = t.memberIds.filter(x => x !== id));
+      S.tasks = S.tasks.filter(t => t.memberIds.length);
+    }
+    save();
+    render();
+  }, 'Excluir');
 }
 
 const actions = {
-  'tab': el => { tab = el.dataset.tab; if (tab !== 'config') unlocked = false; render(); scrollTo(0, 0); },
+  'tab': el => { tab = el.dataset.tab; if (tab !== 'hoje') editMode = false; render(); scrollTo(0, 0); },
   'cat': el => { catFilter = el.dataset.v; render(); },
   'who': el => { memberFilter = el.dataset.v; render(); },
+  'day': el => { const n = Number(el.dataset.n); viewDay = n ? addDays(viewDay, n) : today(); render(); },
+  'goto-day': el => { viewDay = el.dataset.day; tab = 'hoje'; render(); scrollTo(0, 0); },
+  'week': el => { const n = Number(el.dataset.n); weekFrom = n ? addDays(weekFrom, n) : mondayOf(today()); render(); },
+  'week-who': el => { weekWho = el.dataset.v; render(); },
+  'week-cell': el => {
+    if (!unlocked) return toast('Entre no ✏️ Editar (PIN) para corrigir a semana');
+    if (el.dataset.day > today()) return toast('Esse dia ainda não chegou 🙂');
+    toggle(el.dataset.day, el.dataset.task, el.dataset.member);
+  },
+  'past-agenda': () => { showPastAgenda = !showPastAgenda; render(); },
   'survival': () => {
-    const day = dayKey();
-    if (S.survival[day]) delete S.survival[day]; else S.survival[day] = true;
+    if (S.survival[viewDay]) delete S.survival[viewDay]; else S.survival[viewDay] = true;
     save();
     render();
   },
-  'toggle': el => toggle(el.dataset.task, el.dataset.member),
-  'did-it': el => { dlg.close(); complete(S.tasks.find(t => t.id === el.dataset.task), el.dataset.member); },
+  'edit-mode': () => editMode ? (editMode = false, render()) : withPin(() => { editMode = true; render(); }),
+  'task': el => {
+    const k = el.dataset.day;
+    if (editMode) return dayMenu(k, el.dataset.task);
+    if (k > today()) return toast('Esse dia ainda não chegou 🙂 Use ✏️ Editar para planejar.');
+    toggle(k, el.dataset.task, el.dataset.member);
+  },
+  'did-it': el => { dlg.close(); complete(el.dataset.day, tasksOn(el.dataset.day).find(t => t.id === el.dataset.task), el.dataset.member); },
   'redeem': el => redeem(el.dataset.id),
-  'unlock': () => openDlg('🔒 Área dos pais', pinField(), fd => {
-    if (fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
-    unlocked = true;
-  }, 'Entrar'),
-  'lock': () => { unlocked = false; tab = 'hoje'; render(); },
+  'unlock': () => withPin(render),
+  'lock': () => { unlocked = false; editMode = false; tab = 'hoje'; render(); },
   'edit-member': el => editMember(el.dataset.id),
-  'edit-task': el => editTask(el.dataset.id),
+  'edit-task': el => withPin(() => editTask(el.dataset.id)),
+  'new-task': el => withPin(() => editTask(undefined, el.dataset.day)),
   'edit-reward': el => editReward(el.dataset.id),
+  'new-agenda': el => editAgenda(undefined, { ...(el.dataset.day ? { date: el.dataset.day } : {}), ...(el.dataset.kind ? { kind: el.dataset.kind } : {}) }),
+  'edit-agenda': el => editAgenda(el.dataset.id),
+  'del-agenda': el => remove('agenda', el.dataset.id, 'Excluir este compromisso/lembrete?'),
   'del-member': el => remove('members', el.dataset.id, `Excluir ${member(el.dataset.id).name}? As tarefas só dessa pessoa também serão excluídas.`),
-  'del-task': el => remove('tasks', el.dataset.id, 'Excluir esta tarefa?'),
+  'del-task': el => remove('tasks', el.dataset.id, 'Excluir esta tarefa de vez?'),
   'del-reward': el => remove('rewards', el.dataset.id, 'Excluir este prêmio?'),
+  'cfg-who': el => { cfgWho = el.dataset.v; render(); },
+  'cfg-day': el => { cfgDay = el.dataset.v; render(); },
   'bonus': bonus,
   'reset-points': () => {
-    if (!confirm('Zerar os pontos e o histórico de todo mundo? Isso não pode ser desfeito.')) return;
-    S.log = []; S.completions = {}; save(); render();
+    askConfirm('Zerar os pontos e o histórico de todo mundo? Isso não pode ser desfeito.', () => {
+      S.log = []; S.completions = {}; save(); render();
+    }, 'Zerar');
   },
   'reset-all': () => {
-    if (!confirm('Apagar tudo (pessoas, tarefas, prêmios e pontos) e voltar à rotina original?')) return;
-    S = defaults(); unlocked = false; tab = 'hoje'; save(); render();
+    askConfirm('Apagar tudo (pessoas, tarefas, agenda, prêmios e pontos) e voltar à rotina original?', () => {
+      S = defaults(); unlocked = false; editMode = false; tab = 'hoje'; save(); render();
+    }, 'Apagar tudo');
   },
   'change-pin': () => openDlg('Trocar PIN', field('Novo PIN (4 a 8 números)', `<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" required>`),
     fd => { S.pin = fd.get('pin'); toast('PIN alterado ✅'); }),
@@ -805,29 +1147,41 @@ const actions = {
   'dlg-cancel': () => dlg.close(),
 };
 document.addEventListener('click', e => {
+  lastActivity = Date.now();
   const el = e.target.closest('[data-action]');
   if (el && actions[el.dataset.action]) actions[el.dataset.action](el);
+});
+// Formulário de tarefa: mostra dias da semana ou data, conforme "Quando".
+dlgForm.addEventListener('change', e => {
+  if (e.target.name === 'kind') {
+    const emoji = dlgForm.querySelector('input[name=emoji]');
+    if (['📌', '💬'].includes(emoji.value)) emoji.value = e.target.value === 'lembrete' ? '💬' : '📌';
+  }
+  if (e.target.name !== 'when') return;
+  const once = e.target.value === 'once';
+  dlgForm.querySelector('.when-weekly').hidden = once;
+  dlgForm.querySelector('.when-once').hidden = !once;
 });
 
 // ---------- Efeitos ----------
 let toastTimer;
-function toast(msg, withBoto = false) {
+function toast(msg, withMascot = false) {
   document.querySelector('.toast')?.remove();
   const el = document.createElement('div');
   el.className = 'toast';
-  el.innerHTML = (withBoto ? boto() : '') + `<span>${esc(msg)}</span>`;
+  el.innerHTML = (withMascot ? tucano() : '') + `<span>${esc(msg)}</span>`;
   document.body.appendChild(el);
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.remove(), 2200);
+  toastTimer = setTimeout(() => el.remove(), 2400);
 }
 function celebrate(msg, big = false) {
   toast(msg, true);
   if (big) {
     const j = document.createElement('div');
-    j.className = 'boto-jump';
-    j.innerHTML = boto();
+    j.className = 'mascot-fly';
+    j.innerHTML = tucano();
     document.body.appendChild(j);
-    setTimeout(() => j.remove(), 1800);
+    setTimeout(() => j.remove(), 1900);
   }
   const bits = ['⭐', '🎉', '✨', '🌟', '💫'];
   for (let i = 0; i < 14; i++) {
@@ -844,15 +1198,23 @@ function celebrate(msg, big = false) {
   }
 }
 
-// Vira o dia sozinho se o tablet ficar ligado.
 setInterval(() => {
-  if (dayKey() !== lastDay) { lastDay = dayKey(); prune(); save(); if (!dlg.open) render(); }
+  // Vira o dia sozinho se o tablet ficar ligado.
+  if (today() !== lastDay) {
+    if (viewDay === lastDay) viewDay = today();
+    lastDay = today(); prune(); save();
+    if (!dlg.open) render();
+  }
+  // Trava a edição depois de um tempo parado (para as crianças não mexerem).
+  if (unlocked && Date.now() - lastActivity > LOCK_AFTER && !dlg.open) {
+    unlocked = false; editMode = false; if (tab === 'config') tab = 'hoje'; render();
+  }
 }, 60000);
 
 prune();
 save();
 render();
-if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol === 'https:' && window.self === window.top) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>

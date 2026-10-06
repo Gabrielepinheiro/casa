@@ -1,5 +1,5 @@
 // Guarda uma cópia do app para funcionar mesmo sem internet.
-const CACHE = 'casa-v3';
+const CACHE = 'casa-v4';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', e => {
