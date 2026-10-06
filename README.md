@@ -1,10 +1,14 @@
-# 🏡 Tarefas da Casa
+# 🏡 Casa Pinheiro
 
-App para o tablet da família: cada pessoa tem suas tarefas (rotina das crianças e tarefas da casa), marca quando termina e ganha pontos ⭐ que podem ser trocados por prêmios.
+App para o tablet da família (Gabriele, Bruno, Arthur e Sophie): cada pessoa tem suas tarefas (rotina das crianças, tarefas da casa e pessoais), marca quando termina e ganha pontos ⭐ que podem ser trocados por prêmios. Visual inspirado nas cores do Nipto.
+
+Já vem com a **rotina semanal** da família cadastrada (seg a sex): rotina diária, blocos de alemão, academia, trabalho, a limpeza de cada dia (segunda: roupas/escritório, terça: cozinha/plantas, quarta: camas/armário, quinta: banheiros, sexta: compras/Keller/carro), o fechamento do dia e uma rotina sugerida para o Arthur (6) e a Sophie (2).
 
 ## O que tem
 
-- **Hoje** – um cartão por pessoa com as tarefas do dia, separadas por manhã / tarde / noite / qualquer hora. É só tocar para marcar (e tocar de novo para desmarcar). Dá para filtrar por *Rotina* ou *Casa* e por pessoa.
+- **Hoje** – um cartão por pessoa com as tarefas do dia, em ordem de horário e separadas por manhã / tarde / noite. É só tocar para marcar (e tocar de novo para desmarcar). Dá para filtrar por *Rotina*, *Casa*, *Pessoal* e por pessoa.
+- **🤝 Quem fizer primeiro** – tarefas que tanto a Gabriele quanto o Bruno podem fazer. Ao tocar, o app pergunta quem fez e os pontos vão para essa pessoa.
+- **🆘 Modo sobrevivência** – num dia que saiu do controle, mostra só o essencial (pia da cozinha, roupa essencial, 10 min de organização e os cuidados das crianças).
 - **Placar** – ranking da semana (começa na segunda) e histórico das últimas atividades.
 - **Prêmios** – troca de pontos por recompensas (pede o PIN dos pais).
 - **Ajustes** (protegido por PIN, padrão **1234**) – cadastrar pessoas, tarefas (pontos, dias da semana, período, quem faz), prêmios, dar/tirar pontos extras, trocar o PIN e fazer backup.

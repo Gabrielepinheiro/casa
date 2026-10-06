@@ -3,24 +3,30 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#6c5ce7">
+<meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Casa">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alan+Sans:wght@400..900&display=swap" rel="stylesheet">
 <title>Tarefas da Casa</title>
 <style>
   :root {
-    --bg: #f4f2ff; --card: #fff; --ink: #2d3436; --muted: #7b8794;
-    --primary: #6c5ce7; --primary-soft: #ece9ff; --ok: #00b894; --ok-soft: #e3fbf3;
-    --line: #e4e1f3; --danger: #d63031;
+    /* Paleta inspirada no Nipto */
+    --bg: #f5f6fa; --card: #fff; --ink: #1b1d2e; --muted: #5e627a;
+    --primary: #7c5cf0; --primary-dark: #5b3cc4; --primary-soft: #f1ecff;
+    --ok: #178a63; --ok-dark: #127251; --mint: #52cfa0; --ok-soft: #e7f7ef;
+    --star: #e9a410; --star-soft: #fff1c7; --line: #e3e5ee; --danger: #a8303f;
+    --shadow: 0 6px 24px rgba(27, 29, 46, .06);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body {
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family: "Alan Sans", -apple-system, system-ui, sans-serif;
     background: var(--bg); color: var(--ink); font-size: 17px;
     -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
     padding-bottom: env(safe-area-inset-bottom);
@@ -29,18 +35,19 @@
   button { font: inherit; color: inherit; cursor: pointer; }
 
   header.top {
-    position: sticky; top: 0; z-index: 5; background: var(--primary); color: #fff;
+    position: sticky; top: 0; z-index: 5; background: rgba(255,255,255,.92); color: var(--ink);
+    backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
     padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
     display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
   }
-  header.top h1 { font-size: 1.25rem; margin: 0; }
-  header.top .date { opacity: .85; font-size: .95rem; }
+  header.top h1 { font-size: 1.35rem; margin: 0; font-weight: 900; letter-spacing: -.02em; }
+  header.top .date { color: var(--muted); font-size: .95rem; }
   nav.tabs { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
   nav.tabs button {
-    border: 0; background: rgba(255,255,255,.15); color: #fff; padding: 10px 16px;
-    border-radius: 999px; font-weight: 600; min-height: 44px;
+    border: 2px solid var(--line); background: #fff; color: var(--ink); padding: 8px 16px;
+    border-radius: 999px; font-weight: 700; min-height: 44px;
   }
-  nav.tabs button.on { background: #fff; color: var(--primary); }
+  nav.tabs button.on { background: var(--primary); border-color: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(124,92,240,.3); }
 
   main { padding: 16px; max-width: 1400px; margin: 0 auto; }
   .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -50,36 +57,50 @@
   }
   .chip.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-  .card { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 2px 10px rgba(80,60,180,.06); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); gap: 16px; align-items: start; }
+  .shared-card { grid-column: 1 / -1; }
+  .shared-card .periods { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0 16px; }
+  .card { background: var(--card); border-radius: 24px; padding: 18px; border: 1px solid var(--line); box-shadow: var(--shadow); }
   .member { border-top: 8px solid var(--c); }
   .member-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
   .avatar {
     width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
     font-size: 1.8rem; background: color-mix(in srgb, var(--c) 25%, white); flex: none;
   }
-  .member-head h2 { margin: 0; font-size: 1.3rem; }
+  .member-head h2 { margin: 0; font-size: 1.35rem; font-weight: 900; letter-spacing: -.01em; }
   .member-head .sub { color: var(--muted); font-size: .9rem; }
-  .balance { margin-left: auto; text-align: right; font-weight: 800; font-size: 1.3rem; color: var(--primary); white-space: nowrap; }
+  .balance { margin-left: auto; text-align: right; font-weight: 900; font-size: 1.3rem; color: var(--ink); white-space: nowrap; }
   .balance small { display: block; font-weight: 600; font-size: .75rem; color: var(--muted); }
   .progress { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
   .progress > div { height: 100%; background: var(--c); transition: width .4s; }
   .period { font-size: .85rem; font-weight: 700; color: var(--muted); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .04em; }
   .task {
-    display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin-bottom: 8px;
-    border-radius: 14px; border: 2px solid var(--line); background: #fff; text-align: left; min-height: 58px;
+    display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 10px 10px 12px; margin-bottom: 8px;
+    border-radius: 18px; border: 1px solid var(--line); background: #fff; text-align: left; min-height: 60px;
+    box-shadow: 0 2px 8px rgba(27,29,46,.04);
     transition: transform .1s, background .2s;
   }
   .task:active { transform: scale(.98); }
-  .task .emo { font-size: 1.6rem; }
-  .task .title { font-size: 1.08rem; font-weight: 600; }
+  .task .emo { font-size: 1.4rem; flex: none; }
+  .task .text { flex: 1; min-width: 0; overflow-wrap: break-word; }
+  .task .title { font-size: 1rem; font-weight: 700; line-height: 1.25; }
   .task .tag { font-size: .72rem; color: var(--muted); display: block; font-weight: 500; }
-  .task .pts { margin-left: auto; font-weight: 800; color: var(--primary); white-space: nowrap; }
+  .task .note { font-size: .78rem; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-weight: 400; margin-top: 2px; line-height: 1.3; }
+  .task .time { font-size: .8rem; font-weight: 800; color: var(--primary); background: var(--primary-soft); border-radius: 6px; padding: 1px 6px; margin-right: 4px; }
+  .shared-card { --c: var(--primary); }
+  .chip.sos.on { border-color: var(--danger); background: #fdebee; color: var(--danger); }
+  .sos-banner { border-left: 6px solid var(--danger); margin-bottom: 16px; }
+  .sos-banner b { color: var(--danger); }
+  .who-pick { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; }
+  .who-pick button { border: 3px solid var(--c); background: #fff; border-radius: 16px; padding: 14px 8px; font-weight: 700; font-size: 1.05rem; }
+  .who-pick button span { display: block; font-size: 2.4rem; }
+  .task .pts { margin-left: auto; font-weight: 800; font-size: .9rem; color: var(--ok); background: var(--ok-soft); border-radius: 999px; padding: 3px 8px; white-space: nowrap; flex: none; }
+  .task.done .pts { background: var(--ok); color: #fff; }
   .check {
-    width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line);
+    width: 28px; height: 28px; border-radius: 50%; border: 2px solid #c9ccda;
     display: grid; place-items: center; flex: none; font-weight: 900; color: #fff;
   }
-  .task.done { background: var(--ok-soft); border-color: var(--ok); }
+  .task.done { background: var(--ok-soft); border-color: var(--mint); }
   .task.done .title { text-decoration: line-through; opacity: .6; }
   .task.done .check { background: var(--ok); border-color: var(--ok); }
   .alldone { text-align: center; padding: 10px; font-weight: 700; color: var(--ok); }
@@ -89,7 +110,7 @@
   .rank:last-child { border: 0; }
   .rank .pos { font-size: 1.8rem; width: 44px; text-align: center; }
   .rank .name { font-weight: 700; font-size: 1.15rem; }
-  .rank .big { margin-left: auto; text-align: right; font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+  .rank .big { margin-left: auto; text-align: right; font-weight: 900; font-size: 1.4rem; color: var(--ink); }
   .rank .big small { display: block; font-size: .75rem; color: var(--muted); font-weight: 600; }
   .log { list-style: none; padding: 0; margin: 0; }
   .log li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .95rem; }
@@ -101,15 +122,15 @@
   .reward { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
   .reward .emo { font-size: 3rem; }
   .reward .title { font-weight: 700; font-size: 1.15rem; }
-  .reward .cost { color: var(--primary); font-weight: 800; }
+  .reward .cost { color: #7a5300; background: var(--star-soft); border-radius: 999px; padding: 4px 12px; font-weight: 800; }
 
   .btn {
     border: 0; border-radius: 12px; padding: 10px 18px; font-weight: 700; min-height: 44px;
     background: var(--primary-soft); color: var(--primary);
   }
-  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.primary { background: var(--primary); color: #fff; box-shadow: 0 6px 16px rgba(124,92,240,.3); }
   .btn.ghost { background: transparent; color: var(--muted); }
-  .btn.danger { background: #ffe5e5; color: var(--danger); }
+  .btn.danger { background: #fdebee; color: var(--danger); }
   .btn.big { font-size: 1.1rem; padding: 14px 26px; }
   .btn:disabled { opacity: .4; }
   .center { text-align: center; padding: 40px 16px; }
@@ -124,7 +145,7 @@
   .row .acts { display: flex; gap: 6px; }
 
   dialog { border: 0; border-radius: 20px; padding: 0; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 32px); }
-  dialog::backdrop { background: rgba(30,20,70,.45); }
+  dialog::backdrop { background: rgba(27,29,46,.45); }
   dialog form { padding: 20px; }
   dialog h2 { margin: 0 0 14px; }
   .field { margin-bottom: 14px; }
@@ -146,7 +167,7 @@
 
   .toast {
     position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
-    background: var(--ink); color: #fff; padding: 14px 22px; border-radius: 999px; font-weight: 700;
+    background: var(--ok); color: #fff; padding: 14px 22px; border-radius: 999px; font-weight: 700;
     font-size: 1.1rem; z-index: 50; animation: pop .25s ease-out;
   }
   @keyframes pop { from { transform: translate(-50%, 20px); opacity: 0; } }
@@ -157,7 +178,7 @@
 <body>
 <header class="top">
   <div>
-    <h1>🏡 Tarefas da Casa</h1>
+    <h1>🏡 Casa <span style="color:var(--primary)">Pinheiro</span></h1>
     <div class="date" id="date"></div>
   </div>
   <nav class="tabs" id="tabs"></nav>
@@ -168,12 +189,13 @@
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
 <script>
-const KEY = 'casa-tarefas-v1';
+const KEY = 'casa-tarefas-v2';
 const PERIODS = [['manha', '🌅 Manhã'], ['tarde', '☀️ Tarde'], ['noite', '🌙 Noite'], ['livre', '⏰ Qualquer hora']];
-const CATS = { rotina: '🧸 Rotina', casa: '🧹 Casa' };
+const CATS = { rotina: '🧸 Rotina', casa: '🧹 Casa', pessoal: '🙋 Pessoal' };
+const MODES = [['normal', 'Esconder no modo sobrevivência'], ['sempre', 'Mostrar sempre'], ['sobrevivencia', 'Só no modo sobrevivência']];
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-const COLORS = ['#ff7675', '#74b9ff', '#55efc4', '#fdcb6e', '#a29bfe', '#fd79a8', '#00cec9', '#e17055'];
-const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🪴', '🐶', '🥗', '🚿', '😴', '⭐', '🎮', '📺', '🍦', '🎁', '🏞️', '🍕', '🎬'];
+const COLORS = ['#7c5cf0', '#3b6fd6', '#52cfa0', '#e9a410', '#e0692b', '#e8466a', '#178a63', '#5b3cc4'];
+const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '👟', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🧽', '🚽', '🪴', '🛒', '🚗', '🏋️', '🇩🇪', '💼', '🥗', '😴', '⭐', '🎮', '📺', '🍦', '🎁', '🏞️', '🍕', '🎬'];
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 const WEEKDAYS = [1, 2, 3, 4, 5];
 
@@ -191,50 +213,158 @@ function weekStart(d = new Date()) {
   x.setDate(x.getDate() - (x.getDay() + 6) % 7); // semana começa na segunda
   return x.getTime();
 }
+function periodOf(time) {
+  if (!time) return 'livre';
+  const h = parseInt(time, 10);
+  return h < 12 ? 'manha' : h < 18 ? 'tarde' : 'noite';
+}
 
+// Rotina da família, a partir da "Rotina semanal" (seg a sex) + rotina das crianças.
 function defaults() {
-  const m = [
-    { id: uid(), name: 'Mamãe', emoji: '👩', color: COLORS[5] },
-    { id: uid(), name: 'Papai', emoji: '👨', color: COLORS[1] },
-    { id: uid(), name: 'Criança 1', emoji: '🧒', color: COLORS[3] },
-    { id: uid(), name: 'Criança 2', emoji: '👧', color: COLORS[2] },
-  ];
-  const adults = [m[0].id, m[1].id], kids = [m[2].id, m[3].id];
-  const t = (title, emoji, points, category, period, memberIds, days = ALL_DAYS) =>
-    ({ id: uid(), title, emoji, points, category, period, memberIds, days });
+  const g = uid(), b = uid(), a = uid(), s = uid();
+  const pais = [g, b];
+  const SEG_QUI = [1, 2, 3, 4], SEX = [5];
+  const tasks = [];
+  const add = (o, list) => list.forEach(([title, emoji, points, note = '']) => tasks.push({
+    id: uid(), title, emoji, points, note, time: o.time || '', category: o.cat, period: o.period || periodOf(o.time),
+    memberIds: o.who, days: o.days || ALL_DAYS, shared: !!o.shared, mode: o.mode || 'normal',
+  }));
+
+  // Arthur (6 anos)
+  add({ cat: 'rotina', period: 'manha', who: [a], mode: 'sempre' }, [
+    ['Escovar os dentes', '🪥', 5], ['Vestir-se sozinho', '👕', 10], ['Ajudar a arrumar a cama', '🛏️', 10]]);
+  add({ cat: 'rotina', period: 'manha', who: [a], mode: 'sempre', days: WEEKDAYS }, [['Pegar mochila e lancheira', '🎒', 5]]);
+  add({ cat: 'rotina', period: 'tarde', who: [a], days: WEEKDAYS }, [
+    ['Guardar mochila e lancheira ao chegar', '🎒', 5], ['Fazer a lição de casa', '📚', 15]]);
+  add({ cat: 'rotina', period: 'tarde', who: [a] }, [['Sapatos e casaco no lugar', '👟', 5]]);
+  add({ cat: 'rotina', period: 'noite', who: [a] }, [
+    ['Ajudar a colocar a mesa', '🍽️', 10], ['Levar o prato para a pia', '🍽️', 5], ['Guardar os brinquedos', '🧸', 10]]);
+  add({ cat: 'rotina', period: 'noite', who: [a], mode: 'sempre' }, [
+    ['Tomar banho', '🛁', 5], ['Escovar os dentes', '🪥', 5], ['Pijama e roupa suja no cesto', '🧺', 5]]);
+
+  // Sophie (2 anos)
+  add({ cat: 'rotina', period: 'manha', who: [s], mode: 'sempre' }, [
+    ['Escovar os dentes (com ajuda)', '🪥', 5], ['Ajudar a se vestir', '👕', 5]]);
+  add({ cat: 'rotina', period: 'tarde', who: [s] }, [['Sapatos no lugar', '👟', 5]]);
+  add({ cat: 'rotina', period: 'noite', who: [s] }, [
+    ['Comer sentadinha à mesa', '🥣', 5], ['Guardar os brinquedos (com ajuda)', '🧸', 10], ['Roupa suja no cesto', '🧺', 5]]);
+  add({ cat: 'rotina', period: 'noite', who: [s], mode: 'sempre' }, [
+    ['Tomar banho', '🛁', 5], ['Escovar os dentes (com ajuda)', '🪥', 5]]);
+
+  // Rotina diária — todos os dias (quem fizer primeiro)
+  add({ cat: 'casa', period: 'manha', who: pais, shared: true }, [
+    ['Abrir janelas de todos os quartos', '🪟', 5],
+    ['Arrumar camas', '🛏️', 5, 'Esticar bem os lençóis'],
+    ['Alinhar travesseiros e borrifar home spray', '🌸', 5],
+    ['Banheiro rápido', '🚽', 5, 'Limpar pia, secar, escova rápida no vaso'],
+    ['Cozinha em ordem', '🍳', 5, 'Pia limpa, bancada, fogão superficial'],
+    ['Entrada arrumada', '👟', 5, 'Alinhar sapatos e pendurar casacos'],
+    ['Guardar brinquedos e itens fora do lugar', '🧸', 5]]);
+
+  // Crianças (seg a sex)
+  const kids = (time, list, cat = 'rotina', mode = 'sempre') => add({ cat, time, who: pais, shared: true, days: WEEKDAYS, mode }, list);
+  kids('06:30', [['Rotina matinal + escola', '🎒', 10, '06:30–08:10']]);
+  kids('15:26', [['Buscar as crianças', '🚗', 5, 'Saída 15:26']]);
+  kids('16:00', [['Tempo das crianças', '🧸', 10, '16:00–17:30']]);
+  kids('17:30', [['Preparar o jantar', '🍲', 10, '17:30–18:00']]);
+  kids('18:00', [['Jantar em família', '🍽️', 5, '18:00–18:45']]);
+  kids('18:45', [['Limpar mesa e cozinha', '🧽', 10, '18:45–19:00']], 'casa', 'normal');
+  kids('19:00', [['Banho + dentes + história + dormir', '🛁', 15]]);
+
+  // Fechamento do dia (19:40–20:40)
+  const close = (days, list) => add({ cat: 'casa', time: '19:40', who: pais, shared: true, days }, list);
+  close(WEEKDAYS, [['Lava-louças (tirar ou colocar)', '🍽️', 5], ['Colocar a mesa do café da manhã', '☕', 5]]);
+  close(SEG_QUI, [
+    ['Cozinha: limpar e secar a pia', '🚰', 5], ['Cozinha: limpar bancada e verificar lixo', '🗑️', 5],
+    ['Separar roupa das crianças para amanhã', '👕', 5], ['Verificar banheiros rapidamente', '🚽', 5],
+    ['Verificar entrada: sapatos e bolsas', '👟', 5], ['Deixar a sala arrumada', '🛋️', 5],
+    ['Preparar lancheiras (parte seca)', '🥪', 5], ['Preparar mochilas e itens da escola', '🎒', 5],
+    ['Preparar mesa de estudo com a lição de amanhã', '📚', 5]]);
+  close(SEX, [
+    ['Cozinha: limpar e secar pia e bancada', '🚰', 5], ['Separar roupa das crianças para segunda', '👕', 5],
+    ['Verificar banheiros e entrada', '🚽', 5], ['Separar roupas da semana', '👕', 5, 'Domingo: reset'],
+    ['Preparar lancheiras e mochilas', '🎒', 5], ['Preparar mesa de estudo para segunda', '📚', 5]]);
+
+  // Gabriele — pessoal
+  const me = (time, list, days = WEEKDAYS) => add({ cat: 'pessoal', time, who: [g], days }, list);
+  me('05:20', [['Alemão — Bloco 1', '🇩🇪', 20, 'Pluspunkt: ler o capítulo, exercícios, marcar dúvidas · Grammatik Aktiv: exercícios do tema, corrigir todos os erros · 5–10 frases com os erros, em voz alta']]);
+  me('08:30', [['Academia', '🏋️', 15, '08:30–09:30']]);
+  me('10:00', [['Alemão — Bloco 2', '🇩🇪', 15, 'Grammatik Aktiv: exercícios do tema, marcar e corrigir erros · 5–10 frases com os erros, em voz alta']]);
+  me('13:15', [['Trabalho', '💼', 20, 'Tarefa definida na noite anterior · uma ação específica e concreta']]);
+  me('19:40', [['Separar minhas roupas', '👗', 5, 'Incluindo academia']]);
+  me('19:40', [['Definir tarefa de trabalho de amanhã', '📝', 5]], SEG_QUI);
+
+  // Gabriele — Casa do dia (10:45–12:30)
+  const house = (day, list) => add({ cat: 'casa', time: '10:45', who: [g], days: [day] }, list);
+  house(1, [
+    ['Ligar robô aspirador em cada andar', '🤖', 5], ['Separar roupas por volume e verificar bolsos', '👕', 5],
+    ['Lavar roupas', '🧺', 5], ['Transferir para secadora ou varal', '🧺', 5], ['Limpar filtro da secadora', '🧽', 5],
+    ['Deixar máquina aberta e secar gaveta de sabão', '🧼', 5], ['Aspirar rodapés e cantos', '🧹', 10],
+    ['Escritório: organizar mesa e guardar papéis', '🗂️', 5], ['Escritório: limpar superfície e verificar lixo', '🧽', 5]]);
+  house(2, [
+    ['Esvaziar e limpar bancada da cozinha', '🧽', 5], ['Desengordurar fogão (inclusive peças)', '🍳', 10],
+    ['Limpar pia profundamente e ralo', '🚰', 5], ['Limpar armários externos e puxadores', '🧽', 5],
+    ['Limpar eletrodomésticos visíveis', '✨', 5], ['Limpar 1 gaveta ou armário interno', '🗄️', 5],
+    ['Regar plantas', '🪴', 5, 'Grandes 500 ml · médias 250 ml · pequenas 100 ml'],
+    ['Borrifar suculentas e verificar folhas', '🌵', 5], ['Retirar lixo e lavar lixeira por dentro', '🗑️', 10]]);
+  house(3, [
+    ['Aspirar cantos e base das camas', '🧹', 5], ['Trocar roupa de cama das crianças', '🛏️', 10],
+    ['Trocar roupa de cama do casal', '🛏️', 10, 'Semana sim, semana não'], ['Lavar e secar roupa de cama', '🧺', 5],
+    ['Aplicar rotina da máquina', '🧼', 5], ['Organizar 1 parte do armário', '🗄️', 5, 'Gaveta ou prateleira']]);
+  house(4, [
+    ['Abrir janelas dos banheiros', '🪟', 5], ['Aplicar produto forte no vaso', '🚽', 5],
+    ['Limpar espelho com produto específico', '🪞', 5], ['Limpar pia: multiuso + torneira + ralo', '🚰', 5],
+    ['Limpar vaso por dentro e por fora', '🚽', 5], ['Esfregar banheira, enxaguar e secar bordas', '🛁', 10],
+    ['Ralo: remover cabelo, água quente, produto', '🚿', 5], ['Aspirar e passar pano com desinfetante no chão', '🧹', 10],
+    ['Alinhar toalhas, dobrar papel, home spray', '🌸', 5], ['Lavar toalhas', '🧺', 5],
+    ['Plantas: rega leve e limpar folhas', '🪴', 5], ['Limpar 1 armário interno ou gaveta', '🗄️', 5]]);
+  house(5, [
+    ['Verificar estoque', '📋', 5, 'Papel, limpeza, cozinha, lancheira'], ['Fazer lista e ir às compras', '🛒', 15],
+    ['Guardar tudo imediatamente ao chegar', '🛍️', 5], ['Lavar frutas, secar e organizar', '🍎', 5],
+    ['Organizar geladeira e limpar 1 prateleira', '🧊', 5], ['Keller: organização, fora do lugar, reciclagem', '♻️', 10],
+    ['Lavar roupas da escola', '🧺', 5], ['Organizar e limpar carro por dentro', '🚗', 10]]);
+
+  // Modo sobrevivência
+  add({ cat: 'casa', period: 'livre', who: pais, shared: true, mode: 'sobrevivencia' }, [
+    ['Limpar pia da cozinha', '🚰', 10], ['Garantir roupa essencial', '👕', 10], ['10 min de organização', '⏱️', 10]]);
+
   return {
     pin: '1234',
-    members: m,
-    tasks: [
-      t('Escovar os dentes', '🪥', 5, 'rotina', 'manha', kids),
-      t('Arrumar a cama', '🛏️', 10, 'rotina', 'manha', kids),
-      t('Arrumar a mochila', '🎒', 5, 'rotina', 'manha', kids, WEEKDAYS),
-      t('Lição de casa', '📚', 15, 'rotina', 'tarde', kids, WEEKDAYS),
-      t('Tomar banho', '🛁', 5, 'rotina', 'noite', kids),
-      t('Guardar os brinquedos', '🧸', 10, 'rotina', 'noite', kids),
-      t('Escovar os dentes', '🪥', 5, 'rotina', 'noite', kids),
-      t('Colocar a mesa', '🍽️', 10, 'casa', 'noite', kids),
-      t('Lavar a louça', '🍽️', 15, 'casa', 'noite', adults),
-      t('Tirar o lixo', '🗑️', 10, 'casa', 'livre', [m[1].id]),
-      t('Estender a roupa', '🧺', 10, 'casa', 'livre', [m[0].id]),
-      t('Regar as plantas', '🪴', 5, 'casa', 'livre', [m[2].id], [1, 4]),
+    members: [
+      { id: g, name: 'Gabriele', emoji: '👩', color: COLORS[5] },
+      { id: b, name: 'Bruno', emoji: '👨', color: COLORS[1] },
+      { id: a, name: 'Arthur', emoji: '👦', color: COLORS[3] },
+      { id: s, name: 'Sophie', emoji: '👧', color: COLORS[2] },
     ],
+    tasks,
     rewards: [
-      { id: uid(), title: '30 min extra de tela', emoji: '🎮', cost: 50 },
-      { id: uid(), title: 'Escolher o jantar', emoji: '🍕', cost: 80 },
-      { id: uid(), title: 'Sorvete', emoji: '🍦', cost: 100 },
+      { id: uid(), title: 'Escolher o desenho', emoji: '📺', cost: 30 },
+      { id: uid(), title: 'Escolher a sobremesa', emoji: '🍦', cost: 50 },
+      { id: uid(), title: 'Ir ao parquinho', emoji: '🛝', cost: 80 },
+      { id: uid(), title: 'Escolher o jantar', emoji: '🍕', cost: 100 },
       { id: uid(), title: 'Noite de cinema', emoji: '🎬', cost: 150 },
-      { id: uid(), title: 'Passeio no parque', emoji: '🏞️', cost: 200 },
+      { id: uid(), title: 'Folga de uma tarefa (o outro faz)', emoji: '🙋', cost: 150 },
+      { id: uid(), title: 'Passeio especial', emoji: '🏞️', cost: 300 },
     ],
     completions: {},
+    survival: {},
     log: [],
   };
 }
 
+// Completa campos que faltam (backups antigos).
+function normalize(d) {
+  d = { ...defaults(), ...d };
+  d.completions ||= {};
+  d.survival ||= {};
+  d.log ||= [];
+  d.tasks = d.tasks.map(t => ({ note: '', time: '', shared: false, mode: 'normal', days: ALL_DAYS, memberIds: [], ...t }));
+  return d;
+}
 function load() {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) return normalize(JSON.parse(raw));
   } catch (e) { /* sem armazenamento: começa do zero */ }
   return defaults();
 }
@@ -245,6 +375,7 @@ function save() {
 function prune() {
   const limit = dayKey(new Date(Date.now() - 90 * 864e5));
   for (const k of Object.keys(S.completions)) if (k < limit) delete S.completions[k];
+  for (const k of Object.keys(S.survival)) if (k < limit) delete S.survival[k];
 }
 
 let S = load();
@@ -256,7 +387,21 @@ const weekPoints = id => {
   const ws = weekStart();
   return S.log.reduce((s, l) => s + (l.memberId === id && l.t >= ws && l.type !== 'reward' ? l.points : 0), 0);
 };
-const isDone = (taskId, memberId, day = dayKey()) => !!(S.completions[day] || {})[taskId + '|' + memberId];
+const survival = () => !!S.survival[dayKey()];
+const keyOf = (t, mid) => t.id + '|' + (t.shared ? '*' : mid);
+const doneValue = (t, mid) => (S.completions[dayKey()] || {})[keyOf(t, mid)];
+const isDone = (t, mid) => !!doneValue(t, mid);
+const periodIdx = p => PERIODS.findIndex(x => x[0] === p);
+const sortTasks = list => [...list].sort((x, y) =>
+  periodIdx(x.period) - periodIdx(y.period) || (x.time || '99').localeCompare(y.time || '99'));
+
+function visibleToday(t) {
+  if (!t.days.includes(new Date().getDay())) return false;
+  return survival() ? t.mode !== 'normal' : t.mode !== 'sobrevivencia';
+}
+const ownTasks = mid => S.tasks.filter(t => !t.shared && t.memberIds.includes(mid) && visibleToday(t));
+const sharedTasks = () => S.tasks.filter(t => t.shared && visibleToday(t));
+const byCat = list => list.filter(t => catFilter === 'todos' || t.category === catFilter);
 
 // ---------- Telas ----------
 function render() {
@@ -267,32 +412,52 @@ function render() {
   $('#app').innerHTML = { hoje: viewToday, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
 }
 
+function taskList(tasks, mid) {
+  return '<div class="periods">' + PERIODS.map(([p, label]) => {
+    const list = tasks.filter(t => t.period === p);
+    if (!list.length) return '';
+    return `<div><div class="period">${label}</div>` + list.map(t => {
+      const v = doneValue(t, mid);
+      const by = t.shared && v ? member(v) : null;
+      const tags = [t.shared && catFilter === 'todos' ? CATS[t.category] : '',
+        t.shared ? (by ? `feito por ${esc(by.emoji)} ${esc(by.name)}` : t.memberIds.map(id => esc(member(id)?.emoji)).join(' ')) : ''].filter(Boolean).join(' · ');
+      return `<button class="task ${v ? 'done' : ''}" data-action="toggle" data-task="${t.id}" data-member="${mid || ''}">
+        <span class="check">${v ? '✓' : ''}</span>
+        <span class="emo">${esc(t.emoji)}</span>
+        <span class="text"><span class="title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
+          ${t.note ? `<span class="note">${esc(t.note)}</span>` : ''}${tags ? `<span class="tag">${tags}</span>` : ''}</span>
+        <span class="pts">+${t.points} ⭐</span>
+      </button>`;
+    }).join('') + '</div>';
+  }).join('') + '</div>';
+}
+
 function viewToday() {
-  const wd = new Date().getDay();
-  const chips = [['todos', 'Tudo'], ['rotina', CATS.rotina], ['casa', CATS.casa]]
-    .map(([k, l]) => `<button class="chip ${catFilter === k ? 'on' : ''}" data-action="cat" data-v="${k}">${l}</button>`).join('');
+  if (!S.members.length) return `<div class="center card">Nenhuma pessoa cadastrada ainda. Vá em <b>Ajustes</b> para começar.</div>`;
+  const sos = survival();
+  const chips = [['todos', 'Tudo'], ...Object.entries(CATS)]
+    .map(([k, l]) => `<button class="chip ${catFilter === k ? 'on' : ''}" data-action="cat" data-v="${k}">${l}</button>`).join('')
+    + `<button class="chip sos ${sos ? 'on' : ''}" data-action="survival">🆘 Modo sobrevivência</button>`;
   const people = [`<button class="chip ${memberFilter === 'todos' ? 'on' : ''}" data-action="who" data-v="todos">👨‍👩‍👧‍👦 Todos</button>`]
     .concat(S.members.map(m => `<button class="chip ${memberFilter === m.id ? 'on' : ''}" data-action="who" data-v="${m.id}">${esc(m.emoji)} ${esc(m.name)}</button>`)).join('');
-  const shown = S.members.filter(m => memberFilter === 'todos' || m.id === memberFilter);
-  if (!S.members.length) return `<div class="center card">Nenhuma pessoa cadastrada ainda. Vá em <b>Ajustes</b> para começar.</div>`;
+  const banner = sos ? `<section class="card sos-banner"><b>🆘 Modo sobrevivência ligado.</b> Hoje só o essencial:
+    limpar a pia da cozinha, garantir roupa essencial e 10 min de organização. <b>Ignorar o restante</b> 💛</section>` : '';
 
-  const cards = shown.map(m => {
-    const tasks = S.tasks.filter(t => t.memberIds.includes(m.id) && t.days.includes(wd) && (catFilter === 'todos' || t.category === catFilter));
-    const done = tasks.filter(t => isDone(t.id, m.id)).length;
+  const shared = byCat(sharedTasks()).filter(t => memberFilter === 'todos' || t.memberIds.includes(memberFilter));
+  const sharedDone = shared.filter(t => isDone(t)).length;
+  const sharedCard = shared.length ? `<section class="card member shared-card">
+      <div class="member-head">
+        <div class="avatar">🤝</div>
+        <div><h2>Quem fizer primeiro</h2><div class="sub">${sharedDone} de ${shared.length} feitas hoje · ganha quem fizer</div></div>
+      </div>
+      <div class="progress"><div style="width:${Math.round(sharedDone / shared.length * 100)}%"></div></div>
+      ${taskList(sortTasks(shared), memberFilter === 'todos' ? '' : memberFilter)}
+    </section>` : '';
+
+  const cards = S.members.filter(m => memberFilter === 'todos' || m.id === memberFilter).map(m => {
+    const tasks = sortTasks(byCat(ownTasks(m.id)));
+    const done = tasks.filter(t => isDone(t, m.id)).length;
     const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
-    const groups = PERIODS.map(([p, label]) => {
-      const list = tasks.filter(t => t.period === p);
-      if (!list.length) return '';
-      return `<div class="period">${label}</div>` + list.map(t => {
-        const ok = isDone(t.id, m.id);
-        return `<button class="task ${ok ? 'done' : ''}" data-action="toggle" data-task="${t.id}" data-member="${m.id}">
-          <span class="check">${ok ? '✓' : ''}</span>
-          <span class="emo">${esc(t.emoji)}</span>
-          <span><span class="title">${esc(t.title)}</span>${catFilter === 'todos' ? `<span class="tag">${CATS[t.category]}</span>` : ''}</span>
-          <span class="pts">+${t.points} ⭐</span>
-        </button>`;
-      }).join('');
-    }).join('');
     return `<section class="card member" style="--c:${esc(m.color)}">
       <div class="member-head">
         <div class="avatar">${esc(m.emoji)}</div>
@@ -300,11 +465,11 @@ function viewToday() {
         <div class="balance">${balance(m.id)} ⭐<small>pontos</small></div>
       </div>
       <div class="progress"><div style="width:${pct}%"></div></div>
-      ${tasks.length ? groups : '<div class="empty">Nada para hoje 😎</div>'}
+      ${tasks.length ? taskList(tasks, m.id) : `<div class="empty">${shared.some(t => t.memberIds.includes(m.id)) ? 'Pegue tarefas no cartão 🤝' : 'Nada para hoje 😎'}</div>`}
       ${tasks.length && done === tasks.length ? '<div class="alldone">🎉 Tudo feito! Parabéns!</div>' : ''}
     </section>`;
   }).join('');
-  return `<div class="bar">${chips}</div><div class="bar">${people}</div><div class="grid">${cards}</div>`;
+  return `<div class="bar">${chips}</div><div class="bar">${people}</div>${banner}<div class="grid">${cards}${sharedCard}</div>`;
 }
 
 function viewScore() {
@@ -346,10 +511,12 @@ function viewConfig() {
       <div class="info"><b style="color:${esc(m.color)}">●</b> ${esc(m.name)}<small>${balance(m.id)} pontos</small></div>
       <div class="acts"><button class="btn" data-action="edit-member" data-id="${m.id}">Editar</button>
       <button class="btn danger" data-action="del-member" data-id="${m.id}">Excluir</button></div></div>`).join('');
-  const sorted = [...S.tasks].sort((a, b) => a.category.localeCompare(b.category) || PERIODS.findIndex(p => p[0] === a.period) - PERIODS.findIndex(p => p[0] === b.period));
+  const sorted = [...S.tasks].sort((a, b) => a.category.localeCompare(b.category) || periodIdx(a.period) - periodIdx(b.period) || (a.time || '99').localeCompare(b.time || '99'));
   const tasks = sorted.map(t => `<div class="row"><span class="emo">${esc(t.emoji)}</span>
-      <div class="info">${esc(t.title)} <b style="color:var(--primary)">+${t.points}</b>
-        <small>${CATS[t.category]} · ${PERIODS.find(p => p[0] === t.period)[1]} · ${daysLabel(t.days)} · ${t.memberIds.map(id => member(id)?.name).filter(Boolean).map(esc).join(', ')}</small></div>
+      <div class="info">${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)} <b style="color:var(--primary)">+${t.points}</b>
+        <small>${CATS[t.category]} · ${PERIODS[periodIdx(t.period)][1]} · ${daysLabel(t.days)} ·
+        ${t.memberIds.map(id => member(id)?.name).filter(Boolean).map(esc).join(t.shared ? ' ou ' : ', ')}
+        ${t.mode === 'sobrevivencia' ? ' · 🆘 só sobrevivência' : t.mode === 'sempre' ? ' · 🆘 sempre' : ''}</small></div>
       <div class="acts"><button class="btn" data-action="edit-task" data-id="${t.id}">Editar</button>
       <button class="btn danger" data-action="del-task" data-id="${t.id}">Excluir</button></div></div>`).join('');
   const rewards = S.rewards.map(r => `<div class="row"><span class="emo">${esc(r.emoji)}</span>
@@ -358,7 +525,7 @@ function viewConfig() {
       <button class="btn danger" data-action="del-reward" data-id="${r.id}">Excluir</button></div></div>`).join('');
   return `<section class="card">
     <h3 class="section">👨‍👩‍👧‍👦 Pessoas <button class="btn primary" data-action="edit-member">+ Adicionar</button></h3>${people || '<div class="empty">Ninguém ainda.</div>'}
-    <h3 class="section">✅ Tarefas <button class="btn primary" data-action="edit-task">+ Adicionar</button></h3>${tasks || '<div class="empty">Nenhuma tarefa.</div>'}
+    <h3 class="section">✅ Tarefas (${S.tasks.length}) <button class="btn primary" data-action="edit-task">+ Adicionar</button></h3>${tasks || '<div class="empty">Nenhuma tarefa.</div>'}
     <h3 class="section">🎁 Prêmios <button class="btn primary" data-action="edit-reward">+ Adicionar</button></h3>${rewards || '<div class="empty">Nenhum prêmio.</div>'}
     <h3 class="section">⭐ Pontos</h3>
     <div class="bar"><button class="btn" data-action="bonus">Dar ou tirar pontos</button>
@@ -367,6 +534,7 @@ function viewConfig() {
     <div class="bar"><button class="btn" data-action="change-pin">Trocar PIN</button>
       <button class="btn" data-action="export">Baixar backup</button>
       <button class="btn" data-action="import">Restaurar backup</button>
+      <button class="btn danger" data-action="reset-all">Voltar à rotina original</button>
       <button class="btn ghost" data-action="lock">Sair dos ajustes</button></div>
   </section>`;
 }
@@ -383,7 +551,7 @@ let dlgHandler = null;
 function openDlg(title, body, onOk, okLabel = 'Salvar') {
   dlgForm.innerHTML = `<h2>${title}</h2>${body}<div class="dlg-actions">
     <button type="button" class="btn ghost" data-action="dlg-cancel">Cancelar</button>
-    <button class="btn primary">${okLabel}</button></div>`;
+    ${onOk ? `<button class="btn primary">${okLabel}</button>` : ''}</div>`;
   dlgHandler = onOk;
   dlg.showModal();
 }
@@ -413,25 +581,33 @@ function editMember(id) {
 }
 
 function editTask(id) {
-  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, category: 'rotina', period: 'livre', memberIds: [], days: ALL_DAYS };
+  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, note: '', time: '', category: 'casa', period: 'livre', memberIds: [], days: ALL_DAYS, shared: false, mode: 'normal' };
   const opt = (list, cur) => list.map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
   openDlg(id ? 'Editar tarefa' : 'Nova tarefa',
     field('Tarefa', `<input type="text" name="title" value="${esc(t.title)}" required>`) + emojiField(t.emoji) +
+    field('Observação (opcional)', `<input type="text" name="note" value="${esc(t.note)}" placeholder="Ex.: passos, quantidade, horário de saída">`) +
     field('Pontos', `<input type="number" name="points" min="0" max="1000" value="${t.points}" required>`) +
     field('Tipo', `<select name="category">${opt(Object.entries(CATS), t.category)}</select>`) +
+    field('Horário (opcional — define o período sozinho)', `<input type="time" name="time" value="${esc(t.time)}">`) +
     field('Período', `<select name="period">${opt(PERIODS, t.period)}</select>`) +
     `<div class="field"><span>Quem faz</span><div class="opts">${S.members.map(m => `<label>
       <input type="checkbox" name="members" value="${m.id}" ${t.memberIds.includes(m.id) ? 'checked' : ''}>${esc(m.emoji)} ${esc(m.name)}</label>`).join('')}</div></div>` +
+    `<div class="field"><div class="opts"><label><input type="checkbox" name="shared" ${t.shared ? 'checked' : ''}>
+      🤝 Basta um fazer (ganha quem fizer primeiro)</label></div></div>` +
     `<div class="field"><span>Dias</span><div class="opts">${DAYS.map((d, i) => `<label>
-      <input type="checkbox" name="days" value="${i}" ${t.days.includes(i) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>`,
+      <input type="checkbox" name="days" value="${i}" ${t.days.includes(i) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>` +
+    field('Modo sobrevivência', `<select name="mode">${opt(MODES, t.mode)}</select>`),
     fd => {
+      const time = fd.get('time') || '';
       const data = {
-        title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '⭐', points: Math.max(0, parseInt(fd.get('points'), 10) || 0),
-        category: fd.get('category'), period: fd.get('period'),
-        memberIds: fd.getAll('members'), days: fd.getAll('days').map(Number),
+        title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '⭐', note: fd.get('note').trim(),
+        points: Math.max(0, parseInt(fd.get('points'), 10) || 0), category: fd.get('category'),
+        time, period: time ? periodOf(time) : fd.get('period'),
+        memberIds: fd.getAll('members'), shared: fd.has('shared'), days: fd.getAll('days').map(Number), mode: fd.get('mode'),
       };
       if (!data.memberIds.length) { toast('Escolha pelo menos uma pessoa'); return false; }
       if (!data.days.length) { toast('Escolha pelo menos um dia'); return false; }
+      if (data.memberIds.length < 2) data.shared = false;
       if (id) Object.assign(t, data); else S.tasks.push({ id: uid(), ...data });
     });
 }
@@ -468,7 +644,7 @@ function bonus() {
   openDlg('Dar ou tirar pontos',
     field('Pessoa', `<select name="member">${S.members.map(m => `<option value="${m.id}">${esc(m.emoji)} ${esc(m.name)}</option>`).join('')}</select>`) +
     field('Pontos (use negativo para tirar)', `<input type="number" name="points" value="10" required>`) +
-    field('Motivo', `<input type="text" name="label" placeholder="Ex.: Ajudou o irmão" required>`),
+    field('Motivo', `<input type="text" name="label" placeholder="Ex.: Ajudou a irmã" required>`),
     fd => {
       const points = parseInt(fd.get('points'), 10) || 0;
       if (!points) { toast('Informe os pontos'); return false; }
@@ -477,22 +653,40 @@ function bonus() {
 }
 
 // ---------- Ações ----------
-function toggle(taskId, memberId) {
-  const t = S.tasks.find(x => x.id === taskId), m = member(memberId);
-  if (!t || !m) return;
-  const day = dayKey(), k = taskId + '|' + memberId;
+function toggle(taskId, mid) {
+  const t = S.tasks.find(x => x.id === taskId);
+  if (!t) return;
+  const day = dayKey();
   const today = S.completions[day] || (S.completions[day] = {});
+  const k = keyOf(t, mid);
   if (today[k]) {
-    if (!confirm(`Desmarcar "${t.title}" de ${m.name}?`)) return;
+    const by = member(t.shared ? today[k] : mid);
+    if (!confirm(`Desmarcar "${t.title}"${by ? ` de ${by.name}` : ''}?`)) return;
     delete today[k];
-    const i = S.log.findLastIndex(l => l.type === 'task' && l.taskId === taskId && l.memberId === memberId && l.day === day);
+    const i = S.log.findLastIndex(l => l.type === 'task' && l.taskId === taskId && l.day === day && (t.shared || l.memberId === mid));
     if (i >= 0) S.log.splice(i, 1);
+    save();
+    render();
+  } else if (t.shared && !mid) {
+    // Tarefa compartilhada: pergunta quem fez.
+    const opts = t.memberIds.map(member).filter(Boolean);
+    if (opts.length === 1) return complete(t, opts[0].id);
+    openDlg(`${esc(t.emoji)} Quem fez?`, `<div class="who-pick">${opts.map(m =>
+      `<button type="button" style="--c:${esc(m.color)}" data-action="did-it" data-task="${t.id}" data-member="${m.id}"><span>${esc(m.emoji)}</span>${esc(m.name)}</button>`).join('')}</div>`);
   } else {
-    today[k] = Date.now();
-    S.log.push({ t: Date.now(), day, taskId, memberId, type: 'task', label: t.title, points: t.points });
-    const left = S.tasks.filter(x => x.memberIds.includes(memberId) && x.days.includes(new Date().getDay()) && !isDone(x.id, memberId)).length;
-    celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo de hoje!`);
+    complete(t, mid);
   }
+}
+
+function complete(t, mid) {
+  const m = member(mid);
+  if (!m) return;
+  const day = dayKey();
+  const today = S.completions[day] || (S.completions[day] = {});
+  today[keyOf(t, mid)] = t.shared ? mid : Date.now();
+  S.log.push({ t: Date.now(), day, taskId: t.id, memberId: mid, type: 'task', label: t.title, points: t.points });
+  const left = t.shared ? 1 : ownTasks(mid).filter(x => !isDone(x, mid)).length;
+  celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo de hoje!`);
   save();
   render();
 }
@@ -513,7 +707,7 @@ $('#importFile').addEventListener('change', async e => {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.members) || !Array.isArray(data.tasks)) throw new Error();
     if (!confirm('Substituir todos os dados atuais por este backup?')) return;
-    S = { ...defaults(), ...data };
+    S = normalize(data);
     save();
     render();
     toast('Backup restaurado ✅');
@@ -535,7 +729,14 @@ const actions = {
   'tab': el => { tab = el.dataset.tab; if (tab !== 'config') unlocked = false; render(); scrollTo(0, 0); },
   'cat': el => { catFilter = el.dataset.v; render(); },
   'who': el => { memberFilter = el.dataset.v; render(); },
+  'survival': () => {
+    const day = dayKey();
+    if (S.survival[day]) delete S.survival[day]; else S.survival[day] = true;
+    save();
+    render();
+  },
   'toggle': el => toggle(el.dataset.task, el.dataset.member),
+  'did-it': el => { dlg.close(); complete(S.tasks.find(t => t.id === el.dataset.task), el.dataset.member); },
   'redeem': el => redeem(el.dataset.id),
   'unlock': () => openDlg('🔒 Área dos pais', pinField(), fd => {
     if (fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
@@ -552,6 +753,10 @@ const actions = {
   'reset-points': () => {
     if (!confirm('Zerar os pontos e o histórico de todo mundo? Isso não pode ser desfeito.')) return;
     S.log = []; S.completions = {}; save(); render();
+  },
+  'reset-all': () => {
+    if (!confirm('Apagar tudo (pessoas, tarefas, prêmios e pontos) e voltar à rotina original?')) return;
+    S = defaults(); unlocked = false; tab = 'hoje'; save(); render();
   },
   'change-pin': () => openDlg('Trocar PIN', field('Novo PIN (4 a 8 números)', `<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" required>`),
     fd => { S.pin = fd.get('pin'); toast('PIN alterado ✅'); }),
