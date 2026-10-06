@@ -32,6 +32,7 @@ const UI = {
   link: '<path d="M10 14a4 4 0 006 0l3-3a4 4 0 00-6-6l-1 1M14 10a4 4 0 00-6 0l-3 3a4 4 0 006 6l1-1"/>',
   coracao: '<path d="M12 20s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.5-7 10-7 10z"/>',
   lixeira: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+  relogio: '<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/>',
   cadeado: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 018 0v3"/>',
   voltar: '<path d="M15 5l-7 7 7 7"/>',
   avancar: '<path d="M9 5l7 7-7 7"/>',
@@ -73,9 +74,9 @@ const monthOf = k => k.slice(0, 7);
 // config: pessoas, tarefas, prêmios e PIN · days: o que foi feito e as notas de cada dia
 // agenda: compromissos e lembretes · ledger: prêmios trocados e pontos extras · archive: pontos de dias antigos
 let S = { config: null, days: {}, agenda: {}, ledger: {}, archive: { points: {}, through: '' },
-  priorities: {}, recipes: {}, menus: {}, shopping: {}, templates: {} };
+  priorities: {}, recipes: {}, menus: {}, shopping: {}, templates: {}, recados: {} };
 // Coleções simples (um documento por item), guardadas do mesmo jeito.
-const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates'];
+const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates', 'recados'];
 let mode = 'loading', db = null, loaded = false;
 
 function loadLocal() {
@@ -149,6 +150,7 @@ function maintenance() {
     old.forEach(k => { delete S.days[k]; put('days/' + k, null, true); });
   }
   Object.values(S.agenda).filter(a => a.date < addDays(today(), -180)).forEach(a => { delete S.agenda[a.id]; put('agenda/' + a.id, null, true); });
+  Object.values(S.recados).filter(r => r.t < Date.now() - 30 * 864e5).forEach(r => { delete S.recados[r.id]; put('recados/' + r.id, null, true); });
   Object.values(S.priorities).filter(p => p.done && p.doneOn < addDays(today(), -30)).forEach(p => { delete S.priorities[p.id]; put('priorities/' + p.id, null, true); });
   for (const col of ['menus', 'shopping']) Object.keys(S[col]).filter(w => w < addDays(today(), -120)).forEach(w => { delete S[col][w]; put(col + '/' + w, null, true); });
   if (mode === 'local') saveLocal();
@@ -209,12 +211,21 @@ function nextDue(t) {
   return k;
 }
 const doneOnDay = (t, k) => Object.keys(S.days[k]?.done || {}).some(key => key === t.id || key.startsWith(t.id + '|'));
+// Atrasada: se tem dia de cômodo, volta no próximo dia daquele cômodo (não acumula tudo no "hoje");
+// sem dia fixo, aparece hoje até ser feita.
+function showDate(t) {
+  const due = nextDue(t), t0 = today();
+  if (due >= t0) return due;
+  if (t.weekday === '' || t.weekday == null || t.date) return t0;
+  let k = t0;
+  while (parseDay(k).getDay() !== Number(t.weekday)) k = addDays(k, 1);
+  return k;
+}
 function scheduled(t, k) {
   if (!isFlexible(t)) return t.days.includes(parseDay(k).getDay());
   if (doneOnDay(t, k)) return true;
   if (t.date && t.last) return false; // tarefa única já feita
-  const due = nextDue(t);
-  return k === due || (k === today() && due < k); // atrasada continua aparecendo hoje até ser feita
+  return k < today() ? k === nextDue(t) : k === showDate(t);
 }
 function repeatLabel(t) {
   if (t.date) return `uma vez · ${shortDay(t.date)}`;
@@ -242,7 +253,7 @@ const agendaOn = k => Object.values(S.agenda).filter(a => a.date === k).sort((x,
 function doneEntries() {
   const through = S.archive.through || '';
   return Object.entries(S.days).filter(([k]) => k > through).flatMap(([k, d]) =>
-    Object.entries(d.done || {}).map(([key, v]) => ({ day: k, key, t: v.t, memberId: v.by, points: v.pts || 0, label: v.title || '', type: 'task' })));
+    Object.entries(d.done || {}).filter(([, v]) => !v.pending).map(([key, v]) => ({ day: k, key, t: v.t, memberId: v.by, points: v.pts || 0, label: v.title || '', type: 'task' })));
 }
 const ledgerEntries = () => Object.values(S.ledger).flatMap(l => l.entries || []);
 function balance(mid) {
@@ -276,10 +287,11 @@ function render() {
 function taskRow(k, t, mid, big) {
   const v = !t.skip && doneOf(k, t, mid);
   const by = t.house && v ? member(v.by) : null;
-  const check = by ? avatar(by, 'mini') : `<span class="check">${v ? ui('ok') : ''}</span>`;
+  const check = by ? avatar(by, 'mini') : v?.pending ? `<span class="check wait">${ui('relogio')}</span>` : `<span class="check">${v ? ui('ok') : ''}</span>`;
   const sub = [t.note ? esc(t.note) : '', t.passed ? `repassada para ${names(t.memberIds)}` : '',
-    t.repeat === 'interval' ? repeatLabel(t) : t.date ? 'tarefa única' : ''].filter(Boolean).join(' · ');
-  return `<button class="task ${big ? 'big' : ''} ${v ? 'done' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
+    t.repeat === 'interval' ? repeatLabel(t) : t.date ? 'tarefa única' : '', t.minutes && !big ? `~${fmtMin(t.minutes)}` : '',
+    v?.pending ? 'esperando confirmação' : ''].filter(Boolean).join(' · ');
+  return `<button class="task ${big ? 'big' : ''} ${v ? 'done' : ''} ${v?.pending ? 'pending' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
     ${icon(t.icon)}
     <span class="text">
       <span class="title">${t.time && !t.house ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
@@ -324,6 +336,7 @@ function viewDayScreen() {
     <button class="btn icon-btn" data-action="day" data-n="1" aria-label="Próximo dia">${ui('avancar')}</button>
     ${isToday ? '' : '<button class="btn soft" data-action="day" data-n="0">Voltar para hoje</button>'}
     <span class="spacer"></span>
+    <button class="btn soft" data-action="timer">${ui('relogio')} Cronômetro</button>
     <button class="btn soft" data-action="new-agenda" data-day="${k}">${ui('mais')} Lembrete</button>
     <button class="btn ${editMode ? 'primary' : 'soft'}" data-action="edit-mode">${editMode ? `${ui('ok')} Concluir` : `${ui('lapis')} Editar`}</button>
   </div>`;
@@ -349,7 +362,7 @@ function viewDayScreen() {
   const houseDone = houseReal.filter(t => doneOf(k, t)).length;
   const houseCol = `<section class="col house-col">
       <header class="col-head"><span class="avatar house">${ui('casa')}</span>
-        <div><h2>Casa</h2><small>${houseDone} de ${houseReal.length} feitas</small></div>
+        <div><h2>Casa</h2><small>${houseDone} de ${houseReal.length} feitas${minutesOf(houseReal) ? ` · ~${fmtMin(minutesOf(houseReal))} no dia, faltam ~${fmtMin(minutesOf(houseReal.filter(t => !doneOf(k, t))))}` : ''}</small></div>
         <button class="btn soft small" data-action="tab" data-tab="casa">Semana</button></header>
       ${progress(houseDone, houseReal.length, 'var(--accent)')}
       ${house.length ? houseList(k, house) : '<p class="muted pad">Nada da casa neste dia.</p>'}
@@ -378,7 +391,7 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}${isToday ? prioritiesCard() : ''}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(290px, 1.35fr) repeat(${members().length}, minmax(220px, 1fr))">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(290px, 1.35fr) repeat(${members().length}, minmax(220px, 1fr))">${houseCol}${cols}</div></div>`;
 }
 
 // ---------- Casa: panorama da semana ----------
@@ -392,12 +405,14 @@ function viewHouse() {
     <button class="btn icon-btn" data-action="house-week" data-n="7" aria-label="Próxima semana">${ui('avancar')}</button>
     ${isThis ? '' : '<button class="btn soft" data-action="house-week" data-n="0">Voltar para esta semana</button>'}
     <span class="spacer"></span>
+    <button class="btn soft" data-action="timer">${ui('relogio')} Cronômetro</button>
     <button class="btn ${editMode ? 'primary' : 'soft'}" data-action="edit-mode">${editMode ? `${ui('ok')} Concluir` : `${ui('lapis')} Editar`}</button>
   </div>`;
   const chips = days.map(k => {
     const l = houseOn(k), done = l.filter(t => doneOf(k, t)).length;
     return `<button class="day-chip ${k === houseDay ? 'on' : ''} ${k === today() ? 'is-today' : ''}" data-action="house-day" data-day="${k}">
-      <b>${DAYS[parseDay(k).getDay()]}</b><small>${shortDay(k)}</small><span class="${l.length && done === l.length ? 'full' : ''}">${done}/${l.length}</span></button>`;
+      <b>${DAYS[parseDay(k).getDay()]}</b><small>${shortDay(k)}</small><span class="${l.length && done === l.length ? 'full' : ''}">${done}/${l.length}</span>
+      ${minutesOf(l) ? `<small>~${fmtMin(minutesOf(l))}</small>` : ''}</button>`;
   }).join('');
   const k = houseDay;
   const list = houseSort(houseOn(k, true));
@@ -405,10 +420,11 @@ function viewHouse() {
     const items = list.filter(t => (t.group || 'outras') === g);
     if (!items.length) return '';
     const real = items.filter(t => !t.skip), done = real.filter(t => doneOf(k, t)).length;
-    return `<section class="card group-card"><div class="section-head"><h2>${esc(groupLabel(g, k))}</h2><span class="pill">${done}/${real.length}</span></div>
+    const mins = minutesOf(real);
+    return `<section class="card group-card"><div class="section-head"><h2>${esc(groupLabel(g, k))}</h2><span class="pill">${done}/${real.length}${mins ? ` · ~${fmtMin(mins)}` : ''}</span></div>
       ${items.map(t => taskRow(k, t, '', false)).join('')}</section>`;
   }).join('');
-  return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? prioritiesCard() : ''}
+  return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? `<div class="top-cards">${healthCard()}${prioritiesCard()}</div>` : ''}
     ${k > today() && !editMode ? `<section class="hint">${ui('agenda')}<div>${esc(dayLabel(k))} ainda não chegou. Aqui você vê o que precisa ser feito. Use <b>Editar</b> para anotar, tirar ou mudar de dia.</div></section>` : ''}
     <div class="groups">${groups || '<section class="card"><p class="muted">Nada da casa neste dia.</p></section>'}</div>`;
 }
@@ -536,7 +552,7 @@ function viewRewards() {
   const list = C().rewards || [];
   if (!list.length) return viewScore() + `<div class="empty-page">${tucano('big')}<p>Nenhum prêmio cadastrado. Adicione em Ajustes.</p></div>`;
   const best = Math.max(0, ...members().map(m => balance(m.id)));
-  return viewScore() + `<h2 class="page-title">Prêmios</h2><div class="rewards">${list.map(r => `<section class="card reward">
+  return viewScore() + `<div class="section-head page-title"><h2>Prêmios</h2></div><div class="rewards">${list.map(r => `<section class="card reward">
       ${icon(r.icon, 'lg')}<div class="title">${esc(r.title)}</div><span class="pill">${star()}${r.cost}</span>
       <button class="btn primary" data-action="redeem" data-id="${r.id}" ${best < r.cost ? 'disabled' : ''}>Trocar pontos</button>
     </section>`).join('')}</div>`;
@@ -558,7 +574,7 @@ function viewConfig() {
   const sorted = [...sortTasks(filtered.filter(t => !t.house)), ...houseSort(filtered.filter(t => t.house))];
   const tasks = sorted.map(t => `<div class="row">${icon(t.icon, 'sm')}
       <div class="info"><b>${t.time ? esc(t.time) + ' · ' : ''}${esc(t.title)}</b>
-        <small>${t.house ? `Casa · ${esc(GROUPS.find(g => g[0] === (t.group || 'outras'))[1])}` : names(t.memberIds)} · ${esc(repeatLabel(t))}${isFlexible(t) && !(t.date && t.last) ? ` · próxima ${esc(shortDay(nextDue(t)))}` : ''} · ${t.points} pontos${t.alert ? ' · aparece no aviso' : ''}</small></div>
+        <small>${t.house ? `Casa · ${esc(GROUPS.find(g => g[0] === (t.group || 'outras'))[1])}` : names(t.memberIds)} · ${esc(repeatLabel(t))}${isFlexible(t) && !(t.date && t.last) ? ` · próxima ${esc(shortDay(nextDue(t)))}` : ''} · ${t.points} pontos${t.minutes ? ` · ~${fmtMin(t.minutes)}` : ''}${t.alert ? ' · aparece no aviso' : ''}</small></div>
       <div class="acts"><button class="btn soft" data-action="edit-task" data-id="${t.id}">Editar</button></div></div>`).join('');
   const rewards = (C().rewards || []).map(r => `<div class="row">${icon(r.icon, 'sm')}
       <div class="info"><b>${esc(r.title)}</b><small>${r.cost} pontos</small></div>
@@ -577,6 +593,7 @@ function viewConfig() {
   </section>
   <section class="card">
     <h2>Pontos e segurança</h2>
+    <div class="row-btns"><button class="btn soft" data-action="settings">Aprovação dos pais: ${C().approval !== false ? 'ligada' : 'desligada'}</button></div>
     <div class="row-btns"><button class="btn soft" data-action="bonus">Dar ou tirar pontos</button>
       <button class="btn soft" data-action="change-pin">Trocar PIN</button>
       <button class="btn soft" data-action="export">Baixar backup</button>
@@ -830,6 +847,169 @@ function editShop(w, fn) {
   saveItem('shopping', w);
 }
 
+// ---------- Tempo estimado ----------
+const fmtMin = m => m < 60 ? `${m} min` : `${Math.floor(m / 60)}h${m % 60 ? String(m % 60).padStart(2, '0') : ''}`;
+const minutesOf = list => list.reduce((s, t) => s + (t.skip ? 0 : t.minutes || 0), 0);
+
+// ---------- Saúde da casa ----------
+// Cada cômodo vai de verde a vermelho conforme as tarefas dele atrasam (só conta a partir do dia em que começaram a usar o app).
+const ROOMS = [['cozinha', 'Cozinha'], ['banheiros', 'Banheiros'], ['quartos', 'Quartos'], ['sala', 'Sala e plantas'], ['lavanderia', 'Roupas'],
+  ['escritorio', 'Escritório'], ['externa', 'Jardim e Keller'], ['carro', 'Carro']];
+const diffDays = (a, b) => Math.round((parseDay(b) - parseDay(a)) / 864e5);
+// Dias de atraso de uma tarefa (0 = em dia).
+function lateDays(t, k = today()) {
+  const since = C()?.since || '';
+  if (isFlexible(t)) {
+    if (t.date && t.last) return 0;
+    const due = nextDue(t);
+    return due < k && due >= since ? diffDays(due, k) : 0;
+  }
+  let d = null;
+  for (let i = 1; i <= 7 && !d; i++) { const x = addDays(k, -i); if (t.days.includes(parseDay(x).getDay())) d = x; }
+  if (!d || d < since || doneOnDay(t, d) || S.days[d]?.notes?.[t.id]?.skip) return 0;
+  return diffDays(d, k);
+}
+function roomHealth(room) {
+  const tasks = (C()?.tasks || []).filter(t => t.room === room);
+  if (!tasks.length) return null;
+  const late = tasks.map(t => ({ t, days: lateDays(t) })).filter(x => x.days > 0);
+  const score = 1 - late.reduce((s, x) => s + Math.min(1, x.days / 7), 0) / tasks.length;
+  return { score: Math.max(0, score), late };
+}
+function healthCard() {
+  const rows = ROOMS.map(([key, label]) => ({ key, label, h: roomHealth(key) })).filter(r => r.h);
+  if (!rows.length) return '';
+  return `<section class="card health"><div class="section-head"><h2>Saúde da casa</h2><small class="muted">toque num cômodo para ver o que atrasou</small></div>
+    <div class="health-grid">${rows.map(({ key, label, h }) => {
+      const cls = h.score >= .85 ? 'good' : h.score >= .6 ? 'mid' : 'bad';
+      return `<button class="room ${cls}" data-action="room" data-room="${key}"><span class="room-name">${label}</span>
+        <span class="room-bar"><span style="width:${Math.round(h.score * 100)}%"></span></span>
+        <small>${h.late.length ? `${h.late.length} atrasada${h.late.length > 1 ? 's' : ''}` : 'em dia'}</small></button>`;
+    }).join('')}</div></section>`;
+}
+function roomDialog(room) {
+  const h = roomHealth(room), label = ROOMS.find(r => r[0] === room)?.[1] || '';
+  openDlg(`${esc(label)}<small class="dlg-sub">${h.late.length ? 'O que está atrasado' : 'Tudo em dia'}</small>`,
+    h.late.length ? h.late.sort((a, b) => b.days - a.days).map(({ t, days }) => `<div class="row">${icon(t.icon, 'sm')}
+      <div class="info"><b>${esc(t.title)}</b><small>${days} dia${days > 1 ? 's' : ''} de atraso${t.minutes ? ' · ~' + fmtMin(t.minutes) : ''}</small></div>
+      <div class="acts"><button type="button" class="btn soft small" data-action="late-done" data-task="${t.id}">Feita</button></div></div>`).join('')
+      : `<div class="empty-page small">${tucano('big')}<p>Nada atrasado aqui.</p></div>`);
+}
+// Marca uma tarefa atrasada: as "a cada…" contam hoje; as de dia fixo contam no dia em que deveriam ter sido feitas.
+function lateDone(id) {
+  const t = C().tasks.find(x => x.id === id);
+  if (!t) return;
+  let k = today();
+  if (!isFlexible(t)) for (let i = 1; i <= 7; i++) { const x = addDays(k, -i); if (t.days.includes(parseDay(x).getDay())) { k = x; break; } }
+  toggle(k, id, t.house ? '' : t.memberIds[0]);
+}
+
+// ---------- Aprovação dos pais ----------
+const needsApproval = m => !!m && !m.adult && C()?.approval !== false;
+function pendingList() {
+  return Object.entries(S.days).filter(([k]) => k >= addDays(today(), -14)).flatMap(([k, d]) =>
+    Object.entries(d.done || {}).filter(([, v]) => v.pending).map(([key, v]) => ({ k, key, ...v })))
+    .sort((a, b) => a.t - b.t);
+}
+function approvalsCard() {
+  const list = pendingList();
+  if (!list.length) return '';
+  return `<section class="card approvals"><div class="section-head"><h2>${ui('relogio')} Para aprovar <span class="pill">${list.length}</span></h2>
+    <button class="btn primary small" data-action="approve-all">${ui('ok')} Aprovar todas</button></div>
+    ${list.map(p => { const m = member(p.by); const t = C().tasks.find(x => x.id === p.key.split('|')[0]);
+      return `<div class="row">${avatar(m, 'mini')}${t ? icon(t.icon, 'sm') : ''}<div class="info"><b>${esc(p.title)}</b>
+        <small>${esc(m?.name || '')} · ${esc(dayLabel(p.k))} · +${p.pts}</small></div>
+        <div class="acts"><button class="btn soft small" data-action="approve" data-day="${p.k}" data-key="${esc(p.key)}">Aprovar</button>
+        <button class="btn ghost small" data-action="reject" data-day="${p.k}" data-key="${esc(p.key)}">Não fez</button></div></div>`; }).join('')}
+  </section>`;
+}
+function setApproval(k, key, ok) {
+  const d = S.days[k];
+  if (!d?.done?.[key]) return;
+  if (ok) d.done[key] = { ...d.done[key], pending: false };
+  else delete d.done[key];
+  saveDay(k);
+}
+
+// ---------- Recados ----------
+function notesCard() {
+  const list = Object.values(S.recados).sort((a, b) => b.t - a.t).slice(0, 6);
+  return `<section class="card recados"><div class="section-head"><h2>${ui('nota')} Recados</h2>
+    <button class="btn soft small" data-action="new-recado">${ui('mais')} Recado</button></div>
+    ${list.length ? list.map(r => `<div class="recado">${avatar(member(r.by), 'mini')}<div class="info"><p>${esc(r.text)}</p>
+      <small>${esc(member(r.by)?.name || '')} · ${esc(new Date(r.t).toLocaleString('pt-BR', { weekday: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }))}</small></div>
+      <button class="btn ghost small" data-action="del-recado" data-id="${r.id}" aria-label="Apagar recado">${ui('lixeira')}</button></div>`).join('')
+    : '<p class="muted pad">Recados rápidos entre vocês. Ex.: “comprei o presente da festa”.</p>'}</section>`;
+}
+function newRecado() {
+  let last = '';
+  try { last = localStorage.getItem(KEY + '-autor') || ''; } catch (e) { /* sem armazenamento */ }
+  const authors = adults().length ? adults() : members();
+  if (!authors.some(m => m.id === last)) last = authors[0]?.id || '';
+  openDlg('Novo recado',
+    field('Recado', '<textarea id="f-recado" name="text" rows="3" required placeholder="Ex.: Amanhã o Arthur leva roupa de ginástica"></textarea>', 'f-recado') +
+    `<div class="field"><span>De</span><div class="opts">${authors.map(m => `<label><input type="radio" name="by" value="${m.id}" ${m.id === last ? 'checked' : ''} required>${avatar(m, 'mini')} ${esc(m.name)}</label>`).join('')}</div></div>`,
+    fd => {
+      const id = uid();
+      S.recados[id] = { id, text: fd.get('text').trim(), by: fd.get('by'), t: Date.now() };
+      try { localStorage.setItem(KEY + '-autor', fd.get('by')); } catch (e) { /* sem armazenamento */ }
+      saveItem('recados', id);
+    }, 'Enviar');
+}
+
+// ---------- Cronômetro de foco ----------
+let timer = null, timerTick = null, wakeLock = null;
+function timerDialog(label = '') {
+  openDlg('Cronômetro',
+    `<div class="field"><span>Quanto tempo</span><div class="opts">${[5, 10, 15, 20, 30].map(m => `<label><input type="radio" name="min" value="${m}" ${m === 15 ? 'checked' : ''}> ${m} min</label>`).join('')}</div></div>` +
+    field('Para quê (opcional)', `<input type="text" id="f-tlabel" name="label" value="${esc(label)}" placeholder="Ex.: Guardar os brinquedos antes do tucano">`, 'f-tlabel'),
+    fd => { startTimer(Number(fd.get('min')) || 15, fd.get('label').trim()); }, 'Começar');
+}
+function startTimer(min, label) {
+  timer = { total: min * 60, left: min * 60, end: Date.now() + min * 60000, paused: false, label, done: false };
+  beep(1);
+  navigator.wakeLock?.request('screen').then(l => { wakeLock = l; }).catch(() => {});
+  clearInterval(timerTick);
+  timerTick = setInterval(tickTimer, 250);
+  renderTimer();
+}
+function tickTimer() {
+  if (!timer || timer.paused || timer.done) return;
+  timer.left = Math.max(0, Math.round((timer.end - Date.now()) / 1000));
+  if (!timer.left) {
+    timer.done = true;
+    clearInterval(timerTick);
+    wakeLock?.release?.().catch(() => {}); wakeLock = null;
+    beep(3);
+    celebrate(timer.label ? `Tempo! ${timer.label}` : 'Tempo! Muito bem!', true);
+  }
+  renderTimer();
+}
+function renderTimer() {
+  const el = $('#timer');
+  if (!timer) { el.hidden = true; el.innerHTML = ''; return; }
+  const mm = String(Math.floor(timer.left / 60)).padStart(2, '0'), ss = String(timer.left % 60).padStart(2, '0');
+  el.hidden = false;
+  el.innerHTML = `${tucano()}<div class="timer-body">
+      ${timer.label ? `<small>${esc(timer.label)}</small>` : ''}
+      <b>${timer.done ? 'Acabou!' : `${mm}:${ss}`}</b>
+      <span class="timer-bar"><span style="width:${100 - Math.round(timer.left / timer.total * 100)}%"></span></span></div>
+    <div class="timer-acts">${timer.done ? '' : `<button class="btn soft small" data-action="timer-pause">${timer.paused ? 'Continuar' : 'Pausar'}</button>`}
+      <button class="btn ghost small" data-action="timer-stop">${timer.done ? 'Fechar' : 'Parar'}</button></div>`;
+}
+function beep(times) {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    for (let i = 0; i < times; i++) {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.frequency.value = 880; o.connect(g); g.connect(ctx.destination);
+      const t0 = ctx.currentTime + i * .35;
+      g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(.3, t0 + .02); g.gain.exponentialRampToValueAtTime(.0001, t0 + .25);
+      o.start(t0); o.stop(t0 + .3);
+    }
+  } catch (e) { /* sem som */ }
+}
+
 // ---------- Diálogos ----------
 const dlg = $('#dlg'), dlgForm = $('#dlgForm');
 let dlgHandler = null;
@@ -950,6 +1130,8 @@ function editTask(id, onDay) {
     `<div class="field-row">${field('Horário (opcional)', `<input type="time" id="f-time" name="time" value="${esc(t.time)}">`, 'f-time')}
       ${field('Período (sem horário)', `<select id="f-period" name="period">${opt(PERIODS, t.period)}</select>`, 'f-period')}
       ${field('Pontos', `<input type="number" id="f-points" name="points" min="0" max="1000" value="${t.points}" required>`, 'f-points')}</div>` +
+    `<div class="field-row">${field('Tempo médio (min)', `<input type="number" id="f-min" name="minutes" min="0" max="600" value="${t.minutes || ''}" placeholder="Ex.: 15">`, 'f-min')}
+      ${field('Cômodo (saúde da casa)', `<select id="f-room" name="room"><option value="">Nenhum</option>${opt(ROOMS, t.room || '')}</select>`, 'f-room')}</div>` +
     field('Observação (opcional)', `<input type="text" id="f-note" name="note" value="${esc(t.note)}" placeholder="Ex.: o que levar, quantidade">`, 'f-note') +
     `<div class="field"><div class="opts"><label><input type="checkbox" name="alert" ${t.alert ? 'checked' : ''}> Mostrar no aviso do tucano (compromisso importante)</label></div></div>`,
     fd => {
@@ -957,6 +1139,7 @@ function editTask(id, onDay) {
       const data = {
         title: fd.get('title').trim(), icon: fd.get('icon') || 'estrela', note: fd.get('note').trim(),
         points: Math.max(0, parseInt(fd.get('points'), 10) || 0), time, period: time ? periodOf(time) : fd.get('period'),
+        minutes: Math.max(0, parseInt(fd.get('minutes'), 10) || 0) || undefined, room: fd.get('room') || undefined,
         house, memberIds: house ? adults().map(m => m.id) : fd.getAll('members'), alert: fd.has('alert'),
         ...(house ? { group: fd.get('group') || 'outras' } : {}),
         days: when === 'weekly' ? fd.getAll('days').map(Number) : [],
@@ -1133,7 +1316,8 @@ function complete(k, t, mid) {
   if (!m || !t) return;
   const d = S.days[k] = S.days[k] || { date: k, done: {}, notes: {} };
   d.done ||= {};
-  d.done[keyOf(t, mid)] = { by: mid, t: k === today() ? Date.now() : parseDay(k).getTime() + 12 * 3600e3, pts: t.points, title: t.title };
+  const pending = needsApproval(m);
+  d.done[keyOf(t, mid)] = { by: mid, t: k === today() ? Date.now() : parseDay(k).getTime() + 12 * 3600e3, pts: t.points, title: t.title, ...(pending ? { pending: true } : {}) };
   saveDay(k);
   // Repetição "a cada…" e tarefa única: guarda quando foi feita (a próxima vez conta daqui).
   const base = C().tasks.find(x => x.id === t.id);
@@ -1143,7 +1327,7 @@ function complete(k, t, mid) {
     saveConfig();
   }
   const left = t.house ? 1 : ownOn(k, mid).filter(x => !doneOf(k, x, mid)).length;
-  celebrate(left ? `+${t.points} ${m.name}` : `${m.name} terminou tudo!`, !left);
+  celebrate(left ? (pending ? `${m.name}: feito! Falta a mamãe ou o papai confirmar` : `+${t.points} ${m.name}`) : `${m.name} terminou tudo!`, !left);
   render();
 }
 
@@ -1201,6 +1385,30 @@ const actions = {
   'week': el => { const n = Number(el.dataset.n); weekFrom = n ? addDays(weekFrom, n) : mondayOf(today()); render(); },
   'house-day': el => { houseDay = el.dataset.day; render(); },
   'house-week': el => { const n = Number(el.dataset.n); houseDay = n ? addDays(houseDay, n) : today(); render(); },
+  'room': el => roomDialog(el.dataset.room),
+  'late-done': el => { dlg.close(); lateDone(el.dataset.task); },
+  'approve': el => withPin(() => { setApproval(el.dataset.day, el.dataset.key, true); toast('Aprovado'); render(); }),
+  'reject': el => withPin(() => { setApproval(el.dataset.day, el.dataset.key, false); render(); }),
+  'approve-all': () => withPin(() => {
+    const list = pendingList();
+    const days = new Set(list.map(p => p.k));
+    list.forEach(p => { S.days[p.k].done[p.key] = { ...S.days[p.k].done[p.key], pending: false }; });
+    days.forEach(saveDay);
+    celebrate(`${list.length} tarefa${list.length > 1 ? 's' : ''} aprovada${list.length > 1 ? 's' : ''}!`);
+    render();
+  }),
+  'new-recado': newRecado,
+  'del-recado': el => askConfirm('Apagar este recado?', () => { delete S.recados[el.dataset.id]; saveItem('recados', el.dataset.id); render(); }, 'Apagar'),
+  'settings': () => openDlg('Aprovação dos pais',
+    `<div class="field"><div class="opts column"><label><input type="checkbox" name="approval" ${C().approval !== false ? 'checked' : ''}> Pais aprovam as tarefas das crianças antes de dar os pontos</label></div></div>`,
+    fd => { C().approval = fd.has('approval'); saveConfig(); }),
+  'timer': () => timerDialog(),
+  'timer-pause': () => {
+    if (!timer) return;
+    if (timer.paused) { timer.end = Date.now() + timer.left * 1000; timer.paused = false; } else timer.paused = true;
+    renderTimer();
+  },
+  'timer-stop': () => { timer = null; clearInterval(timerTick); wakeLock?.release?.().catch(() => {}); wakeLock = null; renderTimer(); },
   'new-priority': () => editPriority(),
   'edit-priority': el => editPriority(el.dataset.id),
   'toggle-priority': el => {

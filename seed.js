@@ -40,6 +40,7 @@ function familySeed() {
     ],
     tasks,
     focus: HOUSE_FOCUS,
+    approval: true,
     rewards: [
       { id: id(), title: 'Escolher o desenho', icon: 'tv', cost: 30 },
       { id: id(), title: 'Escolher a sobremesa', icon: 'sorvete', cost: 50 },
@@ -135,5 +136,39 @@ function houseTasks(pais, id, bruno) {
     ['Verificar banheiros rapidamente', 'banheiro'], ['Preparar lancheiras (parte seca)', 'lancheira'],
     ['Preparar mochilas e itens da escola', 'mochila'], ['Preparar mesa de estudo com lição de amanhã', 'licao']]);
   weekly('fechamento', [6], [['Separar roupas da semana (domingo: reset)', 'trocar']]);
+  // Tempo médio (min) e cômodo de cada tarefa — usados no "tempo estimado" e na "saúde da casa".
+  tasks.forEach(t => { const m = HOUSE_META[t.title]; if (m) { t.minutes = m[0]; if (m[1]) t.room = m[1]; } });
   return tasks;
 }
+
+const HOUSE_META = {
+  'Sair de casa levando os lixos': [2], 'Abrir janelas de todos os quartos': [2], 'Arrumar camas (esticar bem os lençóis)': [8],
+  'Alinhar travesseiros e borrifar home spray': [2], 'Banheiro: limpar pia, secar, escova rápida no vaso': [5], 'Cozinha: pia limpa e bancada': [5],
+  'Preparar jantar': [30],
+  'Separar roupas por volume e verificar bolsos': [10, 'lavanderia'], 'Lavar roupas': [5, 'lavanderia'], 'Transferir para secadora ou varal': [15, 'lavanderia'],
+  'Limpar filtro da secadora': [2, 'lavanderia'], 'Deixar máquina aberta e secar gaveta de sabão': [1, 'lavanderia'],
+  'Escritório: organizar mesa e guardar papéis': [15, 'escritorio'], 'Escritório: limpar superfície e verificar lixo': [5, 'escritorio'],
+  'Aplicar rotina da máquina de lavar': [15, 'lavanderia'], 'Limpar a secadora': [15, 'lavanderia'],
+  'Esvaziar e limpar bancada da cozinha': [15, 'cozinha'], 'Limpar pia profundamente e ralo': [10, 'cozinha'], 'Retirar lixo': [5, 'cozinha'],
+  'Regar plantas: grandes 500 ml, médias 250 ml, pequenas 100 ml': [10, 'sala'], 'Limpar armários externos e puxadores': [20, 'cozinha'],
+  'Limpar eletrodomésticos visíveis': [10, 'cozinha'], 'Lavar lixeira por dentro': [10, 'cozinha'], 'Limpar as grelhas da coifa': [20, 'cozinha'],
+  'Limpar a lava-louças (filtro)': [10, 'cozinha'], 'Limpar 1 gaveta ou armário interno': [15, 'cozinha'],
+  'Trocar roupa de cama das crianças': [15, 'quartos'], 'Lavar e secar roupa de cama': [10, 'quartos'], 'Trocar roupa de cama do casal': [15, 'quartos'],
+  'Aspirar cantos e base das camas': [15, 'quartos'], 'Organizar 1 parte do armário (gaveta ou prateleira)': [20, 'quartos'],
+  'Abrir janelas dos banheiros': [1, 'banheiros'], 'Aplicar produto forte no vaso': [2, 'banheiros'], 'Limpar espelho com produto específico': [5, 'banheiros'],
+  'Limpar pia: multiuso + torneira + ralo': [5, 'banheiros'], 'Limpar vaso por dentro e por fora': [8, 'banheiros'],
+  'Esfregar banheira, enxaguar e secar bordas': [15, 'banheiros'], 'Ralo: remover cabelo, água quente, produto': [5, 'banheiros'],
+  'Aspirar e passar pano com desinfetante no chão': [15, 'banheiros'], 'Alinhar toalhas, dobrar papel, home spray': [5, 'banheiros'],
+  'Lavar toalhas': [5, 'banheiros'], 'Plantas: rega leve e limpar folhas': [10, 'sala'], 'Limpar 1 armário interno ou gaveta do banheiro': [15, 'banheiros'],
+  'Tirar o pó dos móveis': [20, 'sala'], 'Organizar geladeira e limpar 1 prateleira': [15, 'cozinha'],
+  'Verificar estoque: papel, limpeza, cozinha, lancheira': [10, 'cozinha'], 'Lavar roupas da escola': [5, 'lavanderia'],
+  'Limpar os vidros da sala': [25, 'sala'], 'Aspirar rodapés e cantos': [25, 'sala'], 'Keller: organização, fora do lugar, reciclagem': [30, 'externa'],
+  'Guardar as compras ao chegar': [15, 'cozinha'], 'Lavar frutas, secar e organizar': [15, 'cozinha'],
+  'Fazer as compras': [60], 'Aspirar o carro': [15, 'carro'], 'Organizar e limpar o carro por dentro': [40, 'carro'], 'Cortar a grama': [45, 'externa'],
+  'Ligar robô aspirador em cada andar': [3], 'Cozinha: lava-louças (tirar ou colocar)': [10], 'Limpar o fogão de indução': [3],
+  'Cozinha: limpar e secar pia e bancada, verificar lixo': [5], 'Guardar brinquedos e itens fora do lugar': [10],
+  'Entrada: alinhar sapatos e pendurar casacos': [3], 'Deixar sala arrumada': [5], 'Colocar mesa do café da manhã': [5],
+  'Separar roupa das crianças para o dia seguinte': [5], 'Separar as próprias roupas para amanhã': [3], 'Verificar banheiros rapidamente': [3],
+  'Preparar lancheiras (parte seca)': [5], 'Preparar mochilas e itens da escola': [5], 'Preparar mesa de estudo com lição de amanhã': [5],
+  'Separar roupas da semana (domingo: reset)': [15],
+};

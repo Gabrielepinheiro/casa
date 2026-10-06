@@ -9,12 +9,17 @@ Quadro da família para o tablet: a rotina do Arthur e da Sophie com figuras (pa
   - Casa: tarefas que a Gabriele ou o Bruno fazem. Ao tocar, o app pergunta **quem fez**; a tarefa aparece em “Fez na casa” na coluna de quem fez e os pontos vão para essa pessoa.
   - ◀ ▶ muda o dia. **Editar** (PIN) permite, só para aquele dia: escrever uma nota, repassar para outra pessoa, marcar que não precisa ou mudar de dia.
 - **Casa** – o panorama da semana: escolha o dia e veja tudo o que precisa ser feito, com o cômodo de foco do dia (seg: roupas e escritório · ter: cozinha · qua: quartos · qui: banheiros · sex: sala e geladeira · sáb: carro e compras).
+- **Saúde da casa** – uma barra por cômodo, de verde a vermelho conforme as tarefas atrasam; tocando, aparece o que atrasou.
+- **Tempo estimado** – cada tarefa tem um tempo médio; a coluna Casa e os dias da semana mostram o total e quanto falta.
+- **Cronômetro** – 5 a 30 minutos, com o tucano e um aviso sonoro no fim.
+- **Aprovação dos pais** – tarefas das crianças ficam esperando até a Gabriele ou o Bruno aprovarem (com PIN); só aí os pontos contam.
+- **Recados** – mural rápido entre a família.
 - **Prioridades da semana** – o que acumulou (ex.: vidro da sala). Fica no topo até alguém marcar como feito.
 - **Cardápio** – jantar todo dia e almoço quando tiver; receitas com ingredientes, link e foto; cardápios prontos para reaproveitar; lista de compras que soma os ingredientes iguais.
 - **Agenda** – lembretes e compromissos (ex.: “amanhã não precisa levar lancheira”). O tucano mostra no topo o que tem hoje e amanhã.
 - **Semana** – o que foi feito em cada dia, por pessoa e na casa, mais as notas da semana.
 - **Pontos** – ranking da semana e troca de pontos por prêmios (pede o PIN).
-- **Repetição das tarefas** – toda semana em dias fixos, a cada X dias/semanas/meses (conta da última vez que foi feita) ou tarefa única. Tarefa atrasada continua aparecendo até ser feita.
+- **Repetição das tarefas** – toda semana em dias fixos, a cada X dias/semanas/meses (conta da última vez que foi feita) ou tarefa única. Tarefa atrasada volta no próximo dia do cômodo dela (ou aparece hoje, se não tiver dia fixo) até ser feita.
 - **Ajustes** (PIN, padrão **1234**) – pessoas (com foto), tarefas com figura, prêmios, pontos extras.
 
 ## Onde ficam os dados

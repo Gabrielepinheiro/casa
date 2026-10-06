@@ -165,7 +165,8 @@
   .prio.done .prio-check, .shop.done .prio-check { background: var(--ok); border-color: var(--ok); }
   .prio-text { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; border: 0; background: transparent; text-align: left; font-weight: 600; padding: 6px 0; min-height: 40px; }
   .prio.done .prio-text, .shop.done .shop-text b { color: var(--muted); text-decoration: line-through; }
-  .page-title { font-size: 1.05rem; margin: 6px 0 -4px; }
+  .page-title { margin: 6px 0 -4px; flex-wrap: wrap; }
+  .page-title h2 { font-size: 1.05rem; }
 
   /* Cardápio */
   .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr)); gap: 12px; align-items: start; }
@@ -203,6 +204,42 @@
   .shop-text small { color: var(--muted); font-size: .75rem; }
   .opts.column { flex-direction: column; align-items: stretch; }
   .field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); font: inherit; font-size: 1rem; resize: vertical; }
+
+  /* Topo do dia: aprovações, prioridades, recados */
+  .top-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 12px; align-items: start; }
+  .approvals { border-color: var(--accent); }
+  .approvals h2, .recados h2 { display: flex; align-items: center; gap: 8px; }
+  .approvals .row .acts { flex-wrap: wrap; }
+  .recado { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .recado:last-child { border: 0; }
+  .recado .info { flex: 1; min-width: 0; }
+  .recado p { margin: 0; white-space: pre-wrap; overflow-wrap: break-word; }
+  .recado small { color: var(--muted); font-size: .75rem; }
+  .task.pending { background: var(--accent-soft); border-color: transparent; }
+  .check.wait { background: var(--accent); border-color: var(--accent); color: var(--ink); }
+
+  /* Saúde da casa */
+  .health-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(150px, 100%), 1fr)); gap: 8px; }
+  .room { display: flex; flex-direction: column; gap: 6px; text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 14px; padding: 10px; }
+  .room-name { font-weight: 600; font-size: .88rem; }
+  .room-bar { height: 8px; border-radius: 9px; background: var(--line); overflow: hidden; }
+  .room-bar span { display: block; height: 100%; border-radius: 9px; }
+  .room.good .room-bar span { background: var(--ok); }
+  .room.mid .room-bar span { background: var(--accent); }
+  .room.bad .room-bar span { background: var(--danger); }
+  .room small { color: var(--muted); font-size: .72rem; }
+  .room.bad small { color: var(--danger); font-weight: 600; }
+
+  /* Cronômetro */
+  .timer { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; display: flex; align-items: center; gap: 12px;
+    background: var(--card); border: 2px solid var(--accent); border-radius: 22px; padding: 10px 14px; box-shadow: 0 8px 30px rgba(61, 66, 96, .18); max-width: calc(100vw - 32px); }
+  .timer .tucano { width: 54px; height: auto; flex: none; }
+  .timer-body { display: flex; flex-direction: column; gap: 4px; min-width: 120px; }
+  .timer-body small { color: var(--muted); font-size: .75rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .timer-body b { font-size: 2rem; font-variant-numeric: tabular-nums; line-height: 1; }
+  .timer-bar { height: 6px; border-radius: 9px; background: var(--line); overflow: hidden; }
+  .timer-bar span { display: block; height: 100%; background: var(--accent); transition: width .25s linear; }
+  .timer-acts { display: flex; flex-direction: column; gap: 4px; }
 
   /* Semana */
   .table-wrap { overflow-x: auto; }
@@ -322,6 +359,7 @@
 </header>
 <main id="app"></main>
 
+<div id="timer" class="timer" hidden></div>
 <dialog id="dlg"><form id="dlgForm" method="dialog"></form></dialog>
 <input type="file" id="importFile" accept="application/json,.json" hidden>
 
