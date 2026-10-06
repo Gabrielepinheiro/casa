@@ -302,10 +302,23 @@ function taskRow(k, t, mid, big) {
     ${editMode ? `<span class="edit-dot">${ui('lapis')}</span>` : check}
   </button>`;
 }
+function tileRow(k, t, mid) {
+  const v = !t.skip && doneOf(k, t, mid);
+  const mark = v?.pending ? `<span class="tile-mark wait">${ui('relogio')}</span>` : v ? `<span class="tile-mark">${ui('ok')}</span>` : '';
+  const extra = t.skip ? `Não precisa${t.dayNote ? ': ' + esc(t.dayNote) : ''}` : t.dayNote ? esc(t.dayNote) : t.passed ? `repassada para ${names(t.memberIds)}` : '';
+  return `<button class="tile ${v ? 'done' : ''} ${v?.pending ? 'pending' : ''} ${t.skip ? 'skipped' : ''} ${editMode ? 'editing' : ''}" data-action="task" data-day="${k}" data-task="${t.id}" data-member="${mid || ''}">
+    ${icon(t.icon)}${mark}${editMode ? `<span class="tile-mark edit">${ui('lapis')}</span>` : ''}
+    <span class="tile-title">${t.time ? `<span class="time">${esc(t.time)}</span>` : ''}${esc(t.title)}</span>
+    ${extra ? `<span class="tile-note">${extra}</span>` : ''}
+  </button>`;
+}
 function taskList(k, tasks, mid, big) {
   return PERIODS.map(([p, label]) => {
     const list = tasks.filter(t => t.period === p);
-    return list.length ? `<div class="period">${label}</div>` + list.map(t => taskRow(k, t, mid, big)).join('') : '';
+    if (!list.length) return '';
+    // Crianças: cartões com a figura grande e o nome embaixo, como na tabela de rotina.
+    return big ? `<div class="period">${label}</div><div class="tiles">${list.map(t => tileRow(k, t, mid)).join('')}</div>`
+      : `<div class="period">${label}</div>` + list.map(t => taskRow(k, t, mid, big)).join('');
   }).join('');
 }
 function houseList(k, tasks) {
@@ -391,7 +404,7 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(290px, 1.35fr) repeat(${members().length}, minmax(220px, 1fr))">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: minmax(280px, 1.3fr) ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
 }
 
 // ---------- Casa: panorama da semana ----------

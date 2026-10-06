@@ -13,20 +13,20 @@ function familySeed() {
 
   // Arthur (6) e Sophie (2)
   add({ period: 'manha', who: kids }, [
-    ['Acordar', 'acordar', 5], ['Ir ao banheiro', 'banheiro', 5], ['Lavar o rosto', 'rosto', 5], ['Escovar os dentes', 'dentes', 5],
-    ['Se trocar', 'trocar', 10], ['Pentear o cabelo', 'pentear', 5], ['Arrumar a cama', 'cama', 10],
-    ['Tomar café da manhã', 'cafe', 5], ['Levar o que usou para a pia', 'pia', 5]]);
-  add({ period: 'manha', who: kids, days: WEEK }, [['Colocar o casaco', 'casaco', 5], ['Pegar a mochila e sair', 'mochila', 5]]);
-  add({ time: '07:55', who: [a], days: [2], alert: true }, [['Escola às 08:00 em ponto', 'escola', 10, 'Atividade extra de terça · chegar 5 min antes']]);
-  add({ period: 'tarde', time: '16:00', who: kids, days: WEEK }, [['Tirar casaco e sapatos e guardar', 'sapato', 5]]);
-  add({ period: 'tarde', who: kids, days: WEEK }, [['Lavar as mãos', 'maos', 5], ['Lancheira na pia', 'lancheira', 5], ['Comer um lanche', 'lanche', 5]]);
-  add({ time: '16:30', who: [a], days: [4], alert: true }, [['Futebol', 'futebol', 10]]);
-  add({ period: 'noite', time: '17:40', who: kids }, [['Arrumar os brinquedos', 'brinquedos', 10]]);
-  add({ period: 'noite', who: kids }, [['Tomar banho', 'banho', 5], ['Colocar o pijama', 'pijama', 5]]);
-  add({ period: 'noite', who: [a], days: WEEK }, [['Lição de casa', 'licao', 15]]);
+    ['Acordar', 't_acordar', 5], ['Ir ao banheiro', 't_banheiro', 5], ['Lavar o rosto', 't_rosto', 5], ['Escovar os dentes', 't_dentes', 5],
+    ['Se trocar', 't_trocar', 10], ['Pentear o cabelo', 't_pentear', 5], ['Arrumar a cama', 't_cama', 10],
+    ['Tomar café da manhã', 't_cafe', 5], ['Levar o que usou para a pia', 't_pia', 5]]);
+  add({ period: 'manha', who: kids, days: WEEK }, [['Colocar o casaco', 't_casaco', 5], ['Pegar a mochila e sair', 't_mochila', 5]]);
+  add({ time: '07:55', who: [a], days: [2], alert: true }, [['Escola às 08:00 em ponto', 't_escola', 10, 'Atividade extra de terça · chegar 5 min antes']]);
+  add({ period: 'tarde', time: '16:00', who: kids, days: WEEK }, [['Tirar casaco e sapatos e guardar', 't_sapato', 5]]);
+  add({ period: 'tarde', who: kids, days: WEEK }, [['Lavar as mãos', 't_maos', 5], ['Lancheira na pia', 't_lancheira', 5], ['Comer um lanche', 't_lanche', 5]]);
+  add({ time: '16:30', who: [a], days: [4], alert: true }, [['Futebol', 't_futebol', 10]]);
+  add({ period: 'noite', time: '17:40', who: kids }, [['Arrumar os brinquedos', 't_brinquedos', 10]]);
+  add({ period: 'noite', who: kids }, [['Tomar banho', 't_banho', 5], ['Colocar o pijama', 't_pijama', 5]]);
+  add({ period: 'noite', who: [a], days: WEEK }, [['Lição de casa', 't_licao', 15]]);
   add({ period: 'noite', who: kids }, [
-    ['Colocar a mesa', 'mesa', 10], ['Jantar', 'jantar', 5], ['Ajudar a tirar a mesa', 'tirar_mesa', 10], ['Colocar a mesa do café', 'mesa_cafe', 5],
-    ['Fazer xixi', 'xixi', 5], ['Escovar os dentes', 'dentes', 5], ['Leitura', 'leitura', 5], ['Dormir', 'dormir', 5]]);
+    ['Colocar a mesa', 't_mesa', 10], ['Jantar', 't_jantar', 5], ['Ajudar a tirar a mesa', 't_tirar_mesa', 10], ['Colocar a mesa do café', 't_mesa_cafe', 5],
+    ['Fazer xixi', 't_xixi', 5], ['Escovar os dentes', 't_dentes', 5], ['Leitura', 't_leitura', 5], ['Dormir', 't_dormir', 5]]);
 
   tasks.push(...houseTasks(pais, id, b));
 
@@ -136,6 +136,9 @@ function houseTasks(pais, id, bruno) {
     ['Verificar banheiros rapidamente', 'banheiro'], ['Preparar lancheiras (parte seca)', 'lancheira'],
     ['Preparar mochilas e itens da escola', 'mochila'], ['Preparar mesa de estudo com lição de amanhã', 'licao']]);
   weekly('fechamento', [6], [['Separar roupas da semana (domingo: reset)', 'trocar']]);
+  // Espalha o começo: quinzenais na semana que vem, mensais daqui a duas semanas (não cai tudo na primeira semana).
+  const plus = (k, n) => { const [y, m, d] = k.split('-').map(Number); const x = new Date(y, m - 1, d + n); const z = v => String(v).padStart(2, '0'); return `${x.getFullYear()}-${z(x.getMonth() + 1)}-${z(x.getDate())}`; };
+  tasks.forEach(t => { if (t.repeat === 'interval' && !t.last) t.start = plus(t.start, t.unit === 'meses' ? 14 : t.every === 2 ? 7 : 0); });
   // Tempo médio (min) e cômodo de cada tarefa — usados no "tempo estimado" e na "saúde da casa".
   tasks.forEach(t => { const m = HOUSE_META[t.title]; if (m) { t.minutes = m[0]; if (m[1]) t.room = m[1]; } });
   return tasks;

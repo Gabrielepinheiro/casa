@@ -83,6 +83,92 @@ const ICONS = {
 };
 
 function icon(key, cls = '') {
-  const [label, body] = ICONS[key] || ICONS.estrela;
+  const [label, body, vb] = ICONS[key] || ICONS.estrela;
+  // Cenas do tucano: já vêm com fundo e cores próprias.
+  if (vb) return `<svg class="ico scene ${cls}" viewBox="${vb}" role="img" aria-label="${label}">${body}</svg>`;
   return `<svg class="ico ${cls}" viewBox="0 0 64 64" role="img" aria-label="${label}"><g fill="none" stroke="#3d4260" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">${body}</g></svg>`;
 }
+
+// Cenas do tucano fazendo cada atividade (viewBox 0 0 100 100), no estilo dos cartões de rotina infantil.
+const TC_INK = '#3d4260';
+function tc({ x = 2, y = 10, s = .8, eyes = 'open', wing = 'side', outfit = '', feet = true, body = true } = {}) {
+  const wings = {
+    side: '<path d="M20 58c-6 6-6 18 2 24 4-8 6-16 4-24z" fill="#555b7d"/>',
+    front: '<path d="M44 56c8-6 18-8 26-6-2 6-14 12-24 12z" fill="#555b7d"/>',
+    up: '<path d="M22 54c-6-10-2-24 6-30 2 8 0 20-2 30z" fill="#555b7d"/>',
+    wave: '<path d="M20 58c-6 6-6 18 2 24 4-8 6-16 4-24z" fill="#555b7d"/><path d="M50 52c6-8 12-16 20-18 0 8-8 18-16 22z" fill="#555b7d"/>',
+  };
+  const eye = eyes === 'closed' ? '<path d="M38 38q5 4 10 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>'
+    : eyes === 'happy' ? '<path d="M38 39q5-5 10 0" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>'
+    : '<circle cx="43" cy="37" r="7" fill="#7aa7e8"/><circle cx="43" cy="37" r="4.2" fill="#fff"/><circle cx="44.5" cy="37" r="2.6" fill="' + TC_INK + '"/><circle cx="45.5" cy="35.8" r="1" fill="#fff"/>';
+  const outfits = {
+    shirt: '<path d="M18 52c4-6 10-8 18-8s14 2 18 8l-2 22H20z" fill="#7aa7e8"/>',
+    jacket: '<path d="M16 54c4-8 12-10 20-10s16 2 20 10l-2 26H18z" fill="#e0692b"/><path d="M36 46v34" stroke="' + TC_INK + '" stroke-width="1.5"/><circle cx="40" cy="58" r="1.5" fill="' + TC_INK + '"/><circle cx="40" cy="68" r="1.5" fill="' + TC_INK + '"/>',
+    pajama: '<path d="M16 54c4-8 12-10 20-10s16 2 20 10l-2 30H18z" fill="#a891f0"/><circle cx="28" cy="62" r="2" fill="#fff6dc"/><circle cx="44" cy="72" r="2" fill="#fff6dc"/><circle cx="30" cy="78" r="1.6" fill="#fff6dc"/><path d="M42 58a4 4 0 104 5 3 3 0 01-4-5z" fill="#f7c948"/>',
+    backpack: '<rect x="4" y="48" width="16" height="26" rx="6" fill="#6cc7a0" stroke="' + TC_INK + '" stroke-width="1.5"/><path d="M22 50c6 4 14 6 22 6" stroke="#4fae86" stroke-width="3" fill="none"/>',
+  };
+  return `<g transform="translate(${x} ${y}) scale(${s})">
+    ${outfit === 'backpack' ? outfits.backpack : ''}
+    ${feet ? '<path d="M30 88l-3 6M36 88l0 6M44 88l3 6" stroke="#f4845f" stroke-width="3" stroke-linecap="round"/>' : ''}
+    ${body ? `<ellipse cx="36" cy="64" rx="20" ry="25" fill="${TC_INK}"/>` : ''}
+    <ellipse cx="34" cy="38" rx="17" ry="16" fill="${TC_INK}"/>
+    ${body ? '<ellipse cx="40" cy="62" rx="11" ry="16" fill="#fff6dc"/>' : ''}
+    ${outfit && outfit !== 'backpack' ? outfits[outfit] : ''}
+    ${body ? wings[wing] || '' : ''}
+    <path d="M47 30c10-7 30-6 38 6 2 3-1 6-5 5-10-2-22-2-33 3z" fill="#ffb347"/>
+    <path d="M47 44c11-4 23-4 33-3-5 6-18 9-31 7z" fill="#f4845f"/>
+    <path d="M80 33c3 2 6 4 5 7-1 2-3 2-5 1 0-3 0-5 0-8z" fill="${TC_INK}"/>
+    ${eye}
+    <ellipse cx="34" cy="46" rx="4" ry="2.4" fill="#ff8fa3" opacity=".6"/>
+  </g>`;
+}
+const tcCard = (bg, inner) => `<rect x="2" y="2" width="96" height="96" rx="20" fill="${bg}"/>${inner}`;
+const TC_S = 'stroke="' + TC_INK + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"';
+const tcToilet = (x, y) => `<g transform="translate(${x} ${y})" ${TC_S}><rect x="8" y="0" width="18" height="16" rx="2" fill="#dfe8f7"/><path d="M0 18h34c0 10-7 16-17 16S0 28 0 18z" fill="#fff"/><path d="M8 32l-2 10h22l-2-10" fill="#fff"/></g>`;
+const tcSink = (x, y) => `<g transform="translate(${x} ${y})" ${TC_S}><path d="M0 14h36v4a12 12 0 01-12 12H12A12 12 0 010 18z" fill="#fff"/><path d="M26 14V4a5 5 0 0110 0" fill="none"/><path d="M14 30v14h8V30" fill="#dfe8f7"/></g>`;
+const tcDrops = (pts) => pts.map(([x, y, r = 3]) => `<path d="M${x} ${y - r * 1.6}c-${r} ${r * 1.5}-${r} ${r * 2.2} 0 ${r * 2.6}c${r}-.4 ${r}-1.1 0-${r * 2.6}z" fill="#7cc3f0"/>`).join('');
+const tcTable = y => `<path d="M2 ${y}h96v8H2z" fill="#c99a6b"/>`;
+const SCENES = {
+  t_acordar: tcCard('#fff3c4', `<circle cx="80" cy="22" r="10" fill="#f7c948"/><path d="M80 6v-4M92 12l3-3M96 22h4M68 12l-3-3" stroke="#f7c948" stroke-width="2.5" stroke-linecap="round"/>` + tc({ wing: 'wave', eyes: 'happy' }) + `<g ${TC_S}><circle cx="82" cy="76" r="10" fill="#ef8a80"/><circle cx="82" cy="76" r="7" fill="#fff"/><path d="M82 72v4l3 2M74 66l-3-3M90 66l3-3"/></g>`),
+  t_banheiro: tcCard('#e3efff', tc({ x: 0 }) + tcToilet(60, 46)),
+  t_xixi: tcCard('#d9dcf2', `<rect x="66" y="10" width="24" height="22" rx="3" fill="#5b6aa8"/><path d="M80 14a6 6 0 105 9 5 5 0 01-5-9z" fill="#f7c948"/>` + tc({ x: 0 }) + tcToilet(60, 50)),
+  t_rosto: tcCard('#dff3ff', tc({ x: 0, eyes: 'closed', wing: 'front' }) + tcSink(58, 58) + tcDrops([[52, 24], [62, 30, 2.5], [30, 20, 2.5]])),
+  t_dentes: tcCard('#dff3ff', tc({ x: 0, wing: 'front' }) + `<path d="M54 58l20-18" stroke="#7aa7e8" stroke-width="5" stroke-linecap="round"/><rect x="70" y="30" width="12" height="8" rx="2" transform="rotate(-42 76 34)" fill="#fff" ${TC_S}/>` + `<g fill="#fff" stroke="#bfe6ff" stroke-width="1.5"><circle cx="66" cy="54" r="3.5"/><circle cx="74" cy="60" r="2.5"/><circle cx="60" cy="62" r="2"/></g><g ${TC_S}><path d="M76 70c0-5 2-7 5-7s3 2 5 2 5-2 6 2-1 9-3 12-3 5-4 3-1-5-3-5-2 5-3 5-3-7-3-12z" fill="#fff"/></g>`),
+  t_trocar: tcCard('#e9f8f1', tc({ x: 0, outfit: 'shirt', wing: 'front' }) + `<g ${TC_S}><path d="M66 48h18l-2 30h-5l-2-16-2 16h-5z" fill="#f7c948"/></g>`),
+  t_pentear: tcCard('#fdeef2', `<path d="M14 18c4-10 16-14 26-8" stroke="#f0a35e" stroke-width="3" fill="none" stroke-linecap="round"/>` + tc({ x: 4, wing: 'up' }) + `<g ${TC_S}><ellipse cx="22" cy="10" rx="9" ry="6" fill="#f0a35e"/><path d="M15 9h14M16 12h12"/><path d="M14 14L8 22" stroke-width="4" stroke="#f0a35e"/></g>`),
+  t_cama: tcCard('#efe9ff', `<g ${TC_S}><path d="M50 62h46v20H50z" fill="#a891f0"/><path d="M50 82v10M96 54v38M50 54v8"/><rect x="54" y="54" width="16" height="9" rx="4" fill="#fff"/><path d="M56 70h36M56 76h36" stroke="#fff"/></g>` + tc({ x: -4, wing: 'front' })),
+  t_cafe: tcCard('#fff3e0', tc({ x: 0, feet: false }) + tcTable(76) + `<g ${TC_S}><path d="M46 62h26c0 9-6 14-13 14s-13-5-13-14z" fill="#fff"/><path d="M50 62c2-3 18-3 20 0" fill="#f7d79a"/><path d="M66 48l-6 14" stroke-width="2.5"/><path d="M78 56h12v16a4 4 0 01-4 4h-4a4 4 0 01-4-4z" fill="#fff"/><path d="M90 60h3a3 3 0 010 7h-3"/></g>`),
+  t_pia: tcCard('#e3efff', tc({ x: 0, wing: 'front' }) + `<g ${TC_S}><ellipse cx="66" cy="52" rx="12" ry="4" fill="#fff"/><ellipse cx="66" cy="51" rx="6" ry="1.8" fill="#f7d79a"/></g>` + tcSink(62, 62)),
+  t_casaco: tcCard('#fdebe0', tc({ x: 4, outfit: 'jacket', wing: 'side' }) + `<path d="M74 30v58" stroke="#b98560" stroke-width="3"/><path d="M66 40h16" stroke="#b98560" stroke-width="3" stroke-linecap="round"/>`),
+  t_mochila: tcCard('#e9f8f1', `<g ${TC_S}><rect x="68" y="20" width="26" height="70" rx="2" fill="#c99a6b"/><circle cx="74" cy="56" r="2" fill="${TC_INK}"/></g>` + tc({ x: 4, outfit: 'backpack', wing: 'wave' })),
+  t_escola: tcCard('#fff3c4', `<g ${TC_S}><path d="M58 40l18-12 18 12" fill="#ef8a80"/><path d="M60 40h32v42H60z" fill="#f7d79a"/><path d="M71 82V68h10v14" fill="#b98560"/><path d="M64 48h8v8h-8zM80 48h8v8h-8z" fill="#bfe6ff"/><path d="M76 28V18h8v5h-8" fill="#7aa7e8"/></g>` + tc({ x: 0, outfit: 'backpack', wing: 'wave' })),
+  t_sapato: tcCard('#e3efff', tc({ x: 0, wing: 'front' }) + `<g ${TC_S}><path d="M58 74h38M58 88h38M60 74v14M94 74v14"/><path d="M62 72v-8h6l3 4c4 1 8 2 10 4z" fill="#7aa7e8"/><path d="M78 86v-8h6l3 4c4 1 7 2 8 4z" fill="#ef8a80"/><path d="M58 52v-6h5l2 3c3 1 6 2 7 3z" fill="#7aa7e8"/></g>`),
+  t_maos: tcCard('#dff3ff', tc({ x: 0, wing: 'front' }) + tcSink(56, 62) + `<g fill="#fff" stroke="#bfe6ff" stroke-width="1.5"><circle cx="64" cy="50" r="4"/><circle cx="72" cy="44" r="3"/><circle cx="58" cy="44" r="2.5"/><circle cx="76" cy="54" r="2"/></g>` + tcDrops([[86, 52, 2.5]])),
+  t_lancheira: tcCard('#efe9ff', tc({ x: 0, wing: 'front' }) + `<g ${TC_S}><rect x="56" y="48" width="30" height="20" rx="5" fill="#a891f0"/><path d="M56 56h30M65 48v-4h12v4"/></g>` + tcSink(60, 70).replace('translate(60 70)', 'translate(60 72) scale(.9)')),
+  t_lanche: tcCard('#fdeef2', tc({ x: 0, wing: 'front', eyes: 'happy' }) + `<g ${TC_S}><path d="M66 46c-4-4-14-3-14 7 0 8 6 15 10 14 2 0 4 0 6 0 4 1 10-6 10-14 0-10-10-11-12-7z" fill="#ef8a80"/><path d="M66 46c0-4 1-6 3-7"/><path d="M68 42c2-4 7-4 8-2-2 4-6 4-8 2z" fill="#6cc7a0"/></g>`),
+  t_futebol: tcCard('#e9f8f1', `<path d="M2 84h96v14H2z" fill="#9ad8a8"/>` + tc({ x: 0 }) + `<g ${TC_S}><circle cx="76" cy="76" r="12" fill="#fff"/><path d="M76 70l5 4-2 6h-6l-2-6z" fill="${TC_INK}"/></g><path d="M58 68l6 4M58 76h6" stroke="${TC_INK}" stroke-width="1.6" stroke-linecap="round"/>`),
+  t_brinquedos: tcCard('#fff3c4', tc({ x: 0, wing: 'front' }) + `<g ${TC_S}><path d="M58 66h38v24H58z" fill="#f7c948"/><path d="M58 66h38"/><circle cx="68" cy="60" r="7" fill="#ef8a80"/><rect x="78" y="54" width="12" height="12" rx="2" fill="#6cc7a0"/><path d="M66 46l4-6 4 6z" fill="#7aa7e8"/></g>`),
+  t_banho: tcCard('#dff3ff', tc({ x: 4, y: 14, eyes: 'happy', feet: false }) + `<g ${TC_S}><path d="M2 62h96v10a18 18 0 01-18 18H20A18 18 0 012 72z" fill="#fff"/></g><g fill="#fff" stroke="#bfe6ff" stroke-width="1.5"><circle cx="22" cy="58" r="6"/><circle cx="34" cy="56" r="7"/><circle cx="52" cy="58" r="6"/><circle cx="66" cy="54" r="5"/><circle cx="80" cy="57" r="6"/><circle cx="70" cy="44" r="3"/><circle cx="78" cy="38" r="2.5"/></g>`),
+  t_pijama: tcCard('#d9dcf2', `<path d="M84 12a10 10 0 1010 14 8 8 0 01-10-14z" fill="#f7c948"/><circle cx="70" cy="20" r="1.6" fill="#fff"/><circle cx="90" cy="40" r="1.4" fill="#fff"/>` + tc({ x: 4, outfit: 'pajama', eyes: 'happy' })),
+  t_licao: tcCard('#fff3e0', tc({ x: 0, wing: 'front', feet: false }) + tcTable(76) + `<g ${TC_S}><path d="M50 68l14-6 16 6-16 6z" fill="#fff"/><path d="M64 62v12"/><path d="M80 52l8-14 3 2-8 14-4 2z" fill="#f7c948"/></g>`),
+  t_mesa: tcCard('#fff3e0', tc({ x: 0, wing: 'front', feet: false }) + tcTable(78) + `<g ${TC_S}><ellipse cx="72" cy="74" rx="14" ry="4" fill="#fff"/><path d="M54 66v10M90 66v10"/></g>`),
+  t_jantar: tcCard('#fdebe0', tc({ x: 0, eyes: 'happy', feet: false }) + tcTable(78) + `<g ${TC_S}><ellipse cx="70" cy="72" rx="18" ry="6" fill="#fff"/><path d="M58 70c4-6 20-6 24 0" fill="#f7c948"/><circle cx="66" cy="68" r="2" fill="#ef8a80"/><circle cx="74" cy="67" r="2" fill="#ef8a80"/><path d="M92 58v18"/></g>`),
+  t_tirar_mesa: tcCard('#e3efff', tc({ x: 0, wing: 'front' }) + `<g ${TC_S}><ellipse cx="68" cy="56" rx="13" ry="3.5" fill="#fff"/><ellipse cx="68" cy="51" rx="13" ry="3.5" fill="#fff"/><ellipse cx="68" cy="46" rx="13" ry="3.5" fill="#fff"/></g><path d="M84 72h10M88 66l6 6-6 6" stroke="${TC_INK}" stroke-width="2" fill="none" stroke-linecap="round"/>`),
+  t_mesa_cafe: tcCard('#fff3c4', tc({ x: 0, wing: 'front', feet: false }) + tcTable(78) + `<g ${TC_S}><path d="M58 62h14v10a5 5 0 01-5 5h-4a5 5 0 01-5-5z" fill="#ef8a80"/><path d="M72 66h3a3 3 0 010 6h-3"/><path d="M80 76c0-6 3-9 7-9s7 3 7 9z" fill="#f7d79a"/></g>`),
+  t_leitura: tcCard('#efe9ff', tc({ x: 0, wing: 'front', feet: true }) + `<g ${TC_S}><path d="M50 64c6-4 13-4 18 0v18c-5-4-12-4-18 0z" fill="#fff"/><path d="M86 64c-6-4-13-4-18 0v18c5-4 12-4 18 0z" fill="#bfe6ff"/></g>`),
+  t_dormir: tcCard('#d9dcf2', `<path d="M80 12h8l-8 8h8M90 26h6l-6 6h6" fill="none" stroke="${TC_INK}" stroke-width="2" stroke-linecap="round"/>` + `<g ${TC_S}><path d="M4 74h92v14H4z" fill="#b98560"/><path d="M4 50v40M96 66v24"/><rect x="6" y="50" width="30" height="16" rx="7" fill="#fff"/></g>` + tc({ x: -2, y: 24, s: .72, eyes: 'closed', body: false, feet: false }) + `<g ${TC_S}><path d="M30 64h66v14H30z" fill="#a891f0"/><path d="M36 70h56" stroke="#fff"/></g>`),
+};
+
+// Cenas do tucano entram na lista de figuras (aparecem primeiro na escolha de figura).
+const SCENE_LABELS = { t_acordar: 'Acordar', t_banheiro: 'Ir ao banheiro', t_xixi: 'Xixi antes de dormir', t_rosto: 'Lavar o rosto', t_dentes: 'Escovar os dentes',
+  t_trocar: 'Se trocar', t_pentear: 'Pentear o cabelo', t_cama: 'Arrumar a cama', t_cafe: 'Café da manhã', t_pia: 'Levar para a pia', t_casaco: 'Casaco',
+  t_mochila: 'Mochila e sair', t_escola: 'Escola', t_sapato: 'Sapatos no lugar', t_maos: 'Lavar as mãos', t_lancheira: 'Lancheira na pia', t_lanche: 'Lanche',
+  t_futebol: 'Futebol', t_brinquedos: 'Guardar os brinquedos', t_banho: 'Banho', t_pijama: 'Pijama', t_licao: 'Lição de casa', t_mesa: 'Colocar a mesa',
+  t_jantar: 'Jantar', t_tirar_mesa: 'Tirar a mesa', t_mesa_cafe: 'Mesa do café', t_leitura: 'Leitura', t_dormir: 'Dormir' };
+{
+  const drawn = { ...ICONS };
+  Object.keys(ICONS).forEach(k => delete ICONS[k]);
+  Object.entries(SCENES).forEach(([k, body]) => { ICONS[k] = [SCENE_LABELS[k] || k, body, '0 0 100 100']; });
+  Object.assign(ICONS, drawn);
+}
+
