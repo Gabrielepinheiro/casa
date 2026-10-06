@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6c5ce7">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Casa">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Tarefas da Casa</title>
+<style>
+  :root {
+    --bg: #f4f2ff; --card: #fff; --ink: #2d3436; --muted: #7b8794;
+    --primary: #6c5ce7; --primary-soft: #ece9ff; --ok: #00b894; --ok-soft: #e3fbf3;
+    --line: #e4e1f3; --danger: #d63031;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); font-size: 17px;
+    -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  input, select, textarea { user-select: text; -webkit-user-select: text; font: inherit; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+
+  header.top {
+    position: sticky; top: 0; z-index: 5; background: var(--primary); color: #fff;
+    padding: calc(10px + env(safe-area-inset-top)) 16px 10px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  header.top h1 { font-size: 1.25rem; margin: 0; }
+  header.top .date { opacity: .85; font-size: .95rem; }
+  nav.tabs { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; }
+  nav.tabs button {
+    border: 0; background: rgba(255,255,255,.15); color: #fff; padding: 10px 16px;
+    border-radius: 999px; font-weight: 600; min-height: 44px;
+  }
+  nav.tabs button.on { background: #fff; color: var(--primary); }
+
+  main { padding: 16px; max-width: 1400px; margin: 0 auto; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .chip {
+    border: 2px solid var(--line); background: #fff; border-radius: 999px;
+    padding: 8px 16px; font-weight: 600; min-height: 44px;
+  }
+  .chip.on { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border-radius: 20px; padding: 16px; box-shadow: 0 2px 10px rgba(80,60,180,.06); }
+  .member { border-top: 8px solid var(--c); }
+  .member-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .avatar {
+    width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center;
+    font-size: 1.8rem; background: color-mix(in srgb, var(--c) 25%, white); flex: none;
+  }
+  .member-head h2 { margin: 0; font-size: 1.3rem; }
+  .member-head .sub { color: var(--muted); font-size: .9rem; }
+  .balance { margin-left: auto; text-align: right; font-weight: 800; font-size: 1.3rem; color: var(--primary); white-space: nowrap; }
+  .balance small { display: block; font-weight: 600; font-size: .75rem; color: var(--muted); }
+  .progress { height: 10px; background: var(--line); border-radius: 99px; overflow: hidden; margin-bottom: 12px; }
+  .progress > div { height: 100%; background: var(--c); transition: width .4s; }
+  .period { font-size: .85rem; font-weight: 700; color: var(--muted); margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .04em; }
+  .task {
+    display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; margin-bottom: 8px;
+    border-radius: 14px; border: 2px solid var(--line); background: #fff; text-align: left; min-height: 58px;
+    transition: transform .1s, background .2s;
+  }
+  .task:active { transform: scale(.98); }
+  .task .emo { font-size: 1.6rem; }
+  .task .title { font-size: 1.08rem; font-weight: 600; }
+  .task .tag { font-size: .72rem; color: var(--muted); display: block; font-weight: 500; }
+  .task .pts { margin-left: auto; font-weight: 800; color: var(--primary); white-space: nowrap; }
+  .check {
+    width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--line);
+    display: grid; place-items: center; flex: none; font-weight: 900; color: #fff;
+  }
+  .task.done { background: var(--ok-soft); border-color: var(--ok); }
+  .task.done .title { text-decoration: line-through; opacity: .6; }
+  .task.done .check { background: var(--ok); border-color: var(--ok); }
+  .alldone { text-align: center; padding: 10px; font-weight: 700; color: var(--ok); }
+  .empty { color: var(--muted); text-align: center; padding: 24px 8px; }
+
+  .rank { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--line); }
+  .rank:last-child { border: 0; }
+  .rank .pos { font-size: 1.8rem; width: 44px; text-align: center; }
+  .rank .name { font-weight: 700; font-size: 1.15rem; }
+  .rank .big { margin-left: auto; text-align: right; font-weight: 800; font-size: 1.4rem; color: var(--primary); }
+  .rank .big small { display: block; font-size: .75rem; color: var(--muted); font-weight: 600; }
+  .log { list-style: none; padding: 0; margin: 0; }
+  .log li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .95rem; }
+  .log li .p { margin-left: auto; font-weight: 700; }
+  .log li .p.neg { color: var(--danger); }
+  .log li .p.pos { color: var(--ok); }
+  .log li time { color: var(--muted); font-size: .85rem; min-width: 92px; }
+
+  .reward { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+  .reward .emo { font-size: 3rem; }
+  .reward .title { font-weight: 700; font-size: 1.15rem; }
+  .reward .cost { color: var(--primary); font-weight: 800; }
+
+  .btn {
+    border: 0; border-radius: 12px; padding: 10px 18px; font-weight: 700; min-height: 44px;
+    background: var(--primary-soft); color: var(--primary);
+  }
+  .btn.primary { background: var(--primary); color: #fff; }
+  .btn.ghost { background: transparent; color: var(--muted); }
+  .btn.danger { background: #ffe5e5; color: var(--danger); }
+  .btn.big { font-size: 1.1rem; padding: 14px 26px; }
+  .btn:disabled { opacity: .4; }
+  .center { text-align: center; padding: 40px 16px; }
+
+  h3.section { display: flex; align-items: center; gap: 10px; margin: 28px 0 10px; }
+  h3.section .btn { margin-left: auto; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .row:last-child { border: 0; }
+  .row .emo { font-size: 1.5rem; width: 36px; text-align: center; }
+  .row .info { flex: 1; min-width: 0; }
+  .row .info small { color: var(--muted); display: block; }
+  .row .acts { display: flex; gap: 6px; }
+
+  dialog { border: 0; border-radius: 20px; padding: 0; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 32px); }
+  dialog::backdrop { background: rgba(30,20,70,.45); }
+  dialog form { padding: 20px; }
+  dialog h2 { margin: 0 0 14px; }
+  .field { margin-bottom: 14px; }
+  .field > span { display: block; font-weight: 700; font-size: .9rem; margin-bottom: 6px; }
+  .field input[type=text], .field input[type=number], .field input[type=password], .field select {
+    width: 100%; padding: 12px; border: 2px solid var(--line); border-radius: 12px; background: #fff; font-size: 1.05rem;
+  }
+  .field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
+  .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+  .opts label { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 999px; }
+  .opts label:has(input:checked) { border-color: var(--primary); background: var(--primary-soft); }
+  .opts input { accent-color: var(--primary); }
+  .swatch { width: 36px; height: 36px; border-radius: 50%; padding: 0 !important; justify-content: center; }
+  .swatch input { opacity: 0; position: absolute; }
+  .swatch:has(input:checked) { outline: 3px solid var(--ink); outline-offset: 2px; }
+  .emoji-picks { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+  .emoji-picks button { border: 0; background: var(--bg); border-radius: 8px; font-size: 1.3rem; width: 40px; height: 40px; }
+  .dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%);
+    background: var(--ink); color: #fff; padding: 14px 22px; border-radius: 999px; font-weight: 700;
+    font-size: 1.1rem; z-index: 50; animation: pop .25s ease-out;
+  }
+  @keyframes pop { from { transform: translate(-50%, 20px); opacity: 0; } }
+  .burst { position: fixed; pointer-events: none; font-size: 2rem; z-index: 40; animation: fly 1s ease-out forwards; }
+  @keyframes fly { to { transform: translate(var(--dx), var(--dy)) rotate(var(--r)); opacity: 0; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>🏡 Tarefas da Casa</h1>
+    <div class="date" id="date"></div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+<main id="app"></main>
+
+<dialog id="dlg"><form id="dlgForm" method="dialog"></form></dialog>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script>
+const KEY = 'casa-tarefas-v1';
+const PERIODS = [['manha', '🌅 Manhã'], ['tarde', '☀️ Tarde'], ['noite', '🌙 Noite'], ['livre', '⏰ Qualquer hora']];
+const CATS = { rotina: '🧸 Rotina', casa: '🧹 Casa' };
+const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+const COLORS = ['#ff7675', '#74b9ff', '#55efc4', '#fdcb6e', '#a29bfe', '#fd79a8', '#00cec9', '#e17055'];
+const EMOJIS = ['🪥', '🛏️', '🛁', '👕', '🎒', '📚', '🧸', '🍽️', '🧺', '🗑️', '🧹', '🪴', '🐶', '🥗', '🚿', '😴', '⭐', '🎮', '📺', '🍦', '🎁', '🏞️', '🍕', '🎬'];
+const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
+const WEEKDAYS = [1, 2, 3, 4, 5];
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = s => document.querySelector(s);
+
+function dayKey(d = new Date()) {
+  const z = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`;
+}
+function weekStart(d = new Date()) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  x.setDate(x.getDate() - (x.getDay() + 6) % 7); // semana começa na segunda
+  return x.getTime();
+}
+
+function defaults() {
+  const m = [
+    { id: uid(), name: 'Mamãe', emoji: '👩', color: COLORS[5] },
+    { id: uid(), name: 'Papai', emoji: '👨', color: COLORS[1] },
+    { id: uid(), name: 'Criança 1', emoji: '🧒', color: COLORS[3] },
+    { id: uid(), name: 'Criança 2', emoji: '👧', color: COLORS[2] },
+  ];
+  const adults = [m[0].id, m[1].id], kids = [m[2].id, m[3].id];
+  const t = (title, emoji, points, category, period, memberIds, days = ALL_DAYS) =>
+    ({ id: uid(), title, emoji, points, category, period, memberIds, days });
+  return {
+    pin: '1234',
+    members: m,
+    tasks: [
+      t('Escovar os dentes', '🪥', 5, 'rotina', 'manha', kids),
+      t('Arrumar a cama', '🛏️', 10, 'rotina', 'manha', kids),
+      t('Arrumar a mochila', '🎒', 5, 'rotina', 'manha', kids, WEEKDAYS),
+      t('Lição de casa', '📚', 15, 'rotina', 'tarde', kids, WEEKDAYS),
+      t('Tomar banho', '🛁', 5, 'rotina', 'noite', kids),
+      t('Guardar os brinquedos', '🧸', 10, 'rotina', 'noite', kids),
+      t('Escovar os dentes', '🪥', 5, 'rotina', 'noite', kids),
+      t('Colocar a mesa', '🍽️', 10, 'casa', 'noite', kids),
+      t('Lavar a louça', '🍽️', 15, 'casa', 'noite', adults),
+      t('Tirar o lixo', '🗑️', 10, 'casa', 'livre', [m[1].id]),
+      t('Estender a roupa', '🧺', 10, 'casa', 'livre', [m[0].id]),
+      t('Regar as plantas', '🪴', 5, 'casa', 'livre', [m[2].id], [1, 4]),
+    ],
+    rewards: [
+      { id: uid(), title: '30 min extra de tela', emoji: '🎮', cost: 50 },
+      { id: uid(), title: 'Escolher o jantar', emoji: '🍕', cost: 80 },
+      { id: uid(), title: 'Sorvete', emoji: '🍦', cost: 100 },
+      { id: uid(), title: 'Noite de cinema', emoji: '🎬', cost: 150 },
+      { id: uid(), title: 'Passeio no parque', emoji: '🏞️', cost: 200 },
+    ],
+    completions: {},
+    log: [],
+  };
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* sem armazenamento: começa do zero */ }
+  return defaults();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(S)); }
+  catch (e) { toast('⚠️ Não foi possível salvar'); }
+}
+function prune() {
+  const limit = dayKey(new Date(Date.now() - 90 * 864e5));
+  for (const k of Object.keys(S.completions)) if (k < limit) delete S.completions[k];
+}
+
+let S = load();
+let tab = 'hoje', catFilter = 'todos', memberFilter = 'todos', unlocked = false, lastDay = dayKey();
+
+const member = id => S.members.find(m => m.id === id);
+const balance = id => S.log.reduce((s, l) => s + (l.memberId === id ? l.points : 0), 0);
+const weekPoints = id => {
+  const ws = weekStart();
+  return S.log.reduce((s, l) => s + (l.memberId === id && l.t >= ws && l.type !== 'reward' ? l.points : 0), 0);
+};
+const isDone = (taskId, memberId, day = dayKey()) => !!(S.completions[day] || {})[taskId + '|' + memberId];
+
+// ---------- Telas ----------
+function render() {
+  const date = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  $('#date').textContent = date[0].toUpperCase() + date.slice(1);
+  const tabs = [['hoje', '✅ Hoje'], ['placar', '🏆 Placar'], ['premios', '🎁 Prêmios'], ['config', unlocked ? '⚙️ Ajustes' : '🔒 Ajustes']];
+  $('#tabs').innerHTML = tabs.map(([k, l]) => `<button class="${tab === k ? 'on' : ''}" data-action="tab" data-tab="${k}">${l}</button>`).join('');
+  $('#app').innerHTML = { hoje: viewToday, placar: viewScore, premios: viewRewards, config: viewConfig }[tab]();
+}
+
+function viewToday() {
+  const wd = new Date().getDay();
+  const chips = [['todos', 'Tudo'], ['rotina', CATS.rotina], ['casa', CATS.casa]]
+    .map(([k, l]) => `<button class="chip ${catFilter === k ? 'on' : ''}" data-action="cat" data-v="${k}">${l}</button>`).join('');
+  const people = [`<button class="chip ${memberFilter === 'todos' ? 'on' : ''}" data-action="who" data-v="todos">👨‍👩‍👧‍👦 Todos</button>`]
+    .concat(S.members.map(m => `<button class="chip ${memberFilter === m.id ? 'on' : ''}" data-action="who" data-v="${m.id}">${esc(m.emoji)} ${esc(m.name)}</button>`)).join('');
+  const shown = S.members.filter(m => memberFilter === 'todos' || m.id === memberFilter);
+  if (!S.members.length) return `<div class="center card">Nenhuma pessoa cadastrada ainda. Vá em <b>Ajustes</b> para começar.</div>`;
+
+  const cards = shown.map(m => {
+    const tasks = S.tasks.filter(t => t.memberIds.includes(m.id) && t.days.includes(wd) && (catFilter === 'todos' || t.category === catFilter));
+    const done = tasks.filter(t => isDone(t.id, m.id)).length;
+    const pct = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    const groups = PERIODS.map(([p, label]) => {
+      const list = tasks.filter(t => t.period === p);
+      if (!list.length) return '';
+      return `<div class="period">${label}</div>` + list.map(t => {
+        const ok = isDone(t.id, m.id);
+        return `<button class="task ${ok ? 'done' : ''}" data-action="toggle" data-task="${t.id}" data-member="${m.id}">
+          <span class="check">${ok ? '✓' : ''}</span>
+          <span class="emo">${esc(t.emoji)}</span>
+          <span><span class="title">${esc(t.title)}</span>${catFilter === 'todos' ? `<span class="tag">${CATS[t.category]}</span>` : ''}</span>
+          <span class="pts">+${t.points} ⭐</span>
+        </button>`;
+      }).join('');
+    }).join('');
+    return `<section class="card member" style="--c:${esc(m.color)}">
+      <div class="member-head">
+        <div class="avatar">${esc(m.emoji)}</div>
+        <div><h2>${esc(m.name)}</h2><div class="sub">${done} de ${tasks.length} feitas hoje</div></div>
+        <div class="balance">${balance(m.id)} ⭐<small>pontos</small></div>
+      </div>
+      <div class="progress"><div style="width:${pct}%"></div></div>
+      ${tasks.length ? groups : '<div class="empty">Nada para hoje 😎</div>'}
+      ${tasks.length && done === tasks.length ? '<div class="alldone">🎉 Tudo feito! Parabéns!</div>' : ''}
+    </section>`;
+  }).join('');
+  return `<div class="bar">${chips}</div><div class="bar">${people}</div><div class="grid">${cards}</div>`;
+}
+
+function viewScore() {
+  const medals = ['🥇', '🥈', '🥉'];
+  const ranked = S.members.map(m => ({ m, w: weekPoints(m.id), b: balance(m.id) })).sort((a, b) => b.w - a.w);
+  const rows = ranked.map((r, i) => `<div class="rank">
+      <div class="pos">${medals[i] || i + 1}</div>
+      <div class="avatar" style="--c:${esc(r.m.color)}">${esc(r.m.emoji)}</div>
+      <div class="name">${esc(r.m.name)}</div>
+      <div class="big">${r.w} ⭐<small>nesta semana · saldo ${r.b}</small></div>
+    </div>`).join('');
+  const recent = S.log.slice(-25).reverse().map(l => {
+    const m = member(l.memberId);
+    const when = new Date(l.t).toLocaleString('pt-BR', { weekday: 'short', hour: '2-digit', minute: '2-digit' });
+    return `<li><time>${when}</time><span>${m ? esc(m.emoji) + ' ' + esc(m.name) : '—'}: ${esc(l.label)}</span>
+      <span class="p ${l.points < 0 ? 'neg' : 'pos'}">${l.points > 0 ? '+' : ''}${l.points}</span></li>`;
+  }).join('');
+  return `<div class="grid">
+    <section class="card"><h2>🏆 Ranking da semana</h2>${rows || '<div class="empty">Sem pessoas cadastradas.</div>'}</section>
+    <section class="card"><h2>📜 Últimas atividades</h2>${recent ? `<ul class="log">${recent}</ul>` : '<div class="empty">Nenhuma atividade ainda.</div>'}</section>
+  </div>`;
+}
+
+function viewRewards() {
+  if (!S.rewards.length) return `<div class="center card">Nenhum prêmio cadastrado. Adicione em <b>Ajustes</b>.</div>`;
+  const best = Math.max(0, ...S.members.map(m => balance(m.id)));
+  return `<div class="grid">${S.rewards.map(r => `<section class="card reward">
+      <div class="emo">${esc(r.emoji)}</div>
+      <div class="title">${esc(r.title)}</div>
+      <div class="cost">${r.cost} ⭐</div>
+      <button class="btn primary" data-action="redeem" data-id="${r.id}" ${best < r.cost ? 'disabled' : ''}>Trocar pontos</button>
+    </section>`).join('')}</div>`;
+}
+
+function viewConfig() {
+  if (!unlocked) return `<div class="center card"><p style="font-size:3rem;margin:0">🔒</p><p>Área dos pais: cadastre pessoas, tarefas e prêmios.</p>
+    <button class="btn primary big" data-action="unlock">Entrar com PIN</button></div>`;
+  const people = S.members.map(m => `<div class="row"><span class="emo">${esc(m.emoji)}</span>
+      <div class="info"><b style="color:${esc(m.color)}">●</b> ${esc(m.name)}<small>${balance(m.id)} pontos</small></div>
+      <div class="acts"><button class="btn" data-action="edit-member" data-id="${m.id}">Editar</button>
+      <button class="btn danger" data-action="del-member" data-id="${m.id}">Excluir</button></div></div>`).join('');
+  const sorted = [...S.tasks].sort((a, b) => a.category.localeCompare(b.category) || PERIODS.findIndex(p => p[0] === a.period) - PERIODS.findIndex(p => p[0] === b.period));
+  const tasks = sorted.map(t => `<div class="row"><span class="emo">${esc(t.emoji)}</span>
+      <div class="info">${esc(t.title)} <b style="color:var(--primary)">+${t.points}</b>
+        <small>${CATS[t.category]} · ${PERIODS.find(p => p[0] === t.period)[1]} · ${daysLabel(t.days)} · ${t.memberIds.map(id => member(id)?.name).filter(Boolean).map(esc).join(', ')}</small></div>
+      <div class="acts"><button class="btn" data-action="edit-task" data-id="${t.id}">Editar</button>
+      <button class="btn danger" data-action="del-task" data-id="${t.id}">Excluir</button></div></div>`).join('');
+  const rewards = S.rewards.map(r => `<div class="row"><span class="emo">${esc(r.emoji)}</span>
+      <div class="info">${esc(r.title)}<small>${r.cost} pontos</small></div>
+      <div class="acts"><button class="btn" data-action="edit-reward" data-id="${r.id}">Editar</button>
+      <button class="btn danger" data-action="del-reward" data-id="${r.id}">Excluir</button></div></div>`).join('');
+  return `<section class="card">
+    <h3 class="section">👨‍👩‍👧‍👦 Pessoas <button class="btn primary" data-action="edit-member">+ Adicionar</button></h3>${people || '<div class="empty">Ninguém ainda.</div>'}
+    <h3 class="section">✅ Tarefas <button class="btn primary" data-action="edit-task">+ Adicionar</button></h3>${tasks || '<div class="empty">Nenhuma tarefa.</div>'}
+    <h3 class="section">🎁 Prêmios <button class="btn primary" data-action="edit-reward">+ Adicionar</button></h3>${rewards || '<div class="empty">Nenhum prêmio.</div>'}
+    <h3 class="section">⭐ Pontos</h3>
+    <div class="bar"><button class="btn" data-action="bonus">Dar ou tirar pontos</button>
+      <button class="btn danger" data-action="reset-points">Zerar pontos e histórico</button></div>
+    <h3 class="section">🔐 Segurança e backup</h3>
+    <div class="bar"><button class="btn" data-action="change-pin">Trocar PIN</button>
+      <button class="btn" data-action="export">Baixar backup</button>
+      <button class="btn" data-action="import">Restaurar backup</button>
+      <button class="btn ghost" data-action="lock">Sair dos ajustes</button></div>
+  </section>`;
+}
+
+function daysLabel(days) {
+  if (days.length === 7) return 'todo dia';
+  if (days.length === 5 && WEEKDAYS.every(d => days.includes(d))) return 'seg a sex';
+  return [...days].sort().map(d => DAYS[d]).join(', ');
+}
+
+// ---------- Diálogos ----------
+const dlg = $('#dlg'), dlgForm = $('#dlgForm');
+let dlgHandler = null;
+function openDlg(title, body, onOk, okLabel = 'Salvar') {
+  dlgForm.innerHTML = `<h2>${title}</h2>${body}<div class="dlg-actions">
+    <button type="button" class="btn ghost" data-action="dlg-cancel">Cancelar</button>
+    <button class="btn primary">${okLabel}</button></div>`;
+  dlgHandler = onOk;
+  dlg.showModal();
+}
+dlgForm.addEventListener('submit', e => {
+  e.preventDefault();
+  if (dlgHandler && dlgHandler(new FormData(dlgForm)) === false) return;
+  dlg.close();
+  save();
+  render();
+});
+
+const field = (label, html) => `<label class="field"><span>${label}</span>${html}</label>`;
+const emojiField = v => `<div class="field"><span>Emoji</span><input type="text" name="emoji" value="${esc(v)}" required>
+  <div class="emoji-picks">${EMOJIS.map(e => `<button type="button" data-action="pick-emoji" data-v="${e}">${e}</button>`).join('')}</div></div>`;
+const pinField = () => field('PIN dos pais', `<input type="password" name="pin" inputmode="numeric" autocomplete="off" required>`);
+
+function editMember(id) {
+  const m = member(id) || { name: '', emoji: '🙂', color: COLORS[S.members.length % COLORS.length] };
+  openDlg(id ? 'Editar pessoa' : 'Nova pessoa',
+    field('Nome', `<input type="text" name="name" value="${esc(m.name)}" required>`) + emojiField(m.emoji) +
+    `<div class="field"><span>Cor</span><div class="opts">${COLORS.map(c => `<label class="swatch" style="background:${c}">
+      <input type="radio" name="color" value="${c}" ${c === m.color ? 'checked' : ''}></label>`).join('')}</div></div>`,
+    fd => {
+      const data = { name: fd.get('name').trim(), emoji: fd.get('emoji').trim() || '🙂', color: fd.get('color') || m.color };
+      if (id) Object.assign(m, data); else S.members.push({ id: uid(), ...data });
+    });
+}
+
+function editTask(id) {
+  const t = S.tasks.find(x => x.id === id) || { title: '', emoji: '⭐', points: 10, category: 'rotina', period: 'livre', memberIds: [], days: ALL_DAYS };
+  const opt = (list, cur) => list.map(([k, l]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${l}</option>`).join('');
+  openDlg(id ? 'Editar tarefa' : 'Nova tarefa',
+    field('Tarefa', `<input type="text" name="title" value="${esc(t.title)}" required>`) + emojiField(t.emoji) +
+    field('Pontos', `<input type="number" name="points" min="0" max="1000" value="${t.points}" required>`) +
+    field('Tipo', `<select name="category">${opt(Object.entries(CATS), t.category)}</select>`) +
+    field('Período', `<select name="period">${opt(PERIODS, t.period)}</select>`) +
+    `<div class="field"><span>Quem faz</span><div class="opts">${S.members.map(m => `<label>
+      <input type="checkbox" name="members" value="${m.id}" ${t.memberIds.includes(m.id) ? 'checked' : ''}>${esc(m.emoji)} ${esc(m.name)}</label>`).join('')}</div></div>` +
+    `<div class="field"><span>Dias</span><div class="opts">${DAYS.map((d, i) => `<label>
+      <input type="checkbox" name="days" value="${i}" ${t.days.includes(i) ? 'checked' : ''}>${d}</label>`).join('')}</div></div>`,
+    fd => {
+      const data = {
+        title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '⭐', points: Math.max(0, parseInt(fd.get('points'), 10) || 0),
+        category: fd.get('category'), period: fd.get('period'),
+        memberIds: fd.getAll('members'), days: fd.getAll('days').map(Number),
+      };
+      if (!data.memberIds.length) { toast('Escolha pelo menos uma pessoa'); return false; }
+      if (!data.days.length) { toast('Escolha pelo menos um dia'); return false; }
+      if (id) Object.assign(t, data); else S.tasks.push({ id: uid(), ...data });
+    });
+}
+
+function editReward(id) {
+  const r = S.rewards.find(x => x.id === id) || { title: '', emoji: '🎁', cost: 50 };
+  openDlg(id ? 'Editar prêmio' : 'Novo prêmio',
+    field('Prêmio', `<input type="text" name="title" value="${esc(r.title)}" required>`) + emojiField(r.emoji) +
+    field('Custa quantos pontos', `<input type="number" name="cost" min="1" max="100000" value="${r.cost}" required>`),
+    fd => {
+      const data = { title: fd.get('title').trim(), emoji: fd.get('emoji').trim() || '🎁', cost: Math.max(1, parseInt(fd.get('cost'), 10) || 1) };
+      if (id) Object.assign(r, data); else S.rewards.push({ id: uid(), ...data });
+    });
+}
+
+function redeem(id) {
+  const r = S.rewards.find(x => x.id === id);
+  const who = S.members.map(m => {
+    const b = balance(m.id);
+    return `<label><input type="radio" name="member" value="${m.id}" ${b < r.cost ? 'disabled' : ''} required>${esc(m.emoji)} ${esc(m.name)} (${b} ⭐)</label>`;
+  }).join('');
+  openDlg(`${esc(r.emoji)} ${esc(r.title)} — ${r.cost} ⭐`,
+    `<div class="field"><span>Quem vai trocar?</span><div class="opts">${who}</div></div>` + (unlocked ? '' : pinField()),
+    fd => {
+      if (!unlocked && fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
+      const mid = fd.get('member');
+      if (!mid || balance(mid) < r.cost) { toast('Pontos insuficientes'); return false; }
+      S.log.push({ t: Date.now(), memberId: mid, type: 'reward', label: `Trocou: ${r.title}`, points: -r.cost });
+      celebrate(`🎁 ${member(mid).name} ganhou: ${r.title}!`);
+    }, 'Trocar');
+}
+
+function bonus() {
+  openDlg('Dar ou tirar pontos',
+    field('Pessoa', `<select name="member">${S.members.map(m => `<option value="${m.id}">${esc(m.emoji)} ${esc(m.name)}</option>`).join('')}</select>`) +
+    field('Pontos (use negativo para tirar)', `<input type="number" name="points" value="10" required>`) +
+    field('Motivo', `<input type="text" name="label" placeholder="Ex.: Ajudou o irmão" required>`),
+    fd => {
+      const points = parseInt(fd.get('points'), 10) || 0;
+      if (!points) { toast('Informe os pontos'); return false; }
+      S.log.push({ t: Date.now(), memberId: fd.get('member'), type: 'bonus', label: fd.get('label').trim(), points });
+    }, 'Confirmar');
+}
+
+// ---------- Ações ----------
+function toggle(taskId, memberId) {
+  const t = S.tasks.find(x => x.id === taskId), m = member(memberId);
+  if (!t || !m) return;
+  const day = dayKey(), k = taskId + '|' + memberId;
+  const today = S.completions[day] || (S.completions[day] = {});
+  if (today[k]) {
+    if (!confirm(`Desmarcar "${t.title}" de ${m.name}?`)) return;
+    delete today[k];
+    const i = S.log.findLastIndex(l => l.type === 'task' && l.taskId === taskId && l.memberId === memberId && l.day === day);
+    if (i >= 0) S.log.splice(i, 1);
+  } else {
+    today[k] = Date.now();
+    S.log.push({ t: Date.now(), day, taskId, memberId, type: 'task', label: t.title, points: t.points });
+    const left = S.tasks.filter(x => x.memberIds.includes(memberId) && x.days.includes(new Date().getDay()) && !isDone(x.id, memberId)).length;
+    celebrate(left ? `+${t.points} ⭐ ${m.name}!` : `🎉 ${m.name} terminou tudo de hoje!`);
+  }
+  save();
+  render();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `casa-backup-${dayKey()}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+$('#importFile').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    const data = JSON.parse(await file.text());
+    if (!Array.isArray(data.members) || !Array.isArray(data.tasks)) throw new Error();
+    if (!confirm('Substituir todos os dados atuais por este backup?')) return;
+    S = { ...defaults(), ...data };
+    save();
+    render();
+    toast('Backup restaurado ✅');
+  } catch { toast('Arquivo de backup inválido'); }
+});
+
+function remove(list, id, msg) {
+  if (!confirm(msg)) return;
+  S[list] = S[list].filter(x => x.id !== id);
+  if (list === 'members') {
+    S.tasks.forEach(t => t.memberIds = t.memberIds.filter(x => x !== id));
+    S.tasks = S.tasks.filter(t => t.memberIds.length);
+  }
+  save();
+  render();
+}
+
+const actions = {
+  'tab': el => { tab = el.dataset.tab; if (tab !== 'config') unlocked = false; render(); scrollTo(0, 0); },
+  'cat': el => { catFilter = el.dataset.v; render(); },
+  'who': el => { memberFilter = el.dataset.v; render(); },
+  'toggle': el => toggle(el.dataset.task, el.dataset.member),
+  'redeem': el => redeem(el.dataset.id),
+  'unlock': () => openDlg('🔒 Área dos pais', pinField(), fd => {
+    if (fd.get('pin') !== S.pin) { toast('PIN incorreto'); return false; }
+    unlocked = true;
+  }, 'Entrar'),
+  'lock': () => { unlocked = false; tab = 'hoje'; render(); },
+  'edit-member': el => editMember(el.dataset.id),
+  'edit-task': el => editTask(el.dataset.id),
+  'edit-reward': el => editReward(el.dataset.id),
+  'del-member': el => remove('members', el.dataset.id, `Excluir ${member(el.dataset.id).name}? As tarefas só dessa pessoa também serão excluídas.`),
+  'del-task': el => remove('tasks', el.dataset.id, 'Excluir esta tarefa?'),
+  'del-reward': el => remove('rewards', el.dataset.id, 'Excluir este prêmio?'),
+  'bonus': bonus,
+  'reset-points': () => {
+    if (!confirm('Zerar os pontos e o histórico de todo mundo? Isso não pode ser desfeito.')) return;
+    S.log = []; S.completions = {}; save(); render();
+  },
+  'change-pin': () => openDlg('Trocar PIN', field('Novo PIN (4 a 8 números)', `<input type="password" name="pin" inputmode="numeric" pattern="[0-9]{4,8}" required>`),
+    fd => { S.pin = fd.get('pin'); toast('PIN alterado ✅'); }),
+  'export': exportData,
+  'import': () => $('#importFile').click(),
+  'pick-emoji': el => { el.closest('.field').querySelector('input[name=emoji]').value = el.dataset.v; },
+  'dlg-cancel': () => dlg.close(),
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (el && actions[el.dataset.action]) actions[el.dataset.action](el);
+});
+
+// ---------- Efeitos ----------
+let toastTimer;
+function toast(msg) {
+  document.querySelector('.toast')?.remove();
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.remove(), 2200);
+}
+function celebrate(msg) {
+  toast(msg);
+  const bits = ['⭐', '🎉', '✨', '🌟', '💫'];
+  for (let i = 0; i < 14; i++) {
+    const s = document.createElement('span');
+    s.className = 'burst';
+    s.textContent = bits[i % bits.length];
+    s.style.left = innerWidth / 2 + 'px';
+    s.style.top = innerHeight * .6 + 'px';
+    s.style.setProperty('--dx', (Math.random() - .5) * 600 + 'px');
+    s.style.setProperty('--dy', -(150 + Math.random() * 350) + 'px');
+    s.style.setProperty('--r', (Math.random() - .5) * 720 + 'deg');
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1000);
+  }
+}
+
+// Vira o dia sozinho se o tablet ficar ligado.
+setInterval(() => {
+  if (dayKey() !== lastDay) { lastDay = dayKey(); prune(); save(); if (!dlg.open) render(); }
+}, 60000);
+
+prune();
+save();
+render();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>

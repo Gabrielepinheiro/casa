@@ -1,0 +1,14 @@
+{
+  "name": "Tarefas da Casa",
+  "short_name": "Casa",
+  "lang": "pt-BR",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f2ff",
+  "theme_color": "#6c5ce7",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
