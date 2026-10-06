@@ -25,11 +25,16 @@ Quadro da família para o tablet: a rotina do Arthur e da Sophie com figuras (pa
 ## Onde ficam os dados
 
 - **Aberto pelo claude.ai** (link da página): os dados ficam salvos na própria página e aparecem em todos os aparelhos. Para o Bruno editar e colocar lembretes pelo celular, compartilhe a página com ele como **Editor**.
-- **Aberto como arquivo ou site próprio** (GitHub Pages, Netlify): os dados ficam só naquele aparelho; use *Ajustes → Baixar backup*.
+- **App próprio** (pasta `app/`, SvelteKit + Supabase em Frankfurt, site no Netlify): cada um entra com e-mail e senha, a família tem um código de convite e os dados aparecem ao vivo em todos os aparelhos. Passo a passo em [`app/GUIA.md`](app/GUIA.md).
+- **Aberto como arquivo** (`index.html` direto): os dados ficam só naquele aparelho; use *Ajustes → Baixar backup*.
 
 ## Arquivos
 
-- `index.html` – página e visual
+- `index.html` – página
+- `styles.css` – visual
 - `app.js` – funcionamento
 - `icons.js` – figuras das tarefas (desenhos próprios)
 - `seed.js` – rotina inicial da família
+- `app/` – app próprio (SvelteKit): usa os mesmos arquivos acima, só troca onde os dados ficam (`app/src/lib/supabaseDb.js`) e acrescenta a tela de entrar
+- `app/supabase/schema.sql` – tabelas e regras de segurança do Supabase
+- `tools/build-artifact.py` – junta tudo num arquivo só para publicar no claude.ai

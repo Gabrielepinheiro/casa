@@ -78,6 +78,8 @@ let S = { config: null, days: {}, agenda: {}, ledger: {}, archive: { points: {},
 // Coleções simples (um documento por item), guardadas do mesmo jeito.
 const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates', 'recados'];
 let mode = 'loading', db = null, loaded = false;
+// No app próprio (SvelteKit + Supabase) a página informa a conta da família.
+const ACCOUNT = window.familyAccount || null;
 
 function loadLocal() {
   try {
@@ -641,8 +643,14 @@ function viewConfig() {
       <button class="btn soft" data-action="import">Restaurar backup</button>
       <button class="btn danger" data-action="reset-points">Zerar pontos</button>
       <button class="btn ghost" data-action="lock">${ui('cadeado')} Travar</button></div>
-    <p class="legend">${mode === 'db' ? 'Os dados ficam salvos na página e aparecem em todos os aparelhos. Para o Bruno editar pelo celular, compartilhe a página com ele como Editor. Baixe um backup de vez em quando (ex.: uma vez por mês) para ter uma cópia guardada.' : 'Os dados ficam salvos neste aparelho. Baixe um backup de vez em quando.'}</p>
-  </section>`;
+    <p class="legend">${ACCOUNT ? 'Os dados ficam salvos na conta da família e aparecem em todos os aparelhos. Baixe um backup de vez em quando (ex.: uma vez por mês) para ter uma cópia guardada.' : mode === 'db' ? 'Os dados ficam salvos na página e aparecem em todos os aparelhos. Para o Bruno editar pelo celular, compartilhe a página com ele como Editor. Baixe um backup de vez em quando (ex.: uma vez por mês) para ter uma cópia guardada.' : 'Os dados ficam salvos neste aparelho. Baixe um backup de vez em quando.'}</p>
+  </section>${ACCOUNT ? `
+  <section class="card">
+    <h2>Conta da família</h2>
+    <p class="muted">Entrou como ${esc(ACCOUNT.email || '')}.</p>
+    <div class="row-btns"><button class="btn soft" data-action="account-invite">Convidar alguém</button>
+      <button class="btn ghost" data-action="account-out">Sair da conta</button></div>
+  </section>` : ''}`;
 }
 function daysLabel(days) {
   if (days.length === 7) return 'todo dia';
@@ -1388,10 +1396,12 @@ async function exportData() {
   if (window.claude?.use) {
     // Dentro do claude.ai a página não pode baixar sozinha: o Claude pede para você confirmar o arquivo.
     const dl = await window.claude.use('downloads').catch(() => null);
-    if (!dl) return toast('Não foi possível baixar o backup aqui.');
-    try { await dl.save({ filename, data }); toast('Backup salvo'); }
-    catch (e) { if (e?.code === 'rate_limited') toast('Já tem um pedido de download aberto'); else if (e?.code !== 'declined') toast('Não foi possível baixar o backup.'); }
-    return;
+    if (dl) {
+      try { await dl.save({ filename, data }); toast('Backup salvo'); }
+      catch (e) { if (e?.code === 'rate_limited') toast('Já tem um pedido de download aberto'); else if (e?.code !== 'declined') toast('Não foi possível baixar o backup.'); }
+      return;
+    }
+    // No app próprio não existe o pedido de confirmação do Claude: baixa direto.
   }
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
@@ -1430,6 +1440,9 @@ function removeFrom(list, id, msg) {
 }
 
 const actions = {
+  'account-invite': () => openDlg('Convidar para a família', `<p>Código da família:</p><p class="join-code">${esc(ACCOUNT.code)}</p>
+    <p class="muted">A pessoa abre o app, cria a conta dela e escolhe <b>Entrar com código</b>.</p>`, null),
+  'account-out': () => askConfirm('Sair da conta neste aparelho?', () => ACCOUNT.signOut(), 'Sair'),
   'tab': el => { tab = el.dataset.tab; if (tab !== 'hoje' && tab !== 'casa') editMode = false; if (tab === 'casa') houseDay = viewDay; render(); scrollTo(0, 0); },
   'day': el => { const n = Number(el.dataset.n); viewDay = n ? addDays(viewDay, n) : today(); render(); },
   'goto-day': el => { viewDay = el.dataset.day; tab = 'hoje'; render(); scrollTo(0, 0); },
