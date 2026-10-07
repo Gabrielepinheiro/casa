@@ -386,3 +386,8 @@ dialog h2 { font-size: 1.15rem; margin-bottom: 14px; }
 .backup-card { border-color: var(--accent); background: var(--accent-soft); }
 .backup-card p { margin-bottom: 10px; }
 .toast-action { border: 0; background: var(--accent); color: var(--ink); font-weight: 700; padding: 6px 14px; border-radius: 999px; min-height: 36px; }
+.btn.win { background: var(--danger-soft); color: var(--danger); }
+.btn.win .ui { color: var(--danger); }
+.liked-row { display: flex; gap: 2px; }
+.win-note { background: var(--accent-soft); border-radius: 14px; padding: 10px 12px; margin: 10px 0; }
+.win-note .liked { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-weight: 600; font-size: .85rem; margin-bottom: 4px; }

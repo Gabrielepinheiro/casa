@@ -747,7 +747,8 @@ function viewMenuWeek() {
       <label class="switch"><input type="checkbox" data-action="toggle-lunch" data-day="${k}" ${hasLunch(w, k) ? 'checked' : ''}> Almoço</label></div>
     ${hasLunch(w, k) ? slot(k, 'almoco') : ''}${slot(k, 'jantar')}</section>`).join('');
   return `${weekNav('menu-week', w)}
-    <div class="row-btns top"><button class="btn soft" data-action="copy-last-week">Copiar a semana passada</button>
+    <div class="row-btns top"><button class="btn win" data-action="deu-certo">${ui('coracao')} Deu certo!</button>
+      <button class="btn soft" data-action="copy-last-week">Copiar a semana passada</button>
       ${Object.keys(S.templates).length ? '<button class="btn soft" data-action="use-template">Usar cardápio pronto</button>' : ''}
       <button class="btn soft" data-action="save-template">Salvar como cardápio pronto</button>
       <button class="btn primary" data-action="menu-view" data-v="compras">Lista de compras</button></div>
@@ -800,11 +801,31 @@ function useTemplate() {
 // Receitas: ingredientes um por linha ("2 tomates", "200 g de queijo", "1 xícara de arroz").
 function viewRecipes() {
   const rs = Object.values(S.recipes).sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || a.name.localeCompare(b.name));
-  return `<div class="row-btns top"><button class="btn primary" data-action="edit-recipe">${ui('mais')} Receita</button></div>
+  return `<div class="row-btns top"><button class="btn win" data-action="deu-certo">${ui('coracao')} Deu certo!</button>
+    <button class="btn primary" data-action="edit-recipe">${ui('mais')} Receita</button></div>
     ${rs.length ? `<div class="recipes">${rs.map(r => `<button class="card recipe" data-action="show-recipe" data-id="${r.id}">
       ${r.photo ? `<img src="${esc(r.photo)}" alt="">` : `<span class="ph big">${ui('cardapio')}</span>`}
-      <b>${r.fav ? ui('coracao', 'fav') : ''}${esc(r.name)}</b><small>${ingredientLines(r).length} ingredientes${r.link ? ' · tem link' : ''}</small></button>`).join('')}</div>`
-    : `<div class="empty-page">${tucano('big')}<p>Nenhuma receita ainda.</p><p class="muted">Cadastre as receitas que vocês sempre fazem, com foto e link do Instagram. Depois é só escolher no cardápio e a lista de compras sai pronta.</p></div>`}`;
+      <b>${r.fav ? ui('coracao', 'fav') : ''}${esc(r.name)}</b>${likedRow(r)}<small>${ingredientLines(r).length ? `${ingredientLines(r).length} ingredientes` : r.note ? esc(r.note.slice(0, 60)) : 'Só a foto'}${r.link ? ' · tem link' : ''}</small></button>`).join('')}</div>`
+    : `<div class="empty-page">${tucano('big')}<p>Nenhuma receita ainda.</p><p class="muted">Fez algo que as crianças amaram? Toque em <b>Deu certo!</b>, tire a foto e anote o tempero. Ou cadastre as receitas que vocês sempre fazem, com foto e link do Instagram. Depois é só escolher no cardápio e a lista de compras sai pronta.</p></div>`}`;
+}
+const likedRow = r => r.likedBy?.length ? `<span class="liked-row">${r.likedBy.map(id => member(id)).filter(Boolean).map(m => avatar(m, 'mini')).join('')}</span>` : '';
+// "Deu certo!": foto do prato, o que deu certo e quem gostou. Vira uma receita favorita, sem precisar dos ingredientes.
+function deuCerto() {
+  pendingRecipePhoto = undefined;
+  openDlg(`${ui('coracao')} Deu certo!`,
+    `<div class="field"><span>Foto do prato</span><div class="photo-row"><span class="recipe-thumb ph">${ui('foto')}</span>
+      <label class="btn soft">${ui('foto')} Tirar ou escolher foto<input type="file" id="f-rphoto" accept="image/*" hidden></label></div></div>` +
+    field('O que foi', `<input type="text" id="f-wname" name="name" required placeholder="Ex.: Frango assado da mamãe">`, 'f-wname') +
+    field('O que deu certo (opcional)', `<textarea id="f-wnote" name="note" rows="3" placeholder="Ex.: tempero de alho, páprica e limão; 40 min no forno"></textarea>`, 'f-wnote') +
+    `<div class="field"><span>Quem gostou</span>${memberChecks(members().filter(m => !m.adult).map(m => m.id))}</div>`,
+    fd => {
+      const key = uid();
+      S.recipes[key] = { id: key, name: fd.get('name').trim(), link: '', servings: '', ingredients: '', steps: '', fav: true,
+        photo: pendingRecipePhoto || '', note: fd.get('note').trim(), likedBy: fd.getAll('members'), madeOn: today() };
+      pendingRecipePhoto = undefined;
+      saveItem('recipes', key);
+      celebrate('Guardado nas receitas!');
+    }, 'Guardar');
 }
 const ingredientLines = r => (r.ingredients || '').split('\n').map(l => l.trim()).filter(Boolean);
 function showRecipe(id) {
@@ -813,8 +834,9 @@ function showRecipe(id) {
   openDlg(esc(r.name),
     `${r.photo ? `<img class="recipe-photo" src="${esc(r.photo)}" alt="">` : ''}
     ${r.link ? `<p><a class="btn soft" href="${esc(r.link)}" target="_blank" rel="noopener">${ui('link')} Abrir a receita original</a></p>` : ''}
+    ${r.note || r.likedBy?.length ? `<div class="win-note">${r.likedBy?.length ? `<p class="liked">${r.likedBy.map(id => member(id)).filter(Boolean).map(m => `${avatar(m, 'mini')} ${esc(m.name)}`).join(' ')} gostaram</p>` : ''}${r.note ? `<p class="steps">${esc(r.note)}</p>` : ''}</div>` : ''}
     ${r.servings ? `<p class="muted">Rende ${esc(r.servings)} porções</p>` : ''}
-    <h3 class="sub-title">Ingredientes</h3><ul class="ing-list">${ingredientLines(r).map(l => `<li>${esc(l)}</li>`).join('')}</ul>
+    ${ingredientLines(r).length ? `<h3 class="sub-title">Ingredientes</h3><ul class="ing-list">${ingredientLines(r).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}
     ${r.steps ? `<h3 class="sub-title">Modo de preparo</h3><p class="steps">${esc(r.steps)}</p>` : ''}`,
     null, '', `<button type="button" class="btn soft" data-action="edit-recipe" data-id="${id}">${ui('lapis')} Editar</button>`);
 }
@@ -824,17 +846,20 @@ function editRecipe(id) {
   openDlg(id ? 'Editar receita' : 'Nova receita',
     field('Nome', `<input type="text" id="f-rname" name="name" value="${esc(r.name)}" required placeholder="Ex.: Strogonoff de frango">`, 'f-rname') +
     `<div class="field"><span>Foto (opcional)</span><div class="photo-row">${r.photo ? `<img class="recipe-thumb" src="${esc(r.photo)}" alt="">` : `<span class="recipe-thumb ph">${ui('foto')}</span>`}
-      <input type="file" id="f-rphoto" accept="image/*">${r.photo ? '<label><input type="checkbox" name="nophoto"> Tirar foto</label>' : ''}</div></div>` +
+      <label class="btn soft">${ui('foto')} ${r.photo ? 'Trocar foto' : 'Tirar ou escolher foto'}<input type="file" id="f-rphoto" accept="image/*" hidden></label>${r.photo ? '<label><input type="checkbox" name="nophoto"> Tirar foto</label>' : ''}</div></div>` +
     `<div class="field-row">${field('Link (Instagram ou site)', `<input type="url" id="f-rlink" name="link" value="${esc(r.link)}" placeholder="https://www.instagram.com/…">`, 'f-rlink')}
       ${field('Porções', `<input type="text" id="f-rserv" name="servings" value="${esc(r.servings)}" placeholder="4">`, 'f-rserv')}</div>` +
     field('Ingredientes (um por linha)', `<textarea id="f-ring" name="ingredients" rows="7" placeholder="2 tomates&#10;200 g de queijo&#10;1 xícara de arroz&#10;sal a gosto">${esc(r.ingredients)}</textarea>`, 'f-ring') +
     field('Modo de preparo (opcional)', `<textarea id="f-rsteps" name="steps" rows="5">${esc(r.steps)}</textarea>`, 'f-rsteps') +
+    field('O que deu certo (opcional)', `<textarea id="f-rnote" name="note" rows="2" placeholder="Ex.: tempero de alho, páprica e limão">${esc(r.note || '')}</textarea>`, 'f-rnote') +
+    `<div class="field"><span>Quem gostou</span>${memberChecks(r.likedBy || [])}</div>` +
     `<div class="field"><div class="opts"><label><input type="checkbox" name="fav" ${r.fav ? 'checked' : ''}> Favorita (a gente sempre faz)</label></div></div>`,
     fd => {
       const key = id || uid();
       const photo = fd.has('nophoto') ? '' : pendingRecipePhoto ?? r.photo ?? '';
       S.recipes[key] = { id: key, name: fd.get('name').trim(), link: fd.get('link').trim(), servings: fd.get('servings').trim(),
-        ingredients: fd.get('ingredients').trim(), steps: fd.get('steps').trim(), fav: fd.has('fav'), photo };
+        ingredients: fd.get('ingredients').trim(), steps: fd.get('steps').trim(), fav: fd.has('fav'), photo,
+        note: fd.get('note').trim(), likedBy: fd.getAll('members'), madeOn: r.madeOn || '' };
       pendingRecipePhoto = undefined;
       saveItem('recipes', key);
       toast('Receita salva');
@@ -1531,6 +1556,7 @@ const actions = {
     askConfirm(`Apagar o cardápio “${S.templates[id]?.name}”?`, () => { delete S.templates[id]; saveItem('templates', id); render(); }, 'Apagar');
   },
   'edit-recipe': el => editRecipe(el.dataset.id),
+  'deu-certo': () => deuCerto(),
   'show-recipe': el => showRecipe(el.dataset.id),
   'del-recipe': el => askConfirm('Excluir esta receita?', () => { delete S.recipes[el.dataset.id]; saveItem('recipes', el.dataset.id); render(); }, 'Excluir'),
   'toggle-shop': el => {
