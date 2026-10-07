@@ -20,6 +20,7 @@ const tucano = (cls = '') => `<svg class="tucano ${cls}" viewBox="0 0 130 120" a
 
 // Ícones de interface (traço simples).
 const UI = {
+  alerta: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>',
   dia: '<path d="M5 12l4 4 10-10"/><rect x="3" y="3" width="18" height="18" rx="4"/>',
   semana: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
   agenda: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
@@ -77,7 +78,7 @@ let S = { config: null, days: {}, agenda: {}, ledger: {}, archive: { points: {},
   priorities: {}, recipes: {}, menus: {}, shopping: {}, templates: {}, recados: {} };
 // Coleções simples (um documento por item), guardadas do mesmo jeito.
 const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates', 'recados'];
-let mode = 'loading', db = null, loaded = false;
+let mode = 'loading', db = null, loaded = false, saveFailed = false;
 // No app próprio (SvelteKit + Supabase) a página informa a conta da família.
 const ACCOUNT = window.familyAccount || null;
 
@@ -100,8 +101,10 @@ function put(path, body, quiet = false) {
   const data = body ? clone(body) : null;
   queues[path] = (queues[path] || Promise.resolve())
     .then(() => data ? db.doc(path).set(data) : db.doc(path).delete())
+    .then(() => { if (saveFailed) { saveFailed = false; render(); } })
     .catch(e => {
       if (quiet) return;
+      if (!saveFailed) { saveFailed = true; render(); }
       toast(e?.code === 'invalid_argument' ? 'Você só tem acesso para ver. Peça para ser editor.' :
         e?.code === 'quota_exceeded' ? 'O espaço de dados acabou. Apague lembretes antigos.' : 'Não foi possível salvar. Tente de novo.');
     });
@@ -271,6 +274,25 @@ function pointsBetween(mid, from, to) {
 }
 
 // ---------- Telas ----------
+// Proteções: avisa quando o que se anota não está indo para os dados da família.
+function safetyBars() {
+  if (mode === 'local') return `<div class="safety-bar">${ui('alerta')}<div><b>Salvando só neste aparelho.</b>
+    ${window.claude?.use ? 'Este aparelho abriu o app sem ligação com os dados da família: o que você anotar agora não aparece nos outros aparelhos. Feche e abra o app de novo.' : 'O que você anotar aqui não aparece nos outros aparelhos e se perde se o navegador for limpo. Baixe um backup em Ajustes.'}</div></div>`;
+  if (saveFailed) return `<div class="safety-bar">${ui('alerta')}<div><b>A última mudança não foi salva.</b>
+    Confira a internet e faça de novo. Enquanto este aviso aparecer, anote o que for importante em outro lugar.</div></div>`;
+  return '';
+}
+function backupDue() {
+  if (!C() || mode === 'loading') return false;
+  const from = C().lastBackup || C().since || today();
+  return diffDays(from, today()) >= 30;
+}
+function backupCard() {
+  if (!backupDue()) return '';
+  return `<section class="card backup-card"><div class="section-head"><h2>${ui('alerta')} Hora do backup do mês</h2></div>
+    <p class="muted">${C().lastBackup ? `O último foi em ${esc(shortDay(C().lastBackup))}.` : 'Ainda não foi feito nenhum.'} Baixe uma cópia de tudo e guarde no iCloud, no Drive ou no seu e-mail.</p>
+    <button class="btn primary" data-action="export">Baixar backup</button></section>`;
+}
 function render() {
   $('#date').textContent = fmtDay(today());
   const tabs = [['hoje', 'Dia', 'dia'], ['casa', 'Casa', 'casa'], ['semana', 'Semana', 'semana'], ['agenda', 'Agenda', 'agenda'], ['cardapio', 'Cardápio', 'cardapio'], ['premios', 'Pontos', 'premios'], ['config', 'Ajustes', unlocked ? 'ajustes' : 'cadeado']];
@@ -283,7 +305,7 @@ function render() {
   }
   // Mantém o quadro onde estava (no tablet ou celular ele rola para o lado).
   const boardX = document.querySelector('.board-wrap')?.scrollLeft || 0;
-  $('#app').innerHTML = { hoje: viewDayScreen, casa: viewHouse, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, cardapio: viewMenu, config: viewConfig }[tab]();
+  $('#app').innerHTML = safetyBars() + { hoje: viewDayScreen, casa: viewHouse, semana: viewWeek, agenda: viewAgenda, placar: viewScore, premios: viewRewards, cardapio: viewMenu, config: viewConfig }[tab]();
   const board = document.querySelector('.board-wrap');
   if (board && boardX) board.scrollLeft = boardX;
 }
@@ -433,7 +455,7 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: ${houseOpen ? 'minmax(280px, 1.3fr)' : 'minmax(170px, .6fr)'} ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${backupCard()}${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: ${houseOpen ? 'minmax(280px, 1.3fr)' : 'minmax(170px, .6fr)'} ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
 }
 
 // ---------- Casa: panorama da semana ----------
@@ -1397,7 +1419,7 @@ async function exportData() {
     // Dentro do claude.ai a página não pode baixar sozinha: o Claude pede para você confirmar o arquivo.
     const dl = await window.claude.use('downloads').catch(() => null);
     if (dl) {
-      try { await dl.save({ filename, data }); toast('Backup salvo'); }
+      try { await dl.save({ filename, data }); backupDone(); }
       catch (e) { if (e?.code === 'rate_limited') toast('Já tem um pedido de download aberto'); else if (e?.code !== 'declined') toast('Não foi possível baixar o backup.'); }
       return;
     }
@@ -1407,7 +1429,13 @@ async function exportData() {
   a.href = URL.createObjectURL(new Blob([data], { type: 'application/json' }));
   a.download = filename;
   a.click();
+  backupDone();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+function backupDone() {
+  if (C()) { C().lastBackup = today(); saveConfig(); }
+  toast('Backup salvo. Guarde o arquivo num lugar seguro.');
+  render();
 }
 // Restaurar: grava de volta cada parte (na página, documento por documento).
 function restoreData(data) {
@@ -1543,7 +1571,15 @@ const actions = {
   'edit-reward': el => withPin(() => editReward(el.dataset.id)),
   'new-agenda': el => editAgenda(undefined, { ...(el.dataset.day ? { date: el.dataset.day } : {}), ...(el.dataset.kind ? { kind: el.dataset.kind } : {}) }),
   'edit-agenda': el => editAgenda(el.dataset.id),
-  'del-agenda': el => askConfirm('Excluir este lembrete?', () => { delete S.agenda[el.dataset.id]; saveAgenda(el.dataset.id); render(); }, 'Excluir'),
+  'del-agenda': el => {
+    const id = el.dataset.id, a = S.agenda[id];
+    if (!a) return;
+    askConfirm(`Excluir “${a.title}” de ${dayLabel(a.date).toLowerCase()}${a.time ? ' às ' + a.time : ''}?`, () => {
+      const copy = clone(a);
+      delete S.agenda[id]; saveAgenda(id); render();
+      toast('Excluído', false, { label: 'Desfazer', run: () => { S.agenda[id] = copy; saveAgenda(id); render(); toast('Voltou para a agenda'); } });
+    }, 'Excluir');
+  },
   'del-member': el => removeFrom('members', el.dataset.id, `Excluir ${member(el.dataset.id)?.name}? As tarefas só dessa pessoa também saem.`),
   'del-task': el => removeFrom('tasks', el.dataset.id, 'Excluir esta tarefa de vez?'),
   'del-reward': el => removeFrom('rewards', el.dataset.id, 'Excluir este prêmio?'),
@@ -1571,14 +1607,21 @@ document.addEventListener('click', e => {
 
 // ---------- Efeitos ----------
 let toastTimer;
-function toast(msg, withMascot = false) {
+function toast(msg, withMascot = false, action = null) {
   document.querySelector('.toast')?.remove();
   const el = document.createElement('div');
   el.className = 'toast';
   el.innerHTML = (withMascot ? tucano() : '') + `<span>${esc(msg)}</span>`;
+  if (action) {
+    const b = document.createElement('button');
+    b.className = 'toast-action';
+    b.textContent = action.label;
+    b.addEventListener('click', () => { el.remove(); action.run(); });
+    el.appendChild(b);
+  }
   document.body.appendChild(el);
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.remove(), 2400);
+  toastTimer = setTimeout(() => el.remove(), action ? 8000 : 2400);
 }
 function celebrate(msg, big = false) {
   toast(msg, true);

@@ -380,3 +380,9 @@ dialog h2 { font-size: 1.15rem; margin-bottom: 14px; }
   .notice .tucano { width: 44px; }
 }
 .join-code { font-size: 1.8rem; font-weight: 700; letter-spacing: .2em; text-align: center; margin: 8px 0 14px; }
+.safety-bar { display: flex; gap: 12px; align-items: flex-start; background: var(--danger-soft); color: var(--danger); border: 1px solid currentColor; border-radius: 18px; padding: 14px 16px; margin-bottom: 14px; font-size: .92rem; line-height: 1.4; }
+.safety-bar .ui { flex: none; width: 24px; height: 24px; margin-top: 1px; }
+.safety-bar b { display: block; font-size: 1rem; }
+.backup-card { border-color: var(--accent); background: var(--accent-soft); }
+.backup-card p { margin-bottom: 10px; }
+.toast-action { border: 0; background: var(--accent); color: var(--ink); font-weight: 700; padding: 6px 14px; border-radius: 999px; min-height: 36px; }
