@@ -40,7 +40,7 @@ function familySeed() {
     ],
     tasks,
     focus: HOUSE_FOCUS,
-    approval: true,
+    approval: false,
     rewards: [
       { id: id(), title: 'Escolher a brincadeira da tarde', icon: 'brinquedos', cost: 60 },
       { id: id(), title: 'Escolher um jogo em família', icon: 'jogo', cost: 60 },
