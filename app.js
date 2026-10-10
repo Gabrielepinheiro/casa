@@ -883,7 +883,7 @@ function trashSettings() {
 }
 
 // ---------- Cardápio, receitas e lista de compras ----------
-let menuWeek = mondayOf(today()), menuView = 'semana', pendingRecipePhoto;
+let menuWeek = mondayOf(today()), menuView = 'semana', recipeFilter = 'todas', pendingRecipePhoto;
 const menuDoc = w => S.menus[w] || { week: w, days: {} };
 // Durante a semana é só jantar (o almoço é a sobra da noite); fim de semana tem almoço. Dá para ligar o almoço em qualquer dia.
 const hasLunch = (w, k) => menuDoc(w).days?.[k]?.lunch ?? [0, 6].includes(parseDay(k).getDay());
@@ -975,13 +975,21 @@ function useTemplate() {
 
 // Receitas: ingredientes um por linha ("2 tomates", "200 g de queijo", "1 xícara de arroz").
 function viewRecipes() {
-  const rs = Object.values(S.recipes).sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || a.name.localeCompare(b.name));
-  return `<div class="row-btns top"><button class="btn win" data-action="deu-certo">${ui('coracao')} Deu certo!</button>
-    <button class="btn primary" data-action="edit-recipe">${ui('mais')} Receita</button></div>
+  const all = Object.values(S.recipes), toTry = all.filter(r => r.status === 'testar').length;
+  const rs = all.filter(r => recipeFilter === 'testar' ? r.status === 'testar' : recipeFilter === 'favoritas' ? r.fav : true)
+    .sort((a, b) => (b.fav ? 1 : 0) - (a.fav ? 1 : 0) || (b.created || 0) - (a.created || 0) || a.name.localeCompare(b.name));
+  const filters = [['todas', `Todas (${all.length})`], ['testar', `Para testar (${toTry})`], ['favoritas', 'Favoritas']]
+    .map(([v, l]) => `<button class="chip ${recipeFilter === v ? 'on' : ''}" data-action="recipe-filter" data-v="${v}">${l}</button>`).join('');
+  return `<div class="row-btns top"><button class="btn primary" data-action="paste-recipe">${ui('link')} Colar link de receita</button>
+    <button class="btn win" data-action="deu-certo">${ui('coracao')} Deu certo!</button>
+    <button class="btn soft" data-action="edit-recipe">${ui('mais')} Receita</button></div>
+    ${all.length ? `<div class="chips">${filters}</div>` : ''}
     ${rs.length ? `<div class="recipes">${rs.map(r => `<button class="card recipe" data-action="show-recipe" data-id="${r.id}">
-      ${r.photo ? `<img src="${esc(r.photo)}" alt="">` : `<span class="ph big">${ui('cardapio')}</span>`}
-      <b>${r.fav ? ui('coracao', 'fav') : ''}${esc(r.name)}</b>${likedRow(r)}<small>${ingredientLines(r).length ? `${ingredientLines(r).length} ingredientes` : r.note ? esc(r.note.slice(0, 60)) : 'Só a foto'}${r.link ? ' · tem link' : ''}</small></button>`).join('')}</div>`
-    : `<div class="empty-page">${tucano('big')}<p>Nenhuma receita ainda.</p><p class="muted">Fez algo que as crianças amaram? Toque em <b>Deu certo!</b>, tire a foto e anote o tempero. Ou cadastre as receitas que vocês sempre fazem, com foto e link do Instagram. Depois é só escolher no cardápio e a lista de compras sai pronta.</p></div>`}`;
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="">` : `<span class="ph big">${ui(r.link ? 'link' : 'cardapio')}</span>`}
+      ${r.status === 'testar' ? '<span class="try-tag">Para testar</span>' : ''}
+      <b>${r.fav ? ui('coracao', 'fav') : ''}${esc(r.name)}</b>${likedRow(r)}<small>${ingredientLines(r).length ? `${ingredientLines(r).length} ingredientes${r.link ? ' · tem link' : ''}` : r.note ? esc(r.note.slice(0, 60)) : r.link ? esc(siteOf(r.link)) : 'Só a foto'}</small></button>`).join('')}</div>`
+    : all.length ? `<p class="muted pad">Nada aqui ainda.${recipeFilter === 'testar' ? ' Viu uma receita boa no Instagram ou num site? Copie o link e toque em <b>Colar link de receita</b>.' : ''}</p>`
+    : `<div class="empty-page">${tucano('big')}<p>Nenhuma receita ainda.</p><p class="muted">Viu uma receita boa no Instagram ou num site? Copie o link e toque em <b>Colar link de receita</b>: ela fica guardada em <b>Para testar</b>.</p><p class="muted">Fez algo que as crianças amaram? Toque em <b>Deu certo!</b>, tire a foto e anote o tempero. Ou cadastre as receitas que vocês sempre fazem, com foto e link do Instagram. Depois é só escolher no cardápio e a lista de compras sai pronta.</p></div>`}`;
 }
 const likedRow = r => r.likedBy?.length ? `<span class="liked-row">${r.likedBy.map(id => member(id)).filter(Boolean).map(m => avatar(m, 'mini')).join('')}</span>` : '';
 // "Deu certo!": foto do prato, o que deu certo e quem gostou. Vira uma receita favorita, sem precisar dos ingredientes.
@@ -996,7 +1004,7 @@ function deuCerto() {
     fd => {
       const key = uid();
       S.recipes[key] = { id: key, name: fd.get('name').trim(), link: '', servings: '', ingredients: '', steps: '', fav: true,
-        photo: pendingRecipePhoto || '', note: fd.get('note').trim(), likedBy: fd.getAll('members'), madeOn: today() };
+        photo: pendingRecipePhoto || '', note: fd.get('note').trim(), likedBy: fd.getAll('members'), madeOn: today(), status: '', created: Date.now() };
       pendingRecipePhoto = undefined;
       saveItem('recipes', key);
       celebrate('Guardado nas receitas!');
@@ -1013,7 +1021,62 @@ function showRecipe(id) {
     ${r.servings ? `<p class="muted">Rende ${esc(r.servings)} porções</p>` : ''}
     ${ingredientLines(r).length ? `<h3 class="sub-title">Ingredientes</h3><ul class="ing-list">${ingredientLines(r).map(l => `<li>${esc(l)}</li>`).join('')}</ul>` : ''}
     ${r.steps ? `<h3 class="sub-title">Modo de preparo</h3><p class="steps">${esc(r.steps)}</p>` : ''}`,
-    null, '', `<button type="button" class="btn soft" data-action="edit-recipe" data-id="${id}">${ui('lapis')} Editar</button>`);
+    null, '', `<button type="button" class="btn soft" data-action="edit-recipe" data-id="${id}">${ui('lapis')} Editar</button>
+      ${r.status === 'testar' ? `<button type="button" class="btn win" data-action="recipe-tested" data-id="${id}">${ui('coracao')} Testei e deu certo</button>` : ''}`);
+}
+// "Colar link": guarda a ideia na hora. Se colar também o texto (a legenda do Instagram ou a receita do site),
+// o app separa sozinho o nome, os ingredientes e o modo de preparo.
+function nameFromUrl(link) {
+  try {
+    const u = new URL(link);
+    if (/instagram\.com|tiktok\.com|youtube\.com|youtu\.be|facebook\.com|pinterest\./.test(u.hostname)) return '';
+    const seg = u.pathname.split('/').filter(x => x && !/^\d+$/.test(x) && !/^(receita|receitas|recipe|recipes|rezept|rezepte)$/i.test(x)).pop() || '';
+    const name = decodeURIComponent(seg).replace(/\.[a-z]+$/i, '').replace(/[-_]+/g, ' ').replace(/\s+\d+$/, '').trim();
+    return name.length > 2 ? name[0].toUpperCase() + name.slice(1) : '';
+  } catch (e) { return ''; }
+}
+const siteOf = link => { try { return new URL(link).hostname.replace(/^www\./, ''); } catch (e) { return ''; } };
+function parseRecipeText(text) {
+  const clean = l => l.replace(/^[^\p{L}\p{N}½¼¾]+/u, '').replace(/[^\p{L}\p{N}.)!?]+$/u, '').replace(/\s+/g, ' ').trim();
+  const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && !/^#/.test(l));
+  const isIng = l => /^[-•*·▪️✔️✅🔸🔹]?\s*(\d|½|¼|¾|meia|meio|uma?\s|duas?\s|três\s|pitada|sal\b|a gosto)/iu.test(l) || /a gosto\b/i.test(l);
+  let mode = 'auto', name = '', servings = '';
+  const ing = [], steps = [];
+  lines.forEach((raw, i) => {
+    const l = clean(raw);
+    if (!l) return;
+    if (/^ingredientes?\b|^zutaten\b|^ingredients?\b/i.test(l) && l.length < 40) { mode = 'ing'; return; }
+    if (/^(modo de (preparo|fazer)|preparo|como fazer|instruç|passo a passo|zubereitung|method|directions|instructions)/i.test(l) && l.length < 40) { mode = 'steps'; return; }
+    const serv = l.match(/^(rende|serve|porções|portionen|serves)\D{0,12}(\d+)/i);
+    if (serv && l.length < 40) { servings = serv[2]; return; }
+    if (i === 0 && !isIng(raw) && l.length < 80) { name = l; return; }
+    if (mode === 'ing' || (mode === 'auto' && isIng(raw))) ing.push(l);
+    else steps.push(l);
+  });
+  return { name, servings, ingredients: ing.join('\n'), steps: steps.join('\n') };
+}
+function pasteRecipe() {
+  pendingRecipePhoto = undefined;
+  openDlg(`${ui('link')} Colar link de receita`,
+    field('Link (Instagram, site, YouTube…)', `<input type="url" id="f-plink" name="link" placeholder="https://…" autocomplete="off">`, 'f-plink') +
+    field('Nome (opcional)', `<input type="text" id="f-pname" name="name" placeholder="Ex.: Bolo de cenoura da vó">`, 'f-pname') +
+    field('Texto da receita (opcional)', `<textarea id="f-ptext" name="text" rows="6" placeholder="Cole aqui a legenda do post ou a receita do site. O app separa os ingredientes e o modo de preparo."></textarea>`, 'f-ptext') +
+    `<div class="field"><span>Foto (opcional)</span><div class="photo-row"><span class="recipe-thumb ph">${ui('foto')}</span>
+      <label class="btn soft">${ui('foto')} Print ou foto<input type="file" id="f-rphoto" accept="image/*" hidden></label></div></div>` +
+    `<div class="field"><div class="opts"><label><input type="radio" name="status" value="testar" checked> Para testar</label>
+      <label><input type="radio" name="status" value=""> A gente já faz</label></div></div>`,
+    fd => {
+      const link = fd.get('link').trim(), text = fd.get('text').trim();
+      if (!link && !text) { toast('Cole o link ou o texto da receita'); return false; }
+      const parsed = text ? parseRecipeText(text) : { name: '', ingredients: '', steps: '' };
+      const name = fd.get('name').trim() || parsed.name || nameFromUrl(link) || (siteOf(link) ? `Receita do ${siteOf(link)}` : 'Receita para testar');
+      const key = uid();
+      S.recipes[key] = { id: key, name, link, servings: parsed.servings || '', ingredients: parsed.ingredients, steps: parsed.steps, fav: false, photo: pendingRecipePhoto || '',
+        note: '', likedBy: [], status: fd.get('status') || '', created: Date.now() };
+      pendingRecipePhoto = undefined;
+      saveItem('recipes', key);
+      toast(fd.get('status') ? 'Guardada em Para testar' : 'Receita guardada');
+    }, 'Guardar');
 }
 function editRecipe(id) {
   const r = S.recipes[id] || { name: '', link: '', servings: '', ingredients: '', steps: '', fav: false, photo: '' };
@@ -1028,13 +1091,14 @@ function editRecipe(id) {
     field('Modo de preparo (opcional)', `<textarea id="f-rsteps" name="steps" rows="5">${esc(r.steps)}</textarea>`, 'f-rsteps') +
     field('O que deu certo (opcional)', `<textarea id="f-rnote" name="note" rows="2" placeholder="Ex.: tempero de alho, páprica e limão">${esc(r.note || '')}</textarea>`, 'f-rnote') +
     `<div class="field"><span>Quem gostou</span>${memberChecks(r.likedBy || [])}</div>` +
-    `<div class="field"><div class="opts"><label><input type="checkbox" name="fav" ${r.fav ? 'checked' : ''}> Favorita (a gente sempre faz)</label></div></div>`,
+    `<div class="field"><div class="opts"><label><input type="checkbox" name="fav" ${r.fav ? 'checked' : ''}> Favorita (a gente sempre faz)</label>
+      <label><input type="checkbox" name="totry" ${r.status === 'testar' ? 'checked' : ''}> Ainda vamos testar</label></div></div>`,
     fd => {
       const key = id || uid();
       const photo = fd.has('nophoto') ? '' : pendingRecipePhoto ?? r.photo ?? '';
       S.recipes[key] = { id: key, name: fd.get('name').trim(), link: fd.get('link').trim(), servings: fd.get('servings').trim(),
         ingredients: fd.get('ingredients').trim(), steps: fd.get('steps').trim(), fav: fd.has('fav'), photo,
-        note: fd.get('note').trim(), likedBy: fd.getAll('members'), madeOn: r.madeOn || '' };
+        note: fd.get('note').trim(), likedBy: fd.getAll('members'), madeOn: r.madeOn || '', status: fd.has('totry') ? 'testar' : '', created: r.created || Date.now() };
       pendingRecipePhoto = undefined;
       saveItem('recipes', key);
       toast('Receita salva');
@@ -1732,6 +1796,14 @@ const actions = {
   },
   'edit-recipe': el => editRecipe(el.dataset.id),
   'deu-certo': () => deuCerto(),
+  'paste-recipe': () => pasteRecipe(),
+  'recipe-filter': el => { recipeFilter = el.dataset.v; render(); },
+  'recipe-tested': el => {
+    const r = S.recipes[el.dataset.id];
+    if (!r) return;
+    S.recipes[r.id] = { ...r, status: '', fav: true, madeOn: today() };
+    saveItem('recipes', r.id); dlg.close(); render(); celebrate('Agora está nas favoritas!');
+  },
   'new-faxina': () => editFaxina(),
   'edit-faxina': el => editFaxina(el.dataset.id),
   'del-faxina': el => askConfirm('Excluir esta anotação?', () => { delete S.faxina[el.dataset.id]; saveItem('faxina', el.dataset.id); render(); }, 'Excluir'),

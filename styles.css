@@ -406,3 +406,5 @@ dialog h2 { font-size: 1.15rem; margin-bottom: 14px; }
   body.printing > *:not(.print-sheet) { display: none !important; }
   body.printing .print-sheet { display: block; font: 14pt/1.6 Poppins, sans-serif; white-space: pre-wrap; color: #000; }
 }
+.recipe { position: relative; }
+.try-tag { position: absolute; top: 16px; left: 16px; background: var(--accent); color: var(--ink); font-size: .7rem; font-weight: 700; border-radius: 999px; padding: 2px 10px; }
