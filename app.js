@@ -20,6 +20,8 @@ const tucano = (cls = '') => `<svg class="tucano ${cls}" viewBox="0 0 130 120" a
 
 // Ícones de interface (traço simples).
 const UI = {
+  vassoura: '<path d="M18 3l-6 10"/><path d="M6 12l9 4.5-3 6.5-9-4.5z"/><path d="M6 17.5l1.5-3M9.5 19.5l1.5-3"/>',
+  lixo: '<path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>',
   alerta: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>',
   dia: '<path d="M5 12l4 4 10-10"/><rect x="3" y="3" width="18" height="18" rx="4"/>',
   semana: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
@@ -75,9 +77,9 @@ const monthOf = k => k.slice(0, 7);
 // config: pessoas, tarefas, prêmios e PIN · days: o que foi feito e as notas de cada dia
 // agenda: compromissos e lembretes · ledger: prêmios trocados e pontos extras · archive: pontos de dias antigos
 let S = { config: null, days: {}, agenda: {}, ledger: {}, archive: { points: {}, through: '' },
-  priorities: {}, recipes: {}, menus: {}, shopping: {}, templates: {}, recados: {} };
+  priorities: {}, recipes: {}, menus: {}, shopping: {}, templates: {}, recados: {}, faxina: {} };
 // Coleções simples (um documento por item), guardadas do mesmo jeito.
-const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates', 'recados'];
+const COLLECTIONS = ['agenda', 'priorities', 'recipes', 'menus', 'shopping', 'templates', 'recados', 'faxina'];
 let mode = 'loading', db = null, loaded = false, saveFailed = false;
 // No app próprio (SvelteKit + Supabase) a página informa a conta da família.
 const ACCOUNT = window.familyAccount || null;
@@ -455,7 +457,7 @@ function viewDayScreen() {
       ${!m.adult && real.length && done === real.length ? `<div class="alldone">${tucano()}<b>Tudo feito!</b></div>` : ''}
     </section>`;
   }).join('');
-  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${backupCard()}${approvalsCard()}${prioritiesCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: ${houseOpen ? 'minmax(280px, 1.3fr)' : 'minmax(170px, .6fr)'} ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
+  return `${nav}${editBanner}${futureHint}${banner}${isToday ? `<div class="top-cards">${trashCard()}${backupCard()}${approvalsCard()}${prioritiesCard()}${faxinaCard()}${notesCard()}</div>` : approvalsCard()}<div class="board-wrap"><div class="board" style="grid-template-columns: ${houseOpen ? 'minmax(280px, 1.3fr)' : 'minmax(170px, .6fr)'} ${members().map(m => m.adult ? 'minmax(190px, .75fr)' : 'minmax(220px, 1.15fr)').join(' ')}">${houseCol}${cols}</div></div>`;
 }
 
 // ---------- Casa: panorama da semana ----------
@@ -488,7 +490,7 @@ function viewHouse() {
       ${houseGroups(k, items)}</section>`;
   }).join('');
   const focus = C()?.focus?.[parseDay(k).getDay()];
-  return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? `<div class="top-cards">${healthCard()}${prioritiesCard()}</div>` : ''}
+  return `${nav}<div class="day-chips">${chips}</div>${from === mondayOf(today()) ? `<div class="top-cards">${healthCard()}${prioritiesCard()}${faxinaCard(true)}</div>` : ''}
     ${k > today() && !editMode ? `<section class="hint">${ui('agenda')}<div>${esc(dayLabel(k))} ainda não chegou. Aqui você vê o que precisa ser feito. Use <b>Editar</b> para anotar, tirar ou mudar de dia.</div></section>` : ''}
     ${focus ? `<p class="focus-line">${ui('casa')} Foco de ${esc(WEEKDAY_NAMES[parseDay(k).getDay()])}: <b>${esc(focus)}</b></p>` : ''}
     <div class="groups">${groups || '<section class="card"><p class="muted">Nada da casa neste dia.</p></section>'}</div>`;
@@ -657,6 +659,11 @@ function viewConfig() {
     <div class="section-head"><h2>Prêmios</h2><button class="btn soft" data-action="edit-reward">${ui('mais')} Prêmio</button></div>${rewards}
   </section>
   <section class="card">
+    <h2>Casa</h2>
+    <div class="row-btns"><button class="btn soft" data-action="cleaner-settings">${ui('vassoura')} Faxina: ${cleaner() ? `${esc(WEEKDAY_NAMES[cleaner().weekday])}${cleaner().every === 2 ? ', a cada 2 semanas' : ''}` : 'não tenho'}</button>
+      <button class="btn soft" data-action="trash-settings">${ui('lixo')} Coleta de lixo: ${Object.keys(trash().dates || {}).filter(k => k >= today()).length} datas</button></div>
+  </section>
+  <section class="card">
     <h2>Pontos e segurança</h2>
     <div class="row-btns"><button class="btn soft" data-action="settings">Aprovação dos pais: ${C().approval !== false ? 'ligada' : 'desligada'}</button></div>
     <div class="row-btns"><button class="btn soft" data-action="bonus">Dar ou tirar pontos</button>
@@ -705,6 +712,174 @@ function editPriority(id) {
       saveItem('priorities', key);
     }, 'Salvar',
     id ? `<button type="button" class="btn danger" data-action="del-priority" data-id="${id}">Excluir</button>` : '');
+}
+
+// ---------- Faxina: o que a família vai anotando durante a semana para repassar ----------
+const cleaner = () => C()?.cleaner || null;
+// Próximo dia de faxina a partir de "from" (dia da semana fixo, toda semana ou a cada 2).
+function nextCleaning(from = today()) {
+  const c = cleaner();
+  if (!c || c.weekday === '' || c.weekday == null) return '';
+  let k = from;
+  for (let i = 0; i < 21; i++, k = addDays(k, 1)) {
+    if (parseDay(k).getDay() !== Number(c.weekday)) continue;
+    if ((c.every || 1) === 1 || !c.start) return k;
+    if (Math.round(diffDays(mondayOf(c.start), mondayOf(k)) / 7) % c.every === 0) return k;
+  }
+  return '';
+}
+const faxinaOpen = () => Object.values(S.faxina || {}).filter(f => !f.done).sort((a, b) => (a.created || 0) - (b.created || 0));
+const roomLabel = r => ROOMS.find(x => x[0] === r)?.[1] || 'Geral';
+function faxinaCard(always = false) {
+  const c = cleaner();
+  if (!c && !always) return '';
+  const next = nextCleaning(), list = faxinaOpen();
+  const who = c?.name ? esc(c.name) : 'a faxina';
+  return `<section class="card faxina"><div class="section-head"><h2>${ui('vassoura')} Para ${who}${next ? ` <small>${esc(dayLabel(next).toLowerCase())}${next > addDays(today(), 1) ? ' ' + esc(shortDay(next)) : ''}</small>` : ''}</h2>
+    <button class="btn soft small" data-action="new-faxina">${ui('mais')} Anotar</button></div>
+    ${list.length ? list.map(f => `<div class="prio"><span class="room-tag">${esc(roomLabel(f.room))}</span>
+      <button class="prio-text" data-action="edit-faxina" data-id="${f.id}"><span>${esc(f.text)}</span></button></div>`).join('')
+      : `<p class="muted pad">Viu algo que precisa de atenção? Anote aqui durante a semana, por cômodo. No dia, é só mandar a folha.</p>`}
+    <div class="row-btns">${c ? `<button class="btn primary" data-action="faxina-sheet">Folha da faxina</button>` : `<button class="btn soft" data-action="cleaner-settings">Configurar dia da faxina</button>`}</div></section>`;
+}
+function editFaxina(id) {
+  const f = S.faxina[id] || { text: '', room: '' };
+  openDlg(id ? 'Anotação para a faxina' : 'Anotar para a faxina',
+    field('O que precisa', `<input type="text" id="f-ftext" name="text" value="${esc(f.text)}" required placeholder="Ex.: tirar o pó do rodapé, vidro da varanda">`, 'f-ftext') +
+    `<div class="field"><span>Cômodo</span><div class="opts"><label><input type="radio" name="room" value="" ${f.room ? '' : 'checked'}> Geral</label>
+      ${ROOMS.filter(r => r[0] !== 'carro').map(([k, l]) => `<label><input type="radio" name="room" value="${k}" ${f.room === k ? 'checked' : ''}> ${l}</label>`).join('')}</div></div>`,
+    fd => {
+      const key = id || uid();
+      S.faxina[key] = { ...f, id: key, text: fd.get('text').trim(), room: fd.get('room') || '', created: f.created || Date.now(), done: false };
+      saveItem('faxina', key);
+      if (!id) toast('Anotado para a próxima faxina');
+    }, 'Salvar',
+    id ? `<button type="button" class="btn danger" data-action="del-faxina" data-id="${id}">Excluir</button>` : '');
+}
+// Folha do dia: texto pronto para mandar por mensagem ou imprimir, no idioma da pessoa.
+const SHEET_TEXT = {
+  pt: { title: 'Faxina', prio: 'Prioridades desta vez', always: 'Sempre lembrar', general: 'Geral', thanks: 'Obrigada!' },
+  de: { title: 'Putzen', prio: 'Diesmal bitte besonders', always: 'Bitte immer beachten', general: 'Allgemein', thanks: 'Vielen Dank!' },
+  en: { title: 'Cleaning', prio: 'Priorities this time', always: 'Always remember', general: 'General', thanks: 'Thank you!' },
+};
+const ROOM_NAMES = {
+  de: { cozinha: 'Küche', banheiros: 'Bäder', quartos: 'Schlafzimmer', sala: 'Wohnzimmer', lavanderia: 'Wäsche', escritorio: 'Arbeitszimmer', externa: 'Garten und Keller' },
+  en: { cozinha: 'Kitchen', banheiros: 'Bathrooms', quartos: 'Bedrooms', sala: 'Living room', lavanderia: 'Laundry', escritorio: 'Office', externa: 'Garden and cellar' },
+};
+function faxinaSheetText(lang) {
+  const T = SHEET_TEXT[lang] || SHEET_TEXT.pt, c = cleaner() || {}, next = nextCleaning();
+  const date = next ? parseDay(next).toLocaleDateString({ pt: 'pt-BR', de: 'de-DE', en: 'en-GB' }[lang] || 'pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' }) : '';
+  const byRoom = {};
+  faxinaOpen().forEach(f => (byRoom[f.room || ''] ||= []).push(f.text));
+  const name = r => r ? (ROOM_NAMES[lang]?.[r] || roomLabel(r)) : T.general;
+  let out = `${T.title}${date ? ' – ' + date : ''}\n`;
+  const rooms = Object.keys(byRoom);
+  if (rooms.length) out += `\n${T.prio}:\n` + rooms.map(r => `\n${name(r)}\n` + byRoom[r].map(t => `☐ ${t}`).join('\n')).join('\n') + '\n';
+  if (c.always?.trim()) out += `\n${T.always}:\n${c.always.trim()}\n`;
+  return out + `\n${T.thanks}`;
+}
+function faxinaSheet(lang) {
+  lang ||= cleaner()?.lang || 'pt';
+  const text = faxinaSheetText(lang);
+  openDlg('Folha da faxina',
+    `<div class="chips">${[['pt', 'Português'], ['de', 'Deutsch'], ['en', 'English']].map(([k, l]) => `<button type="button" class="chip ${k === lang ? 'on' : ''}" data-action="faxina-lang" data-v="${k}">${l}</button>`).join('')}</div>
+    <textarea id="f-sheet" class="sheet-text" rows="14" readonly>${esc(text)}</textarea>
+    <p class="legend">As anotações vão como você escreveu. A data, os cômodos e os títulos mudam de idioma.</p>`,
+    null, '', `<button type="button" class="btn soft" data-action="faxina-copy">Copiar texto</button>
+      <button type="button" class="btn soft" data-action="faxina-print">Imprimir</button>
+      <button type="button" class="btn primary" data-action="faxina-done">Faxina feita</button>`);
+}
+function cleanerSettings() {
+  const c = cleaner() || { name: '', weekday: 5, every: 1, start: today(), lang: 'pt', always: '' };
+  openDlg('Faxina',
+    field('Nome (opcional)', `<input type="text" id="f-cname" name="name" value="${esc(c.name)}" placeholder="Ex.: Maria">`, 'f-cname') +
+    `<div class="field-row">${field('Dia', `<select id="f-cday" name="weekday">${opt(WEEK_ORDER.map(d => [String(d), WEEKDAY_NAMES[d]]), String(c.weekday))}</select>`, 'f-cday')}
+      ${field('Vem', `<select id="f-cevery" name="every">${opt([['1', 'toda semana'], ['2', 'a cada 2 semanas']], String(c.every || 1))}</select>`, 'f-cevery')}
+      ${field('Idioma da folha', `<select id="f-clang" name="lang">${opt([['pt', 'Português'], ['de', 'Deutsch'], ['en', 'English']], c.lang || 'pt')}</select>`, 'f-clang')}</div>` +
+    field('Próxima vez (para contar a cada 2 semanas)', `<input type="date" id="f-cstart" name="start" value="${esc(c.start || today())}">`, 'f-cstart') +
+    field('Sempre lembrar (vai em toda folha)', `<textarea id="f-calways" name="always" rows="3" placeholder="Ex.: Não usar vinagre na bancada de mármore.">${esc(c.always || '')}</textarea>`, 'f-calways'),
+    fd => {
+      C().cleaner = { name: fd.get('name').trim(), weekday: Number(fd.get('weekday')), every: Number(fd.get('every')), lang: fd.get('lang'),
+        start: fd.get('start') || today(), always: fd.get('always').trim() };
+      saveConfig();
+    }, 'Salvar', cleaner() ? '<button type="button" class="btn danger" data-action="cleaner-off">Não tenho mais faxina</button>' : '');
+}
+
+// ---------- Coleta de lixo: datas da prefeitura e aviso na noite anterior ----------
+const BINS = {
+  rest: ['Lixo comum', 'Restmüll', '#5b6170'], bio: ['Orgânico', 'Bio', '#8a5d3b'], papier: ['Papel', 'Papier', '#3b7dd8'],
+  gelb: ['Embalagens', 'Gelber Sack', '#e8b923'], glas: ['Vidro', 'Glas', '#3fa57f'], sperr: ['Volumosos', 'Sperrmüll', '#f4845f'],
+  schad: ['Tóxicos', 'Schadstoffe', '#b5485d'], outro: ['Outro', '', '#9aa0b4'],
+};
+const trash = () => C()?.trash || { dates: {} };
+const binChip = b => `<span class="bin"><i style="background:${BINS[b]?.[2] || '#9aa0b4'}"></i>${esc(BINS[b]?.[0] || b)}${BINS[b]?.[1] ? ` <small>${BINS[b][1]}</small>` : ''}</span>`;
+const pickupsOn = k => trash().dates?.[k] || [];
+function trashCard() {
+  const tomorrow = addDays(today(), 1), t = trash(), owner = member(t.owner);
+  const tw = pickupsOn(tomorrow), td = pickupsOn(today());
+  const show = tw.length && !S.days[tomorrow]?.trashOut ? [tomorrow, tw, 'Amanhã passa o caminhão', 'Colocar para fora hoje à noite']
+    : td.length && !S.days[today()]?.trashOut ? [today(), td, 'Hoje passa o caminhão', 'Se ainda não colocou, coloque agora'] : null;
+  if (!show) return '';
+  const [k, bins, title, sub] = show;
+  return `<section class="card trash"><div class="section-head"><h2>${ui('lixo')} ${title}</h2></div>
+    <div class="bins">${bins.map(binChip).join('')}</div>
+    <p class="muted">${owner ? `${avatar(owner, 'mini')} <b>${esc(owner.name)}</b>: ` : ''}${sub}.</p>
+    <button class="btn primary" data-action="trash-out" data-day="${k}">${ui('ok')} Já está na rua</button></section>`;
+}
+// Lê o calendário de coleta (.ics) que a prefeitura ou a empresa de lixo oferece para baixar.
+function binOf(summary) {
+  const s = summary.toLowerCase();
+  return /bio|kompost/.test(s) ? 'bio' : /papier|papp|ppk|blau/.test(s) ? 'papier' : /gelb|wertstoff|verpack|lvp/.test(s) ? 'gelb'
+    : /rest|grau|schwarz/.test(s) ? 'rest' : /sperr/.test(s) ? 'sperr' : /glas/.test(s) ? 'glas' : /schadstoff|problem|giftmobil/.test(s) ? 'schad' : 'outro';
+}
+function parseIcs(text) {
+  const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/), out = [];
+  let ev = null;
+  for (const l of lines) {
+    if (l === 'BEGIN:VEVENT') ev = {};
+    else if (l === 'END:VEVENT') { if (ev?.date) out.push(ev); ev = null; }
+    else if (ev && /^DTSTART/.test(l)) { const m = l.match(/:(\d{4})(\d{2})(\d{2})/); if (m) ev.date = `${m[1]}-${m[2]}-${m[3]}`; }
+    else if (ev && /^SUMMARY/.test(l)) ev.bin = binOf(l.slice(l.indexOf(':') + 1).replace(/\\,/g, ','));
+  }
+  return out;
+}
+function addPickups(list) {
+  const t = C().trash = { owner: '', ...trash(), dates: { ...trash().dates } };
+  let n = 0;
+  list.forEach(({ date, bin }) => {
+    if (date < addDays(today(), -7)) return;
+    const d = t.dates[date] ||= [];
+    if (!d.includes(bin)) { d.push(bin); n++; }
+  });
+  saveConfig();
+  return n;
+}
+function trashSettings() {
+  const t = trash(), upcoming = Object.keys(t.dates || {}).filter(k => k >= today()).sort().slice(0, 6);
+  openDlg('Coleta de lixo',
+    `<p class="legend">O jeito mais fácil: no site da sua cidade (ou da empresa do lixo), baixe o <b>Abfuhrkalender</b> como arquivo <b>.ics</b> e importe aqui. Ou crie uma regra simples abaixo.</p>
+    <div class="row-btns"><button type="button" class="btn primary" data-action="trash-import">Importar calendário (.ics)</button></div>
+    <h3 class="sub-title">Ou uma regra</h3>
+    <div class="field-row">${field('Tipo', `<select id="f-tbin" name="bin">${opt(Object.entries(BINS).filter(([k]) => k !== 'outro').map(([k, v]) => [k, v[0] + ' · ' + v[1]]), 'rest')}</select>`, 'f-tbin')}
+      ${field('Dia', `<select id="f-tday" name="weekday">${opt(WEEK_ORDER.map(d => [String(d), WEEKDAY_NAMES[d]]), '2')}</select>`, 'f-tday')}
+      ${field('A cada', `<select id="f-tevery" name="every">${opt([['1', 'semana'], ['2', '2 semanas'], ['4', '4 semanas']], '2')}</select>`, 'f-tevery')}</div>
+    ${field('Próxima coleta (para contar)', `<input type="date" id="f-tstart" name="start" value="${today()}">`, 'f-tstart')}
+    <div class="field"><span>Quem coloca o lixo na rua (opcional)</span><div class="opts"><label><input type="radio" name="owner" value="" ${t.owner ? '' : 'checked'}> Quem vir primeiro</label>
+      ${members().filter(m => m.adult).map(m => `<label><input type="radio" name="owner" value="${m.id}" ${t.owner === m.id ? 'checked' : ''}>${avatar(m, 'mini')} ${esc(m.name)}</label>`).join('')}</div></div>
+    ${upcoming.length ? `<h3 class="sub-title">Próximas coletas</h3><ul class="pickups">${upcoming.map(k => `<li><b>${esc(shortDay(k))}</b> ${esc(WEEKDAY_NAMES[parseDay(k).getDay()])} ${t.dates[k].map(binChip).join('')}</li>`).join('')}</ul>` : ''}`,
+    fd => {
+      C().trash = { ...trash(), owner: fd.get('owner') || '' };
+      const start = fd.get('start'), rule = fd.get('bin');
+      if (start && rule && dlgForm.dataset.addRule === '1') {
+        const every = Number(fd.get('every')), wd = Number(fd.get('weekday'));
+        let k = start;
+        while (parseDay(k).getDay() !== wd) k = addDays(k, 1);
+        const list = [];
+        for (; k <= addDays(today(), 366); k = addDays(k, 7 * every)) list.push({ date: k, bin: rule });
+        toast(`${addPickups(list)} coletas adicionadas`);
+      } else saveConfig();
+    }, 'Salvar',
+    `<button type="button" class="btn soft" data-action="trash-rule">Adicionar regra</button>${upcoming.length ? '<button type="button" class="btn danger" data-action="trash-clear">Apagar datas</button>' : ''}`);
 }
 
 // ---------- Cardápio, receitas e lista de compras ----------
@@ -1557,6 +1732,49 @@ const actions = {
   },
   'edit-recipe': el => editRecipe(el.dataset.id),
   'deu-certo': () => deuCerto(),
+  'new-faxina': () => editFaxina(),
+  'edit-faxina': el => editFaxina(el.dataset.id),
+  'del-faxina': el => askConfirm('Excluir esta anotação?', () => { delete S.faxina[el.dataset.id]; saveItem('faxina', el.dataset.id); render(); }, 'Excluir'),
+  'faxina-sheet': () => faxinaSheet(),
+  'faxina-lang': el => faxinaSheet(el.dataset.v),
+  'faxina-copy': async () => {
+    const ta = $('#f-sheet');
+    try { await navigator.clipboard.writeText(ta.value); toast('Copiado. Cole na conversa com ela.'); }
+    catch (e) { ta.removeAttribute('readonly'); ta.select(); try { document.execCommand('copy'); toast('Copiado. Cole na conversa com ela.'); } catch (x) { toast('Selecione o texto e copie'); } ta.setAttribute('readonly', ''); }
+  },
+  'faxina-print': () => {
+    const box = document.createElement('pre');
+    box.className = 'print-sheet';
+    box.textContent = $('#f-sheet').value;
+    document.body.appendChild(box);
+    document.body.classList.add('printing');
+    try { window.print(); } catch (e) { toast('Não deu para imprimir daqui. Use Copiar texto.'); }
+    setTimeout(() => { document.body.classList.remove('printing'); box.remove(); }, 500);
+  },
+  'faxina-done': () => askConfirm('A faxina foi feita? As anotações saem da lista (ficam guardadas no histórico).', () => {
+    faxinaOpen().forEach(f => { S.faxina[f.id] = { ...f, done: true, doneOn: today() }; saveItem('faxina', f.id); });
+    dlg.close(); render(); toast('Faxina feita!');
+  }, 'Sim, foi feita'),
+  'cleaner-settings': () => cleanerSettings(),
+  'cleaner-off': () => askConfirm('Tirar a faxina do app? As anotações continuam guardadas.', () => { delete C().cleaner; saveConfig(); render(); }, 'Tirar'),
+  'trash-settings': () => { trashSettings(); dlgForm.dataset.addRule = '0'; },
+  'trash-rule': () => { dlgForm.dataset.addRule = '1'; dlgForm.requestSubmit(); },
+  'trash-clear': () => askConfirm('Apagar todas as datas de coleta?', () => { C().trash = { ...trash(), dates: {} }; saveConfig(); render(); }, 'Apagar'),
+  'trash-out': el => { const k = el.dataset.day; S.days[k] = { date: k, done: {}, notes: {}, ...S.days[k], trashOut: true }; saveDay(k); render(); toast('Lixo na rua!'); },
+  'trash-import': () => {
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = '.ics,text/calendar';
+    inp.addEventListener('change', async () => {
+      const file = inp.files[0];
+      if (!file) return;
+      const list = parseIcs(await file.text());
+      if (!list.length) return toast('Não achei datas neste arquivo');
+      const n = addPickups(list);
+      toast(`${n} coletas importadas`);
+      trashSettings(); dlgForm.dataset.addRule = '0';
+    });
+    inp.click();
+  },
   'show-recipe': el => showRecipe(el.dataset.id),
   'del-recipe': el => askConfirm('Excluir esta receita?', () => { delete S.recipes[el.dataset.id]; saveItem('recipes', el.dataset.id); render(); }, 'Excluir'),
   'toggle-shop': el => {

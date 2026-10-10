@@ -391,3 +391,18 @@ dialog h2 { font-size: 1.15rem; margin-bottom: 14px; }
 .liked-row { display: flex; gap: 2px; }
 .win-note { background: var(--accent-soft); border-radius: 14px; padding: 10px 12px; margin: 10px 0; }
 .win-note .liked { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-weight: 600; font-size: .85rem; margin-bottom: 4px; }
+.faxina h2 .ui, .trash h2 .ui { color: var(--accent-ink); }
+.room-tag { flex: none; font-size: .7rem; font-weight: 700; color: var(--muted); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+.sheet-text { width: 100%; font: inherit; font-size: .9rem; line-height: 1.5; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); resize: vertical; margin-top: 8px; }
+.trash { border-color: var(--accent); background: var(--accent-soft); }
+.bins { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 10px; }
+.bin { display: inline-flex; align-items: center; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; font-weight: 600; font-size: .85rem; }
+.bin i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.bin small { color: var(--muted); font-weight: 500; }
+.pickups { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.pickups li { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .85rem; }
+.print-sheet { display: none; }
+@media print {
+  body.printing > *:not(.print-sheet) { display: none !important; }
+  body.printing .print-sheet { display: block; font: 14pt/1.6 Poppins, sans-serif; white-space: pre-wrap; color: #000; }
+}
